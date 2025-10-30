@@ -1,7 +1,7 @@
 # Swiss Residential Perceived Livability Assessment
 ## Fuzzy Inference System Prototype
 
-**Authors**: Hao Wang, CAZZATO Emmanuel  
+**Authors**: Hao Wang, Emmanuel Cazzato  
 **Course**: Urban Computing Seminar
 
 ---
