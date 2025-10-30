@@ -2,7 +2,6 @@
 ## Fuzzy Inference System Prototype
 
 **Authors**: Hao Wang, CAZZATO Emmanuel  
-**Date**: October 2025  
 **Course**: Urban Computing Seminar
 
 ---
@@ -13,12 +12,12 @@ This project implements a **Fuzzy Inference System (FIS)** to assess the perceiv
 
 ### Key Features
 
-- ✅ Mamdani Fuzzy Inference System with 15 expert-defined rules
-- ✅ Membership functions grounded in WHO 2018 and EN 17037 standards
-- ✅ Processing of 500 sample dwellings from Swiss Dwellings v3.0.0 dataset
-- ✅ Fuzzy Livability Index (FLI) on 0-100 scale with linguistic labels
-- ✅ Comprehensive visualizations and validation framework
-- ✅ Detailed literature review and documentation
+- Mamdani Fuzzy Inference System with 15 expert-defined rules
+- Membership functions grounded in WHO 2018 and EN 17037 standards
+- Processing of 500 sample dwellings from Swiss Dwellings v3.0.0 dataset
+- Fuzzy Livability Index (FLI) on 0-100 scale with linguistic labels
+- Comprehensive visualizations and validation framework
+- Detailed literature review and documentation
 
 ---
 
@@ -219,11 +218,11 @@ python3 create_visualizations.py
 
 ### Completed
 
-✅ Prototype implementation with 500 sample dwellings  
-✅ Fuzzy membership functions based on international standards  
-✅ Mamdani FIS with 15 expert-defined rules  
-✅ Comprehensive visualizations  
-✅ Literature review grounding the approach  
+Prototype implementation with 500 sample dwellings  
+Fuzzy membership functions based on international standards  
+Mamdani FIS with 15 expert-defined rules  
+Comprehensive visualizations  
+Literature review grounding the approach  
 
 ### Next Steps for Full Implementation
 
@@ -262,22 +261,3 @@ See `docs/literature_review.md` for comprehensive references.
 - Mendel, J. M. (2002). An architecture for making judgments using computing with words. *IJAMCS*, 12(3), 325-335.
 - WHO (2018). *Environmental Noise Guidelines for the European Region*.
 - EN 17037:2018. *Daylight in Buildings*.
-
----
-
-## Contact
-
-For questions or collaboration:
-
-- **Hao Wang**: [email]
-- **CAZZATO Emmanuel**: [email]
-
----
-
-## License
-
-This project is for academic and research purposes.
-
----
-
-**Last Updated**: October 16, 2025
