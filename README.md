@@ -101,9 +101,4 @@ swiss_livability/
 ## Authors
 
 - Hao Wang
-- CAZZATO Emmanuel
-
-## License
-
-This project is for academic and research purposes.
-
+- Emmanuel Cazzato
