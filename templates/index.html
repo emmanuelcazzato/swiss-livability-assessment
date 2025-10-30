@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Swiss Livability Assessment{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 20px 0;">
+    <h2 style="color: #667eea; margin-bottom: 20px;">Welcome to the Swiss Livability Assessment System</h2>
+    <p style="font-size: 1.2em; color: #666; max-width: 800px; margin: 0 auto 30px;">
+        This system uses <strong>fuzzy logic</strong> and <strong>computing with words</strong> to transform 
+        quantitative environmental measurements into human-understandable livability assessments.
+    </p>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <h3 style="color: #667eea; margin-bottom: 15px;">🎯 What We Assess</h3>
+        <ul style="list-style: none; padding: 0;">
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                <strong>Acoustic Comfort:</strong> Based on WHO 2018 noise guidelines
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                <strong>Daylight Quality:</strong> Based on EN 17037 standards
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                <strong>View Quality:</strong> Sky visibility and greenery exposure
+            </li>
+            <li style="padding: 10px 0;">
+                <strong>Location Convenience:</strong> Accessibility to amenities
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h3 style="color: #667eea; margin-bottom: 15px;">📊 How It Works</h3>
+        <ol style="padding-left: 20px;">
+            <li style="padding: 10px 0;">
+                <strong>Input:</strong> Environmental measurements (noise, daylight, views, POIs)
+            </li>
+            <li style="padding: 10px 0;">
+                <strong>Fuzzification:</strong> Convert numbers to linguistic terms (e.g., "Quiet", "Bright")
+            </li>
+            <li style="padding: 10px 0;">
+                <strong>Inference:</strong> Apply 15 expert-defined fuzzy rules
+            </li>
+            <li style="padding: 10px 0;">
+                <strong>Output:</strong> Fuzzy Livability Index (0-100) with linguistic label
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+    <h3 style="color: white; margin-bottom: 15px;">🏆 Livability Levels</h3>
+    <div class="grid-2">
+        <div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.2em;">Excellent (65-100)</strong>
+                <p style="margin-top: 5px; font-size: 0.9em;">Quiet environment, high daylight, good views</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.2em;">Good (45-75)</strong>
+                <p style="margin-top: 5px; font-size: 0.9em;">Balanced environmental quality</p>
+            </div>
+        </div>
+        <div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.2em;">Fair (25-55)</strong>
+                <p style="margin-top: 5px; font-size: 0.9em;">Moderate quality, some improvements needed</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.2em;">Poor (0-35)</strong>
+                <p style="margin-top: 5px; font-size: 0.9em;">Significant environmental challenges</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{{ url_for('explore') }}" class="btn" style="text-decoration: none; margin: 0 10px;">
+        📊 Explore Dataset
+    </a>
+    <a href="{{ url_for('assess') }}" class="btn" style="text-decoration: none; margin: 0 10px;">
+        🔍 Assess a Dwelling
+    </a>
+</div>
+
+<div class="card" style="margin-top: 30px; background: #f0f4ff; border-left-color: #3b82f6;">
+    <h3 style="color: #3b82f6; margin-bottom: 10px;">📚 About This Project</h3>
+    <p style="line-height: 1.6; color: #555;">
+        This is a proof-of-concept implementation of the Swiss Residential Perceived Livability Assessment Framework, 
+        developed as part of an Urban Computing seminar. The system processes data from the Swiss Dwellings v3.0.0 
+        dataset (45,176 dwellings) and uses a Mamdani Fuzzy Inference System to compute livability scores that 
+        align with human perception.
+    </p>
+</div>
+{% endblock %}
+

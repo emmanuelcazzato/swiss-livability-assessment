@@ -1,0 +1,36 @@
+================================================================================
+SWISS RESIDENTIAL PERCEIVED LIVABILITY ASSESSMENT
+Fuzzy Inference System - Prototype Results
+================================================================================
+
+Dataset: 500 dwellings
+
+FLI Score Statistics:
+count    500.000000
+mean      44.023358
+std       17.567552
+min       13.166667
+25%       32.423203
+50%       50.000000
+75%       54.349878
+max       85.909091
+Name: fli_score, dtype: float64
+
+Linguistic Label Distribution:
+  Good: 275 (55.0%)
+  Poor: 104 (20.8%)
+  Fair: 95 (19.0%)
+  Excellent: 26 (5.2%)
+
+================================================================================
+Standards Applied:
+================================================================================
+WHO 2018 Environmental Noise Guidelines:
+  - Road traffic: Lden < 53 dB, Lnight < 45 dB
+  - Railway: Lden < 54 dB, Lnight < 44 dB
+  - Aircraft: Lden < 45 dB, Lnight < 40 dB
+
+EN 17037 Daylight Provision:
+  - Minimum: 300 lux (target), 100 lux (floor)
+  - Medium: 500 lux (target), 300 lux (floor)
+  - High: 750 lux (target), 500 lux (floor)

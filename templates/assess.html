@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Assess Dwelling - Swiss Livability Assessment{% endblock %}
+
+{% block content %}
+<h2 style="color: #667eea; margin-bottom: 20px;">🔍 Assess Dwelling Livability</h2>
+
+<div class="card">
+    <h3 style="color: #667eea; margin-bottom: 20px;">Enter Environmental Parameters</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        Provide the environmental measurements for a dwelling to compute its Fuzzy Livability Index (FLI).
+    </p>
+    
+    <form id="assessment-form">
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="noise_lden">🔊 Noise Level (Lden) - dB</label>
+                <input type="number" id="noise_lden" name="noise_lden" value="55" min="30" max="85" step="0.1" required>
+                <small style="color: #666;">WHO 2018: <53 dB (Quiet), 53-65 dB (Moderate), >65 dB (Noisy)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="noise_lnight">🌙 Noise Level (Lnight) - dB</label>
+                <input type="number" id="noise_lnight" name="noise_lnight" value="45" min="20" max="75" step="0.1" required>
+                <small style="color: #666;">WHO 2018: <45 dB (Quiet), 45-55 dB (Moderate), >55 dB (Noisy)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="daylight">☀️ Daylight Illuminance - lux</label>
+                <input type="number" id="daylight" name="daylight" value="300" min="0" max="1000" step="1" required>
+                <small style="color: #666;">EN 17037: <100 (Low), 100-300 (Medium), >300 (High)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="view_sky">🌤️ Sky View Factor - sr</label>
+                <input type="number" id="view_sky" name="view_sky" value="0.5" min="0" max="2" step="0.01" required>
+                <small style="color: #666;">Solid angle: <0.4 (Limited), 0.4-0.8 (Moderate), >0.8 (Good)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="view_greenery">🌳 Greenery View - sr</label>
+                <input type="number" id="view_greenery" name="view_greenery" value="0.3" min="0" max="2" step="0.01" required>
+                <small style="color: #666;">Solid angle: <0.3 (Limited), 0.3-0.6 (Moderate), >0.6 (Good)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="poi_count">📍 POI Count (Accessibility)</label>
+                <input type="number" id="poi_count" name="poi_count" value="50" min="0" max="200" step="1" required>
+                <small style="color: #666;">Points of Interest: <30 (Low), 30-80 (Medium), >80 (High)</small>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="submit" class="btn">Compute Fuzzy Livability Index</button>
+            <button type="button" onclick="resetForm()" class="btn btn-secondary" style="margin-left: 10px;">Reset</button>
+        </div>
+    </form>
+</div>
+
+<div id="results" style="display: none;">
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+        <h3 style="color: white; margin-bottom: 20px; text-align: center;">Assessment Results</h3>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="font-size: 1.2em; margin-bottom: 10px;">Fuzzy Livability Index (FLI)</div>
+            <div id="fli-score" style="font-size: 4em; font-weight: bold;">--</div>
+            <div id="fli-label" class="score-badge" style="margin-top: 15px;">--</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3 style="color: #667eea; margin-bottom: 20px;">📊 Dimension Assessments</h3>
+        <div class="grid-2">
+            <div class="feature-box">
+                <h3>🔊 Acoustic Comfort</h3>
+                <div id="assess-noise" class="feature-value" style="font-size: 1.5em;">--</div>
+            </div>
+            <div class="feature-box">
+                <h3>☀️ Daylight Quality</h3>
+                <div id="assess-daylight" class="feature-value" style="font-size: 1.5em;">--</div>
+            </div>
+            <div class="feature-box">
+                <h3>🌤️ Sky View</h3>
+                <div id="assess-view-sky" class="feature-value" style="font-size: 1.5em;">--</div>
+            </div>
+            <div class="feature-box">
+                <h3>🌳 Greenery View</h3>
+                <div id="assess-view-greenery" class="feature-value" style="font-size: 1.5em;">--</div>
+            </div>
+            <div class="feature-box">
+                <h3>📍 Location</h3>
+                <div id="assess-location" class="feature-value" style="font-size: 1.5em;">--</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card" id="recommendations-card">
+        <h3 style="color: #667eea; margin-bottom: 15px;">💡 Recommendations</h3>
+        <ul id="recommendations-list" style="line-height: 1.8;">
+        </ul>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 30px; background: #e8f4f8; border-left-color: #3b82f6;">
+    <h3 style="color: #3b82f6; margin-bottom: 10px;">ℹ️ How to Use</h3>
+    <ol style="line-height: 1.8; padding-left: 20px;">
+        <li>Enter the environmental parameters for your dwelling</li>
+        <li>Click "Compute Fuzzy Livability Index" to run the assessment</li>
+        <li>Review the FLI score (0-100) and linguistic label (Poor/Fair/Good/Excellent)</li>
+        <li>Check the dimension-specific assessments to understand strengths and weaknesses</li>
+        <li>Read the recommendations for potential improvements</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('assessment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            noise_lden: parseFloat(document.getElementById('noise_lden').value),
+            noise_lnight: parseFloat(document.getElementById('noise_lnight').value),
+            daylight: parseFloat(document.getElementById('daylight').value),
+            view_sky: parseFloat(document.getElementById('view_sky').value),
+            view_greenery: parseFloat(document.getElementById('view_greenery').value),
+            poi_count: parseInt(document.getElementById('poi_count').value)
+        };
+        
+        fetch('/api/assess', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            
+            // Display results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('fli-score').textContent = data.fli_score;
+            document.getElementById('fli-label').textContent = data.label;
+            document.getElementById('fli-label').style.background = data.color;
+            
+            // Display dimension assessments
+            document.getElementById('assess-noise').textContent = data.assessments.noise;
+            document.getElementById('assess-daylight').textContent = data.assessments.daylight;
+            document.getElementById('assess-view-sky').textContent = data.assessments.view_sky;
+            document.getElementById('assess-view-greenery').textContent = data.assessments.view_greenery;
+            document.getElementById('assess-location').textContent = data.assessments.location;
+            
+            // Display recommendations
+            const recList = document.getElementById('recommendations-list');
+            recList.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                li.style.padding = '8px 0';
+                recList.appendChild(li);
+            });
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+            alert('Error computing FLI: ' + error);
+        });
+    });
+    
+    function resetForm() {
+        document.getElementById('assessment-form').reset();
+        document.getElementById('results').style.display = 'none';
+    }
+    
+    // Check if building_id parameter is present
+    const urlParams = new URLSearchParams(window.location.search);
+    const buildingId = urlParams.get('building_id');
+    if (buildingId) {
+        // Load dwelling data
+        fetch('/api/dwelling/' + buildingId)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    document.getElementById('noise_lden').value = data.features.noise_lden;
+                    document.getElementById('noise_lnight').value = data.features.noise_lnight;
+                    document.getElementById('daylight').value = data.features.daylight;
+                    document.getElementById('view_sky').value = data.features.view_sky;
+                    document.getElementById('view_greenery').value = data.features.view_greenery;
+                    document.getElementById('poi_count').value = data.features.poi_count;
+                    
+                    // Auto-submit
+                    document.getElementById('assessment-form').dispatchEvent(new Event('submit'));
+                }
+            });
+    }
+</script>
+{% endblock %}
+
