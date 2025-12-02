@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project implements a **Fuzzy Inference System (FIS)** to assess the perceived livability of Swiss residential dwellings using the **Computing with Words (CWW)** framework. The system transforms quantitative environmental simulations into linguistic assessments that align with human perception.
+This project implements a **Fuzzy Inference System** to assess the perceived livability of Swiss residential dwellings using the **Computing with Words** framework. The system transforms quantitative environmental simulations into linguistic assessments that align with human perception.
 
 ## Research Questions
 
