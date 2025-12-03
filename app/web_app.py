@@ -34,7 +34,7 @@ def compute_single_dwelling_fli(noise_lden, noise_lnight, daylight, view_sky, vi
     features = {
     'noise_lden': noise_lden,
     'noise_lnight': noise_lnight,
-    'daylight': daylight * 1000,
+    'daylight': daylight,
     'view_sky': view_sky,
     'view_greenery': view_greenery,
     'location_poi': poi_count
@@ -232,4 +232,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

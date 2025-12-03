@@ -3,24 +3,23 @@ SWISS RESIDENTIAL PERCEIVED LIVABILITY ASSESSMENT
 Fuzzy Inference System - Prototype Results
 ================================================================================
 
-Dataset: 500 dwellings
+Dataset: 3171 dwellings
 
 FLI Score Statistics:
-count    500.000000
-mean      44.023358
-std       17.567552
-min       13.166667
-25%       32.423203
-50%       50.000000
-75%       54.349878
-max       85.909091
+count    3171.000000
+mean       39.954795
+std        16.033784
+min        13.166667
+25%        16.779850
+50%        50.000000
+75%        50.000000
+max        60.000000
 Name: fli_score, dtype: float64
 
 Linguistic Label Distribution:
-  Good: 275 (55.0%)
-  Poor: 104 (20.8%)
-  Fair: 95 (19.0%)
-  Excellent: 26 (5.2%)
+  Good: 2252 (71.0%)
+  Poor: 904 (28.5%)
+  Fair: 15 (0.5%)
 
 ================================================================================
 Standards Applied:

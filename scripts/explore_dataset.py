@@ -1,9 +1,13 @@
 import pandas as pd
-import sys
+from pathlib import Path
+
+# Get project root (script is in scripts/)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PATH = PROJECT_ROOT / "data/raw/swiss-dwellings-v3.0.0/locations.csv"
 
 # Load the dataset
 print("Loading locations.csv...")
-df = pd.read_csv('/home/ubuntu/swiss_livability/data/raw/locations.csv')
+df = pd.read_csv(DATA_PATH)
 
 print(f"\nDataset shape: {df.shape}")
 print(f"Number of dwellings: {len(df)}")

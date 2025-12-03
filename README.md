@@ -39,7 +39,6 @@ swiss-livability-assessment/
 │   ├── run_prototype.py     # Main prototype execution
 │   ├── create_visualizations.py  # Generate plots
 │   ├── prepare_full_features.py  # Data preparation
-│   ├── create_sample_data.py     # Sample data generation
 │   └── explore_dataset.py   # Dataset exploration
 │
 ├── data/
@@ -59,39 +58,49 @@ swiss-livability-assessment/
 
 ## Installation
 
+### Prerequisites
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) (recommended Python package manager):
 ```bash
-# Using uv (recommended)
-uv sync
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Or using pip
-pip install -e .
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### Install dependencies
+```bash
+uv sync
 ```
 
 ## Usage
 
+### Data Preprocessing
+
+Explore the raw dataset:
+```bash
+uv run python scripts/explore_dataset.py
+```
+
+Prepare full features from raw data:
+```bash
+uv run python scripts/prepare_full_features.py
+```
+
 ### Run Web Application
 ```bash
-# From project root
-python -m app.web_app
-
-# Or using the script directly
-python app/web_app.py
+uv run python -m app.web_app
 ```
 Then open http://localhost:5001 in your browser.
 
 ### Run Prototype Analysis
 ```bash
-python scripts/run_prototype.py
+uv run python scripts/run_prototype.py
 ```
 
 ### Generate Visualizations
 ```bash
-python scripts/create_visualizations.py
-```
-
-### Prepare Full Features (if needed)
-```bash
-python scripts/prepare_full_features.py
+uv run python scripts/create_visualizations.py
 ```
 
 ## Dataset
