@@ -8,16 +8,23 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+from pathlib import Path
+
+# Setup paths
+APP_DIR = Path(__file__).resolve().parent
+ROOT_DIR = APP_DIR.parent
+SRC_DIR = ROOT_DIR / 'src'
+DATA_DIR = ROOT_DIR / 'data'
 
 # Add src directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(current_dir, 'src'))
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 from fuzzy_system import LiveabilityFuzzySystem
 from membership_functions import FuzzyMembershipFunctions
 from rule_base import FuzzyRuleBase
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(APP_DIR / 'templates'))
 app.config['SECRET_KEY'] = 'swiss-livability-2025'
 
 # Initialize fuzzy system
@@ -38,8 +45,9 @@ def compute_single_dwelling_fli(noise_lden, noise_lnight, daylight, view_sky, vi
                  
 # Load sample data
 try:
-    df = pd.read_csv(os.path.join(current_dir, 'data/processed/dwellings_sample.csv'))
-    print(f"Loaded {len(df)} dwellings from sample dataset")
+    data_path = DATA_DIR / 'processed' / 'dwellings_full.csv'
+    df = pd.read_csv(data_path)
+    print(f"Loaded {len(df)} dwellings from {data_path}")
 except Exception as e:
     print(f"Error loading data: {e}")
     df = None
@@ -56,7 +64,7 @@ def explore():
         # Get summary statistics
         stats = {
             'total_dwellings': len(df),
-            'avg_noise': round(df['window_noise_lden'].mean(), 1),
+            'avg_noise': round(df['noise_lden'].mean(), 1),
             'avg_daylight': round(df['daylight_avg_klx'].mean(), 1),
             'avg_view_sky': round(df['view_sky'].mean(), 2),
             'avg_view_greenery': round(df['view_greenery'].mean(), 2)
@@ -74,9 +82,9 @@ def get_dwellings():
     """API endpoint to get dwelling list"""
     if df is None:
         return jsonify({'error': 'Data not loaded'}), 500
-    
+
     # Get first 50 dwellings for display
-    dwellings = df.head(50)[['building_id', 'window_noise_lden', 'daylight_avg_klx', 
+    dwellings = df.head(50)[['building_id', 'noise_lden', 'daylight_avg_klx',
                               'view_sky', 'view_greenery']].to_dict('records')
     return jsonify(dwellings)
 
@@ -143,20 +151,22 @@ def get_dwelling_details(building_id):
     """API endpoint to get specific dwelling details"""
     if df is None:
         return jsonify({'error': 'Data not loaded'}), 500
-    
+
     try:
-        dwelling = df[df['building_id'] == building_id].iloc[0]
-        
+        dwelling = df[df['building_id'] == int(building_id)].iloc[0]
+
         # Compute FLI
-        fli_score = fuzzy_system.compute_fli(
-            noise_lden=dwelling['window_noise_lden'],
-            noise_lnight=dwelling['window_noise_lnight'],
-            daylight=dwelling['daylight_avg_klx'],
-            view_sky=dwelling['view_sky'],
-            view_greenery=dwelling['view_greenery'],
-            poi_count=dwelling['poi_count']
-        )
-        
+        features = {
+            'noise_lden': dwelling['noise_lden'],
+            'noise_lnight': dwelling['noise_lnight'],
+            'daylight': dwelling['daylight_avg_klx'] * 1000,  # Convert klx to lux
+            'view_sky': dwelling['view_sky'],
+            'view_greenery': dwelling['view_greenery'],
+            'location_poi': dwelling['location_poi_count']
+        }
+        result = fuzzy_system.compute_single_dwelling(features)
+        fli_score = result['fli_score']
+
         # Determine label
         if fli_score >= 65:
             label = "Excellent"
@@ -166,18 +176,18 @@ def get_dwelling_details(building_id):
             label = "Fair"
         else:
             label = "Poor"
-        
+
         return jsonify({
             'building_id': building_id,
             'fli_score': round(fli_score, 2),
             'label': label,
             'features': {
-                'noise_lden': round(dwelling['window_noise_lden'], 1),
-                'noise_lnight': round(dwelling['window_noise_lnight'], 1),
+                'noise_lden': round(dwelling['noise_lden'], 1),
+                'noise_lnight': round(dwelling['noise_lnight'], 1),
                 'daylight': round(dwelling['daylight_avg_klx'], 1),
                 'view_sky': round(dwelling['view_sky'], 2),
                 'view_greenery': round(dwelling['view_greenery'], 2),
-                'poi_count': int(dwelling['poi_count'])
+                'poi_count': int(dwelling['location_poi_count'])
             }
         })
     except Exception as e:
@@ -206,7 +216,8 @@ def get_recommendations(fli_score, assessments):
     
     return recommendations
 
-if __name__ == '__main__':
+def main():
+    """Entry point for the web application"""
     print("=" * 80)
     print("SWISS RESIDENTIAL PERCEIVED LIVABILITY ASSESSMENT")
     print("Web Interface - Proof of Concept")
@@ -215,6 +226,10 @@ if __name__ == '__main__':
     print("Open your browser and go to: http://localhost:5001")
     print("\nPress Ctrl+C to stop the server")
     print("=" * 80)
-    
+
     app.run(debug=True, host='0.0.0.0', port=5001)
+
+
+if __name__ == '__main__':
+    main()
 

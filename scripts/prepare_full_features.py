@@ -30,10 +30,18 @@ def energy_sum_db(values: List[float]) -> float:
 
 
 def prepare_features(
-    data_root: Path = Path("data/swiss-dwellings-v3.0.0"),
-    output_path: Path = Path("data/processed/dwellings_full.csv"),
+    data_root: Path = None,
+    output_path: Path = None,
     chunksize: int = 200_000,
 ):
+    # Default paths relative to project root
+    scripts_dir = Path(__file__).resolve().parent
+    root_dir = scripts_dir.parent
+
+    if data_root is None:
+        data_root = root_dir / "data" / "raw" / "swiss-dwellings-v3.0.0"
+    if output_path is None:
+        output_path = root_dir / "data" / "processed" / "dwellings_full.csv"
     sim_path = data_root / "simulations.csv"
     loc_path = data_root / "locations.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)

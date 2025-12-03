@@ -13,7 +13,9 @@ import numpy as np
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
-ROOT = Path(__file__).resolve().parent
+# Setup paths - scripts is one level below root
+SCRIPTS_DIR = Path(__file__).resolve().parent
+ROOT = SCRIPTS_DIR.parent
 
 # Load results
 print("Loading results...")

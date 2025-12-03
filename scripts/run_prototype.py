@@ -9,11 +9,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Ensure src is importable via relative path
-ROOT = Path(__file__).resolve().parent
+# Setup paths - scripts is one level below root
+SCRIPTS_DIR = Path(__file__).resolve().parent
+ROOT = SCRIPTS_DIR.parent
 SRC = ROOT / 'src'
 if str(SRC) not in sys.path:
-    sys.path.append(str(SRC))
+    sys.path.insert(0, str(SRC))
 
 from data_processing import preprocess_features, get_feature_statistics
 from fuzzy_system import LiveabilityFuzzySystem

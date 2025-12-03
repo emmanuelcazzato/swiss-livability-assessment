@@ -10,31 +10,104 @@ This project implements a **Fuzzy Inference System** to assess the perceived liv
 2. **RQ2**: How to design a Fuzzy Inference System to transform quantitative simulations into linguistic levels?
 3. **RQ3**: How to validate the "Fuzzy Livability Index" using external benchmarks?
 
-## Methodology
+## Project Structure
 
-The project follows a structured approach based on the Computing with Words paradigm:
+```
+swiss-livability-assessment/
+├── README.md                # This file
+├── pyproject.toml           # Project configuration
+├── .python-version          # Python version
+│
+├── src/                     # Core fuzzy inference modules
+│   ├── __init__.py
+│   ├── data_processing.py   # Data loading and preprocessing
+│   ├── membership_functions.py  # Fuzzy membership functions
+│   ├── rule_base.py         # Fuzzy inference rules
+│   ├── fuzzy_system.py      # Mamdani FIS implementation
+│   └── validation.py        # Validation utilities
+│
+├── app/                     # Web application
+│   ├── __init__.py
+│   ├── web_app.py           # Flask web server
+│   └── templates/           # HTML templates
+│       ├── base.html
+│       ├── index.html
+│       ├── explore.html
+│       └── assess.html
+│
+├── scripts/                 # Utility scripts
+│   ├── run_prototype.py     # Main prototype execution
+│   ├── create_visualizations.py  # Generate plots
+│   ├── prepare_full_features.py  # Data preparation
+│   ├── create_sample_data.py     # Sample data generation
+│   └── explore_dataset.py   # Dataset exploration
+│
+├── data/
+│   ├── raw/                 # Original dataset
+│   │   └── swiss-dwellings-v3.0.0/
+│   └── processed/           # Processed data
+│       └── dwellings_full.csv
+│
+├── results/                 # Output results
+│   ├── figures/             # Visualizations
+│   └── outputs/             # CSV and reports
+│
+└── docs/                    # Documentation
+    ├── literature_review.md
+    └── web_app_guide.md
+```
 
-1. **Deconstruction**: Identify core dimensions of perceived livability from literature
-2. **Mapping**: Correspond dimensions to Swiss Dwellings dataset features
-3. **Fuzzification**: Define membership functions based on WHO 2018 and EN 17037 standards
-4. **Rule-base Definition**: Apply Mamdani inference with IF-THEN rules
-5. **Defuzzification**: Generate Fuzzy Livability Index (FLI) using centroid method
-6. **Validation**: Correlate FLI with external expert ratings
+## Installation
+
+```bash
+# Using uv (recommended)
+uv sync
+
+# Or using pip
+pip install -e .
+```
+
+## Usage
+
+### Run Web Application
+```bash
+# From project root
+python -m app.web_app
+
+# Or using the script directly
+python app/web_app.py
+```
+Then open http://localhost:5001 in your browser.
+
+### Run Prototype Analysis
+```bash
+python scripts/run_prototype.py
+```
+
+### Generate Visualizations
+```bash
+python scripts/create_visualizations.py
+```
+
+### Prepare Full Features (if needed)
+```bash
+python scripts/prepare_full_features.py
+```
 
 ## Dataset
 
-**Swiss Dwellings v3.0.0** (45,176 dwellings)
+**Swiss Dwellings v3.0.0** (3,171 processed dwellings)
 
 Key features:
-- **Noise**: window_noise_lden, window_noise_lnight (dBA)
-- **Daylight**: Seasonal measurements (klx)
+- **Noise**: noise_lden, noise_lnight (dBA)
+- **Daylight**: daylight_avg_klx (klx)
 - **Views**: view_sky, view_greenery (solid angle in sr)
-- **Location**: POI counts and distances
+- **Location**: location_poi_count
 
 ## Standards Applied
 
 ### WHO 2018 Environmental Noise Guidelines
-- Road traffic: Lden < 53 dB, Lnight < 45 dB (Strong recommendation)
+- Road traffic: Lden < 53 dB, Lnight < 45 dB
 - Railway: Lden < 54 dB, Lnight < 44 dB
 - Aircraft: Lden < 45 dB, Lnight < 40 dB
 
@@ -42,54 +115,6 @@ Key features:
 - **Minimum**: 300 lux over 50% of area, 100 lux over 95% of area
 - **Medium**: 500 lux over 50% of area, 300 lux over 95% of area
 - **High**: 750 lux over 50% of area, 500 lux over 95% of area
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-
-### 1. Data Processing
-```python
-from src.data_processing import load_swiss_dwellings, preprocess_features
-
-# Load dataset
-df = load_swiss_dwellings('data/raw/swiss_dwellings.csv')
-
-# Preprocess features
-df_processed = preprocess_features(df)
-```
-
-### 2. Fuzzy System Execution
-```python
-from src.fuzzy_system import compute_fuzzy_livability_index
-
-# Compute FLI for all dwellings
-fli_scores = compute_fuzzy_livability_index(df_processed)
-```
-
-### 3. Validation
-```python
-from src.validation import validate_against_ratings
-
-# Validate against external ratings
-correlation, p_value = validate_against_ratings(fli_scores, 'data/external/location_ratings.csv')
-```
-
-## Project Structure
-
-```
-swiss_livability/
-├── data/               # Dataset files
-├── src/                # Source code
-├── notebooks/          # Jupyter notebooks for analysis
-├── results/            # Output files and visualizations
-├── docs/               # Documentation and literature review
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
-```
 
 ## Key References
 
