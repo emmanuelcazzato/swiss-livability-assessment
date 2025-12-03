@@ -3,131 +3,159 @@
 {% block title %}Explore Data - Swiss Livability Assessment{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;">📊 Explore Swiss Dwellings Dataset</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Explore Dataset</h2>
+        <p class="text-muted mb-0">Swiss Dwellings v3.0.0 Analysis</p>
+    </div>
+    <a href="{{ url_for('assess') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Assess Custom Dwelling
+    </a>
+</div>
 
 {% if stats %}
-<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-    <h3 style="color: white; margin-bottom: 20px;">Dataset Overview</h3>
-    <div class="grid-2">
-        <div class="feature-box" style="background: rgba(255,255,255,0.95);">
-            <h3 style="color: #667eea;">Total Dwellings</h3>
-            <div class="feature-value">{{ stats.total_dwellings }}</div>
-            <div class="feature-label">Sample size</div>
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-building text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.total_dwellings }}</h3>
+                <span class="text-muted small text-uppercase tracking-wide">Total Dwellings</span>
+            </div>
         </div>
-        <div class="feature-box" style="background: rgba(255,255,255,0.95);">
-            <h3 style="color: #667eea;">Avg. Noise Level</h3>
-            <div class="feature-value">{{ stats.avg_noise }} dB</div>
-            <div class="feature-label">Lden (day-evening-night)</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-volume-up text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_noise }} <span class="fs-6 text-muted">dB</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">Avg. Noise (Lden)</span>
+            </div>
         </div>
-        <div class="feature-box" style="background: rgba(255,255,255,0.95);">
-            <h3 style="color: #667eea;">Avg. Daylight</h3>
-            <div class="feature-value">{{ stats.avg_daylight }} lux</div>
-            <div class="feature-label">Mean illuminance</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-sun text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">lux</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">Avg. Daylight</span>
+            </div>
         </div>
-        <div class="feature-box" style="background: rgba(255,255,255,0.95);">
-            <h3 style="color: #667eea;">Avg. View Quality</h3>
-            <div class="feature-value">{{ stats.avg_view_sky }}</div>
-            <div class="feature-label">Sky view (sr)</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-eye text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_view_sky }}</h3>
+                <span class="text-muted small text-uppercase tracking-wide">Avg. Sky View (sr)</span>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <h3 style="color: #667eea; margin-bottom: 15px;">📈 Key Insights</h3>
-    <div style="line-height: 1.8;">
-        <p><strong>Noise Levels:</strong> 
-            {% if stats.avg_noise < 53 %}
-                Average noise is <span style="color: #10b981; font-weight: bold;">below WHO threshold</span> (53 dB) - Excellent acoustic environment!
-            {% elif stats.avg_noise < 65 %}
-                Average noise is <span style="color: #f59e0b; font-weight: bold;">moderate</span> (53-65 dB) - Acceptable but could be improved.
-            {% else %}
-                Average noise is <span style="color: #ef4444; font-weight: bold;">above recommended levels</span> (>65 dB) - Noise mitigation needed.
-            {% endif %}
-        </p>
-        
-        <p><strong>Daylight Quality:</strong>
-            {% if stats.avg_daylight > 300 %}
-                Average daylight <span style="color: #10b981; font-weight: bold;">exceeds EN 17037 minimum</span> (300 lux) - Good natural lighting!
-            {% elif stats.avg_daylight > 100 %}
-                Average daylight is <span style="color: #f59e0b; font-weight: bold;">moderate</span> (100-300 lux) - Meets floor requirement.
-            {% else %}
-                Average daylight is <span style="color: #ef4444; font-weight: bold;">below standards</span> (<100 lux) - Insufficient natural light.
-            {% endif %}
-        </p>
-        
-        <p><strong>View Quality:</strong>
-            Sky view factor of {{ stats.avg_view_sky }} sr and greenery exposure of {{ stats.avg_view_greenery }} sr 
-            indicate {% if stats.avg_view_sky > 0.8 %}excellent{% elif stats.avg_view_sky > 0.4 %}moderate{% else %}limited{% endif %} 
-            visual connection to the outdoors.
-        </p>
-    </div>
-</div>
-
-<div class="card">
-    <h3 style="color: #667eea; margin-bottom: 15px;">🔍 Sample Dwellings</h3>
-    <p style="margin-bottom: 15px; color: #666;">
-        Below are some sample dwellings from the dataset. Click "Assess" to compute their Fuzzy Livability Index.
-    </p>
-    <div id="dwellings-list">
-        <p style="text-align: center; padding: 20px;">Loading dwellings...</p>
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent border-0 pt-4 ps-4">
+                <h4 class="text-primary mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Key Insights</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_noise < 53 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_noise < 65 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Noise Levels</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_noise < 53 %}
+                                        Average noise is <strong>below WHO threshold</strong> (53 dB) - Excellent acoustic environment!
+                                    {% elif stats.avg_noise < 65 %}
+                                        Average noise is <strong>moderate</strong> (53-65 dB) - Acceptable but could be improved.
+                                    {% else %}
+                                        Average noise is <strong>above recommended levels</strong> (>65 dB) - Noise mitigation needed.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_daylight > 300 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_daylight > 100 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Daylight Quality</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_daylight > 300 %}
+                                        Average daylight <strong>exceeds EN 17037 minimum</strong> (300 lux) - Good natural lighting!
+                                    {% elif stats.avg_daylight > 100 %}
+                                        Average daylight is <strong>moderate</strong> (100-300 lux) - Meets floor requirement.
+                                    {% else %}
+                                        Average daylight is <strong>below standards</strong> (&lt;100 lux) - Insufficient natural light.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_view_sky > 0.8 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_view_sky > 0.4 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill text-muted fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">View Quality</h6>
+                                <p class="mb-0 text-muted">
+                                    Sky view factor of {{ stats.avg_view_sky }} sr and greenery exposure of {{ stats.avg_view_greenery }} sr 
+                                    indicate {% if stats.avg_view_sky > 0.8 %}excellent{% elif stats.avg_view_sky > 0.4 %}moderate{% else %}limited{% endif %} 
+                                    visual connection to the outdoors.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 {% else %}
-<div class="card" style="background: #fff3cd; border-left-color: #ffc107;">
-    <h3 style="color: #856404;">⚠️ Data Not Available</h3>
-    <p>The sample dataset could not be loaded. Please ensure the data files are in the correct location.</p>
+<div class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
+    <div>
+        <strong>Data Not Available:</strong> The sample dataset could not be loaded. Please ensure the data files are in the correct location.
+    </div>
 </div>
 {% endif %}
-
-<div style="text-align: center; margin-top: 30px;">
-    <a href="{{ url_for('assess') }}" class="btn" style="text-decoration: none;">
-        🔍 Assess a Custom Dwelling
-    </a>
-</div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // Load dwellings from API
-    fetch('/api/dwellings')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('dwellings-list');
-            if (data.error) {
-                container.innerHTML = '<p style="color: #ef4444;">Error loading dwellings: ' + data.error + '</p>';
-                return;
-            }
-            
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">';
-            data.slice(0, 12).forEach(dwelling => {
-                html += `
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
-                        <h4 style="color: #667eea; margin-bottom: 10px;">ID: ${dwelling.building_id}</h4>
-                        <div style="font-size: 0.9em; line-height: 1.6;">
-                            <p><strong>Noise:</strong> ${dwelling.window_noise_lden.toFixed(1)} dB</p>
-                            <p><strong>Daylight:</strong> ${dwelling.daylight_avg_klx.toFixed(1)} klx</p>
-                            <p><strong>Sky View:</strong> ${dwelling.view_sky.toFixed(2)} sr</p>
-                            <p><strong>Greenery:</strong> ${dwelling.view_greenery.toFixed(2)} sr</p>
-                        </div>
-                        <button onclick="assessDwelling('${dwelling.building_id}')" 
-                                style="margin-top: 10px; width: 100%; padding: 8px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Assess This Dwelling
-                        </button>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(error => {
-            document.getElementById('dwellings-list').innerHTML = 
-                '<p style="color: #ef4444;">Error loading dwellings: ' + error + '</p>';
-        });
-    
-    function assessDwelling(buildingId) {
-        window.location.href = '/assess?building_id=' + buildingId;
-    }
-</script>
-{% endblock %}
 
