@@ -2,6 +2,8 @@
 Create visualizations for the Fuzzy Livability Assessment results
 """
 
+from pathlib import Path
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,13 +13,14 @@ import numpy as np
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
+ROOT = Path(__file__).resolve().parent
+
 # Load results
 print("Loading results...")
-df = pd.read_csv('/home/ubuntu/swiss_livability/results/outputs/fli_results.csv')
+df = pd.read_csv(ROOT / 'results' / 'outputs' / 'fli_results.csv')
 
 # Create output directory
-import os
-os.makedirs('/home/ubuntu/swiss_livability/results/figures', exist_ok=True)
+os.makedirs(ROOT / 'results' / 'figures', exist_ok=True)
 
 # 1. FLI Score Distribution
 print("Creating FLI score distribution plot...")
@@ -30,7 +33,7 @@ ax.set_title('Distribution of Fuzzy Livability Index Scores', fontsize=14, fontw
 ax.legend()
 ax.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('/home/ubuntu/swiss_livability/results/figures/fli_distribution.png', dpi=300)
+plt.savefig(ROOT / 'results' / 'figures' / 'fli_distribution.png', dpi=300)
 plt.close()
 
 # 2. Linguistic Label Distribution
@@ -51,18 +54,18 @@ for i, (bar, count) in enumerate(zip(bars, label_counts.values)):
             f'{count}\n({percentage:.1f}%)', ha='center', va='bottom', fontsize=10)
 ax.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('/home/ubuntu/swiss_livability/results/figures/linguistic_labels.png', dpi=300)
+plt.savefig(ROOT / 'results' / 'figures' / 'linguistic_labels.png', dpi=300)
 plt.close()
 
 # 3. Feature vs FLI Score Scatter Plots
 print("Creating feature correlation plots...")
 fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 features = [
-    ('window_noise_lden', 'Noise Lden (dBA)'),
-    ('window_noise_lnight', 'Noise Lnight (dBA)'),
+    ('noise_lden', 'Noise Lden (dBA)'),
+    ('noise_lnight', 'Noise Lnight (dBA)'),
     ('daylight_avg_klx', 'Daylight (klx)'),
-    ('view_sky', 'View Sky (sr)'),
-    ('view_greenery', 'View Greenery (sr)'),
+    ('view_sky', 'View Sky p80 (sr)'),
+    ('view_greenery', 'View Greenery p80 (sr)'),
     ('location_poi_count', 'POI Count')
 ]
 
@@ -81,7 +84,7 @@ for ax, (feature, label) in zip(axes.flat, features):
             verticalalignment='top', fontsize=9)
 
 plt.tight_layout()
-plt.savefig('/home/ubuntu/swiss_livability/results/figures/feature_correlations.png', dpi=300)
+plt.savefig(ROOT / 'results' / 'figures' / 'feature_correlations.png', dpi=300)
 plt.close()
 
 # 4. Box plot by linguistic label
@@ -103,7 +106,7 @@ for ax, (feature, label) in zip(axes.flat, features):
     ax.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('/home/ubuntu/swiss_livability/results/figures/features_by_label.png', dpi=300)
+plt.savefig(ROOT / 'results' / 'figures' / 'features_by_label.png', dpi=300)
 plt.close()
 
 # 5. Correlation heatmap
@@ -115,9 +118,8 @@ sns.heatmap(corr_matrix, annot=True, fmt='.3f', cmap='coolwarm', center=0,
             square=True, linewidths=1, cbar_kws={"shrink": 0.8}, ax=ax)
 ax.set_title('Feature Correlation Matrix', fontsize=14, fontweight='bold', pad=20)
 plt.tight_layout()
-plt.savefig('/home/ubuntu/swiss_livability/results/figures/correlation_heatmap.png', dpi=300)
+plt.savefig(ROOT / 'results' / 'figures' / 'correlation_heatmap.png', dpi=300)
 plt.close()
 
 print("\nAll visualizations created successfully!")
-print("Saved to: /home/ubuntu/swiss_livability/results/figures/")
-
+print(f"Saved to: {ROOT / 'results' / 'figures'}")

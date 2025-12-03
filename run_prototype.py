@@ -4,10 +4,17 @@ Using Fuzzy Inference System and Computing with Words Framework
 """
 
 import sys
-sys.path.append('/home/ubuntu/swiss_livability/src')
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
+
+# Ensure src is importable via relative path
+ROOT = Path(__file__).resolve().parent
+SRC = ROOT / 'src'
+if str(SRC) not in sys.path:
+    sys.path.append(str(SRC))
+
 from data_processing import preprocess_features, get_feature_statistics
 from fuzzy_system import LiveabilityFuzzySystem
 from membership_functions import FuzzyMembershipFunctions
@@ -19,9 +26,14 @@ def main():
     print("Fuzzy Inference System Prototype")
     print("="*80 + "\n")
     
-    # Step 1: Load sample data
-    print("Step 1: Loading sample dataset...")
-    df = pd.read_csv('/home/ubuntu/swiss_livability/data/processed/dwellings_sample.csv')
+    # Step 1: Load prepared full features
+    print("Step 1: Loading prepared full-feature dataset...")
+    data_path = ROOT / 'data' / 'processed' / 'dwellings_full.csv'
+    if not data_path.exists():
+        print(f"[Error] Missing dataset: {data_path}")
+        print("Please run: python3 prepare_full_features.py")
+        return
+    df = pd.read_csv(data_path)
     print(f"Loaded {len(df)} dwellings")
     print(f"Features: {list(df.columns)}")
     
@@ -31,9 +43,10 @@ def main():
     print("="*80)
     
     # Create feature dataframe with proper naming
+    # Note: daylight_avg is in klx here; FIS converts to lux internally when value < 10
     features_df = pd.DataFrame({
-        'noise_lden': df['window_noise_lden'],
-        'noise_lnight': df['window_noise_lnight'],
+        'noise_lden': df['noise_lden'],
+        'noise_lnight': df['noise_lnight'],
         'daylight_avg': df['daylight_avg_klx'],  # in klx
         'view_sky': df['view_sky'],
         'view_greenery': df['view_greenery'],
@@ -103,11 +116,11 @@ def main():
         print(f"Building ID: {int(row['building_id'])}")
         print(f"FLI Score: {row['fli_score']:.2f}/100")
         print(f"\nInput Features:")
-        print(f"  Noise Lden: {row['window_noise_lden']:.1f} dBA")
-        print(f"  Noise Lnight: {row['window_noise_lnight']:.1f} dBA")
+        print(f"  Noise Lden: {row['noise_lden']:.1f} dBA")
+        print(f"  Noise Lnight: {row['noise_lnight']:.1f} dBA")
         print(f"  Daylight: {row['daylight_avg_klx']:.3f} klx ({row['daylight_avg_klx']*1000:.0f} lux)")
-        print(f"  View Sky: {row['view_sky']:.2f} sr")
-        print(f"  View Greenery: {row['view_greenery']:.2f} sr")
+        print(f"  View Sky (p80): {row['view_sky']:.4f} sr")
+        print(f"  View Greenery (p80): {row['view_greenery']:.4f} sr")
         print(f"  POI Count: {int(row['location_poi_count'])}")
     
     # Step 7: Detailed explanation for one dwelling
@@ -120,8 +133,8 @@ def main():
     sample_row = final_df.iloc[sample_idx]
     
     sample_features = {
-        'noise_lden': sample_row['window_noise_lden'],
-        'noise_lnight': sample_row['window_noise_lnight'],
+        'noise_lden': sample_row['noise_lden'],
+        'noise_lnight': sample_row['noise_lnight'],
         'daylight': sample_row['daylight_avg_klx'] * 1000,  # Convert to lux
         'view_sky': sample_row['view_sky'],
         'view_greenery': sample_row['view_greenery'],
@@ -136,12 +149,13 @@ def main():
     print("Step 8: Saving Results...")
     print("="*80)
     
-    output_path = '/home/ubuntu/swiss_livability/results/outputs/fli_results.csv'
+    output_path = ROOT / 'results' / 'outputs' / 'fli_results.csv'
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     final_df.to_csv(output_path, index=False)
     print(f"Results saved to: {output_path}")
     
     # Save summary report
-    report_path = '/home/ubuntu/swiss_livability/results/outputs/summary_report.txt'
+    report_path = ROOT / 'results' / 'outputs' / 'summary_report.txt'
     with open(report_path, 'w') as f:
         f.write("="*80 + "\n")
         f.write("SWISS RESIDENTIAL PERCEIVED LIVABILITY ASSESSMENT\n")
@@ -187,4 +201,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
