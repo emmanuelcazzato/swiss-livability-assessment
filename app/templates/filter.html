@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}Filter Dwellings - Swiss Livability Assessment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Filters Column -->
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 900;">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>Filter Metrics</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">Adjust sliders to filter dwellings by minimum requirements.</p>
+                
+                <form id="filterForm">
+                    <!-- Noise Slider -->
+                    <div class="mb-4">
+                        <label for="noiseSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>Acoustic Comfort</span>
+                            <span id="noiseLabel" class="badge bg-secondary">All</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="noiseSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>All</span>
+                            <span>Exc.</span>
+                        </div>
+                    </div>
+
+                    <!-- Daylight Slider -->
+                    <div class="mb-4">
+                        <label for="daylightSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>Daylight</span>
+                            <span id="daylightLabel" class="badge bg-secondary">All</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="daylightSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>All</span>
+                            <span>Exc.</span>
+                        </div>
+                    </div>
+
+                    <!-- View Sky Slider -->
+                    <div class="mb-4">
+                        <label for="skySlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>Sky View</span>
+                            <span id="skyLabel" class="badge bg-secondary">All</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="skySlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>All</span>
+                            <span>Exc.</span>
+                        </div>
+                    </div>
+
+                    <!-- View Greenery Slider -->
+                    <div class="mb-4">
+                        <label for="greenerySlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>Greenery View</span>
+                            <span id="greeneryLabel" class="badge bg-secondary">All</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="greenerySlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>All</span>
+                            <span>Exc.</span>
+                        </div>
+                    </div>
+
+                    <!-- POI Slider -->
+                    <div class="mb-4">
+                        <label for="poiSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>Location (POI)</span>
+                            <span id="poiLabel" class="badge bg-secondary">All</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="poiSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>All</span>
+                            <span>Exc.</span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-secondary w-100" id="resetBtn">
+                        Reset Filters
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Column -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Matching Dwellings</h4>
+            <span class="badge bg-primary rounded-pill" id="resultCount">0 found</span>
+        </div>
+
+        <div class="table-responsive bg-white rounded shadow-sm" style="max-height: 80vh; overflow-y: auto;">
+            <table class="table table-hover mb-0 sticky-header" id="resultsTable">
+                <thead class="table-light sticky-top" style="z-index: 800;">
+                    <tr>
+                        <th>ID</th>
+                        <th class="text-end">Noise (dBA)</th>
+                        <th class="text-end">Daylight (klx)</th>
+                        <th class="text-end">Sky (sr)</th>
+                        <th class="text-end">Green (sr)</th>
+                        <th class="text-end">POI</th>
+                        <th class="text-center">FLI Score</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results populated via JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center py-5 d-none">
+            <i class="bi bi-search fs-1 text-muted mb-3"></i>
+            <p class="text-muted">No dwellings match your criteria.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Configuration ---
+    const sliders = {
+        'noise': document.getElementById('noiseSlider'),
+        'daylight': document.getElementById('daylightSlider'),
+        'sky': document.getElementById('skySlider'),
+        'greenery': document.getElementById('greenerySlider'),
+        'poi': document.getElementById('poiSlider')
+    };
+    
+    const labels = {
+        'noise': document.getElementById('noiseLabel'),
+        'daylight': document.getElementById('daylightLabel'),
+        'sky': document.getElementById('skyLabel'),
+        'greenery': document.getElementById('greeneryLabel'),
+        'poi': document.getElementById('poiLabel')
+    };
+
+    const levelMap = {
+        0: { text: 'All', color: 'bg-secondary' },
+        1: { text: 'Fair+', color: 'bg-warning text-dark' },
+        2: { text: 'Good+', color: 'bg-primary' },
+        3: { text: 'Excellent', color: 'bg-success' }
+    };
+
+    // --- State ---
+    let allDwellings = [];
+
+    // --- Initialization ---
+    loadDwellings();
+
+    // --- Event Listeners ---
+    for (const [key, slider] of Object.entries(sliders)) {
+        slider.addEventListener('input', () => {
+            updateLabel(key, slider.value);
+            filterAndRender();
+        });
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        for (const slider of Object.values(sliders)) {
+            slider.value = 0;
+        }
+        for (const key of Object.keys(sliders)) {
+            updateLabel(key, 0);
+        }
+        filterAndRender();
+    });
+
+    // --- Functions ---
+
+    function updateLabel(key, value) {
+        const labelEl = labels[key];
+        const config = levelMap[value];
+        
+        labelEl.textContent = config.text;
+        labelEl.className = `badge ${config.color}`;
+    }
+
+    async function loadDwellings() {
+        showLoading(true);
+        try {
+            const response = await fetch('/api/dwellings/all');
+            if (!response.ok) throw new Error('Failed to load data');
+            allDwellings = await response.json();
+            filterAndRender();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error loading dwellings data. Please try refreshing.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        const table = document.querySelector('.table-responsive');
+        if (show) {
+            spinner.classList.remove('d-none');
+            table.classList.add('d-none');
+        } else {
+            spinner.classList.add('d-none');
+            table.classList.remove('d-none');
+        }
+    }
+
+    function filterAndRender() {
+        const criteria = {
+            noise: parseInt(sliders.noise.value),
+            daylight: parseInt(sliders.daylight.value),
+            sky: parseInt(sliders.sky.value),
+            greenery: parseInt(sliders.greenery.value),
+            poi: parseInt(sliders.poi.value)
+        };
+
+        // Filter Logic (Client-Side for speed with ~3000 records)
+        const filtered = allDwellings.filter(d => {
+            // Noise: Lower is better. 
+            // 0: All, 1: Fair (<65), 2: Good (<53), 3: Excellent (<45)
+            if (criteria.noise > 0) {
+                const maxNoise = criteria.noise === 1 ? 65 : (criteria.noise === 2 ? 53 : 45);
+                if (d.noise_lden >= maxNoise) return false;
+            }
+
+            // Daylight: Higher is better
+            // 0: All, 1: Fair (>0.8), 2: Good (>1.5), 3: Excellent (>2.5)
+            if (criteria.daylight > 0) {
+                const minDaylight = criteria.daylight === 1 ? 0.8 : (criteria.daylight === 2 ? 1.5 : 2.5);
+                if (d.daylight < minDaylight) return false;
+            }
+
+            // Sky View: Higher is better
+            // 0: All, 1: Fair (>0.015), 2: Good (>0.03), 3: Excellent (>0.05)
+            if (criteria.sky > 0) {
+                const minSky = criteria.sky === 1 ? 0.015 : (criteria.sky === 2 ? 0.03 : 0.05);
+                if (d.view_sky < minSky) return false;
+            }
+
+            // Greenery View: Higher is better
+            // 0: All, 1: Fair (>0.006), 2: Good (>0.012), 3: Excellent (>0.025)
+            if (criteria.greenery > 0) {
+                const minGreen = criteria.greenery === 1 ? 0.006 : (criteria.greenery === 2 ? 0.012 : 0.025);
+                if (d.view_greenery < minGreen) return false;
+            }
+
+            // POI: Higher is better (log10 value)
+            // 0: All, 1: Fair (>1.9), 2: Good (>2.35), 3: Excellent (>2.9)
+            if (criteria.poi > 0) {
+                const minPoi = criteria.poi === 1 ? 1.9 : (criteria.poi === 2 ? 2.35 : 2.9);
+                if (d.location_poi < minPoi) return false;
+            }
+
+            return true;
+        });
+
+        renderTable(filtered);
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('resultsBody');
+        const countBadge = document.getElementById('resultCount');
+        const noResults = document.getElementById('noResults');
+        const tableContainer = document.querySelector('.table-responsive');
+
+        tbody.innerHTML = '';
+        countBadge.textContent = `${data.length} found`;
+
+        if (data.length === 0) {
+            noResults.classList.remove('d-none');
+            tableContainer.classList.add('d-none');
+            return;
+        }
+
+        noResults.classList.add('d-none');
+        tableContainer.classList.remove('d-none');
+
+        // Render max 100 rows for performance
+        const displayData = data.slice(0, 100);
+
+        displayData.forEach(d => {
+            const tr = document.createElement('tr');
+            
+            // Determine FLI badge color
+            let badgeClass = 'bg-danger';
+            if (d.fli_score >= 65) badgeClass = 'bg-success';
+            else if (d.fli_score >= 45) badgeClass = 'bg-primary';
+            else if (d.fli_score >= 25) badgeClass = 'bg-warning text-dark';
+
+            tr.innerHTML = `
+                <td>${d.building_id}</td>
+                <td class="text-end">${d.noise_lden.toFixed(1)}</td>
+                <td class="text-end">${d.daylight.toFixed(2)}</td>
+                <td class="text-end">${d.view_sky.toFixed(3)}</td>
+                <td class="text-end">${d.view_greenery.toFixed(3)}</td>
+                <td class="text-end">${d.poi_count}</td>
+                <td class="text-center"><span class="badge ${badgeClass}">${d.fli_score.toFixed(0)}</span></td>
+                <td class="text-center">
+                    <a href="#" class="btn btn-sm btn-outline-primary view-details" data-id="${d.building_id}">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (data.length > 100) {
+            const infoRow = document.createElement('tr');
+            infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">Showing first 100 of ${data.length} matches</td>`;
+            tbody.appendChild(infoRow);
+        }
+    }
+});
+</script>
+{% endblock %}

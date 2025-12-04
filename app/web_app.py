@@ -110,6 +110,33 @@ try:
     data_path = DATA_DIR / 'processed' / 'dwellings_full.csv'
     df = pd.read_csv(data_path)
     print(f"Loaded {len(df)} dwellings from {data_path}")
+
+    # Pre-compute FLI scores for all dwellings
+    if df is not None and not df.empty:
+        print("Computing FLI scores...")
+        # Handle column naming compatibility for V2
+        if 'daylight' not in df.columns and 'raw_daylight_klx' in df.columns:
+            df['daylight'] = df['raw_daylight_klx']
+        if 'view_sky' not in df.columns and 'raw_view_sky_sr' in df.columns:
+            df['view_sky'] = df['raw_view_sky_sr']
+        if 'view_greenery' not in df.columns and 'raw_view_greenery_sr' in df.columns:
+            df['view_greenery'] = df['raw_view_greenery_sr']
+        
+        # Ensure we have location_poi (log10)
+        if 'location_poi' not in df.columns and 'raw_poi_count' in df.columns:
+            df['location_poi'] = np.log10(df['raw_poi_count'] + 1)
+
+        # Compute FLI
+        df['fli_score'] = df.apply(lambda row: compute_single_dwelling_fli(
+            row['noise_lden'],
+            row['noise_lnight'],
+            row['daylight'],
+            row['view_sky'],
+            row['view_greenery'],
+            row['location_poi']
+        ), axis=1)
+        print("FLI computation complete.")
+
 except Exception as e:
     print(f"Error loading data: {e}")
     df = None
@@ -142,6 +169,43 @@ def explore():
 def assess():
     """Assessment page"""
     return render_template('assess.html')
+
+@app.route('/filter')
+def filter_page():
+    """Filter dwellings page"""
+    return render_template('filter.html')
+
+@app.route('/api/dwellings/all')
+def get_all_dwellings():
+    """API endpoint to get all dwellings with FLI scores for filtering"""
+    if df is None:
+        return jsonify({'error': 'Data not loaded'}), 500
+
+    # Select relevant columns to minimize payload
+    # Note: We rely on the pre-computed columns from load time
+    cols = ['building_id', 'noise_lden', 'daylight', 'view_sky', 'view_greenery', 'location_poi', 'fli_score']
+    
+    # Add raw POI count if available for display
+    if 'raw_poi_count' in df.columns:
+        cols.append('raw_poi_count')
+    
+    # Ensure all columns exist
+    available_cols = [c for c in cols if c in df.columns]
+    
+    # Replace NaN with None (null in JSON) or 0 to avoid JSON errors
+    export_df = df[available_cols].fillna(0)
+    
+    data = export_df.to_dict('records')
+    
+    # Rename raw_poi_count to poi_count for frontend consistency
+    for d in data:
+        if 'raw_poi_count' in d:
+            d['poi_count'] = int(d.pop('raw_poi_count'))
+        elif 'location_poi' in d:
+            # Fallback if raw count missing
+            d['poi_count'] = int(10 ** d['location_poi'] - 1)
+            
+    return jsonify(data)
 
 @app.route('/api/dwellings')
 def get_dwellings():

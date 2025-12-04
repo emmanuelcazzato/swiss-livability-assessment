@@ -40,6 +40,9 @@
                         <a class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}" href="{{ url_for('explore') }}">Explore Data</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'filter_page' %}active{% endif %}" href="{{ url_for('filter_page') }}">Filter Dwellings</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'assess' %}active{% endif %}" href="{{ url_for('assess') }}">Assess Dwelling</a>
                     </li>
                 </ul>
