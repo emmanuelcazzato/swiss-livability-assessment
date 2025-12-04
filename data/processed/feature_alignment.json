@@ -1,0 +1,10 @@
+{
+  "view_sky_ref": 0.050705597200498415,
+  "view_greenery_ref": 0.025793453120013562,
+  "poi_log_p01": 0.0,
+  "poi_log_p99": 7.440027931515436,
+  "daylight_lux_cap": 1000.0,
+  "view_sky_universe_max": 4.0,
+  "view_greenery_universe_max": 2.0,
+  "location_poi_universe_max": 100.0
+}

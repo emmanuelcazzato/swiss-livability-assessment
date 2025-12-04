@@ -1,22 +1,47 @@
 """
 Prepare full features from swiss-dwellings dataset for the Fuzzy Inference System.
 
+Two-stage processing:
+1. Build raw building-level features (with raw_* prefix, original units)
+2. Apply feature alignment to transform raw features to match FIS input universes
+
 Decisions (confirmed by user):
 - Noise: use window-level max per source (traffic/train) with energy summation, by day/night.
 - View: use p80 aggregates (view_sky_p80, view_greenery_p80).
 - Daylight: use sun klx at 12:00 for equinox, summer solstice, winter solstice and average them.
 
 Output: data/processed/dwellings_full.csv with columns:
-  building_id, noise_lden, noise_lnight, daylight_avg_klx, view_sky, view_greenery, location_poi_count
+  Raw features (for debugging/analysis):
+    building_id, raw_noise_day_dba, raw_noise_night_dba, raw_daylight_klx,
+    raw_view_sky_sr, raw_view_greenery_sr, raw_poi_count
+
+  Aligned features (for FIS input):
+    noise_lden, noise_lnight, daylight, view_sky, view_greenery, location_poi
+
+Also outputs: data/processed/feature_alignment.json with fitted alignment parameters
 """
 
 from __future__ import annotations
 
 import math
+import sys
 from pathlib import Path
 from typing import List
 
 import pandas as pd
+
+# Add src to path for feature_alignment import
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from feature_alignment import (
+    FeatureAlignmentConfig,
+    fit_alignment_config,
+    align_features,
+)
 
 
 def energy_sum_db(values: List[float]) -> float:
@@ -139,14 +164,20 @@ def prepare_features(
         for _, row in agg.iterrows()
     ]
 
-    # Assemble feature frame
-    features_df = pd.DataFrame({
+    # =========================================================================
+    # STAGE 1: Assemble RAW feature frame (original units, raw_* prefix)
+    # =========================================================================
+    print("\n" + "=" * 60)
+    print("STAGE 1: Building raw features (original units)")
+    print("=" * 60)
+
+    raw_features_df = pd.DataFrame({
         "building_id": agg.index,
-        "noise_lden": agg["noise_lden"].values,
-        "noise_lnight": agg["noise_lnight"].values,
-        "daylight_avg_klx": daylight_mean.reindex(agg.index).values,
-        "view_sky": view_mean_df.reindex(agg.index)["view_sky_p80"].values,
-        "view_greenery": view_mean_df.reindex(agg.index)["view_greenery_p80"].values,
+        "raw_noise_day_dba": agg["noise_lden"].values,
+        "raw_noise_night_dba": agg["noise_lnight"].values,
+        "raw_daylight_klx": daylight_mean.reindex(agg.index).values,
+        "raw_view_sky_sr": view_mean_df.reindex(agg.index)["view_sky_p80"].values,
+        "raw_view_greenery_sr": view_mean_df.reindex(agg.index)["view_greenery_p80"].values,
     })
 
     # Load locations for POI aggregation
@@ -154,16 +185,16 @@ def prepare_features(
     loc_df = pd.read_csv(loc_path)
     poi_cols = [c for c in loc_df.columns if c.startswith("walkshed_")]
     if poi_cols:
-        loc_df["location_poi_count"] = loc_df[poi_cols].fillna(0).sum(axis=1)
-        loc_df_small = loc_df[["building_id", "location_poi_count"]]
+        loc_df["raw_poi_count"] = loc_df[poi_cols].fillna(0).sum(axis=1)
+        loc_df_small = loc_df[["building_id", "raw_poi_count"]]
     else:
         loc_df_small = loc_df[["building_id"]].copy()
-        loc_df_small["location_poi_count"] = 0
+        loc_df_small["raw_poi_count"] = 0
 
-    # Merge
-    merged = features_df.merge(loc_df_small, on="building_id", how="left")
+    # Merge raw features with POI counts
+    raw_df = raw_features_df.merge(loc_df_small, on="building_id", how="left")
 
-    # Basic stats and threshold suggestions for views
+    # Basic stats for raw features
     def qstats(s: pd.Series):
         return {
             "min": float(s.min()),
@@ -175,14 +206,73 @@ def prepare_features(
             "max": float(s.max()),
         }
 
-    print("\nView (sr) distribution snapshots (for membership tuning):")
-    print("view_sky:", qstats(merged["view_sky"]))
-    print("view_greenery:", qstats(merged["view_greenery"]))
+    print("\nRaw feature distributions:")
+    print(f"  raw_noise_day_dba: {qstats(raw_df['raw_noise_day_dba'])}")
+    print(f"  raw_noise_night_dba: {qstats(raw_df['raw_noise_night_dba'])}")
+    print(f"  raw_daylight_klx: {qstats(raw_df['raw_daylight_klx'])}")
+    print(f"  raw_view_sky_sr: {qstats(raw_df['raw_view_sky_sr'])}")
+    print(f"  raw_view_greenery_sr: {qstats(raw_df['raw_view_greenery_sr'])}")
+    print(f"  raw_poi_count: {qstats(raw_df['raw_poi_count'])}")
 
-    # Save
-    merged.to_csv(output_path, index=False)
+    # =========================================================================
+    # STAGE 2: Fit alignment config and apply transformation
+    # =========================================================================
+    print("\n" + "=" * 60)
+    print("STAGE 2: Fitting and applying feature alignment")
+    print("=" * 60)
+
+    # Fit alignment configuration from raw data
+    print("\nFitting alignment configuration...")
+    alignment_config = fit_alignment_config(raw_df)
+
+    print(f"  view_sky_ref (95th pctl): {alignment_config.view_sky_ref:.6f} sr")
+    print(f"  view_greenery_ref (95th pctl): {alignment_config.view_greenery_ref:.6f} sr")
+    print(f"  poi_log_p01: {alignment_config.poi_log_p01:.3f}")
+    print(f"  poi_log_p99: {alignment_config.poi_log_p99:.3f}")
+
+    # Save alignment config
+    config_path = output_path.parent / "feature_alignment.json"
+    alignment_config.to_json(config_path)
+    print(f"\nSaved alignment config to: {config_path}")
+
+    # Apply alignment transformation
+    print("\nApplying alignment transformation...")
+    aligned_df = align_features(raw_df, alignment_config)
+
+    # Print aligned feature distributions
+    print("\nAligned feature distributions:")
+    print(f"  noise_lden (dBA): {qstats(aligned_df['noise_lden'].dropna())}")
+    print(f"  noise_lnight (dBA): {qstats(aligned_df['noise_lnight'].dropna())}")
+    print(f"  daylight (lux, 0-1000): {qstats(aligned_df['daylight'])}")
+    print(f"  view_sky (scaled, 0-4): {qstats(aligned_df['view_sky'])}")
+    print(f"  view_greenery (scaled, 0-2): {qstats(aligned_df['view_greenery'])}")
+    print(f"  location_poi (scaled, 0-100): {qstats(aligned_df['location_poi'])}")
+
+    # =========================================================================
+    # Save final output with both raw and aligned columns
+    # =========================================================================
+    # Select columns to output (raw for debugging + aligned for FIS)
+    output_cols = [
+        "building_id",
+        # Raw features (original units)
+        "raw_noise_day_dba",
+        "raw_noise_night_dba",
+        "raw_daylight_klx",
+        "raw_view_sky_sr",
+        "raw_view_greenery_sr",
+        "raw_poi_count",
+        # Aligned features (FIS input)
+        "noise_lden",
+        "noise_lnight",
+        "daylight",
+        "view_sky",
+        "view_greenery",
+        "location_poi",
+    ]
+
+    aligned_df[output_cols].to_csv(output_path, index=False)
     print(f"\nSaved features to: {output_path}")
-    print(f"Rows: {len(merged)} | Columns: {list(merged.columns)}")
+    print(f"Rows: {len(aligned_df)} | Columns: {output_cols}")
 
 
 if __name__ == "__main__":
