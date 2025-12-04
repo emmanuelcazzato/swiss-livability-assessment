@@ -99,12 +99,18 @@
                 <thead class="table-light sticky-top" style="z-index: 800;">
                     <tr>
                         <th>ID</th>
-                        <th class="text-end">Noise (dBA)</th>
-                        <th class="text-end">Daylight (klx)</th>
-                        <th class="text-end">Sky (sr)</th>
-                        <th class="text-end">Green (sr)</th>
-                        <th class="text-end">POI</th>
-                        <th class="text-center">FLI Score</th>
+                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.">Noise (dBA)</th>
+                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.">Daylight (klx)</th>
+                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.">Sky (sr)</th>
+                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.">Green (sr)</th>
+                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.">POI</th>
+                        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.">FLI Score</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -133,6 +139,10 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Initialize Bootstrap Tooltips ---
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(el => new bootstrap.Tooltip(el));
+
     // --- Configuration ---
     const sliders = {
         'noise': document.getElementById('noiseSlider'),
