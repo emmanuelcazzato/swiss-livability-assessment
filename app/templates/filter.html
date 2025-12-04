@@ -134,9 +134,35 @@
         </div>
     </div>
 </div>
+
+<!-- Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">{{ _('Dwelling Analysis') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center mb-3">
+                    <span id="modalScoreBadge" class="badge fs-5"></span>
+                </div>
+                <div style="height: 350px; width: 100%;">
+                    <canvas id="modalRadarChart"></canvas>
+                </div>
+                <p class="text-center text-muted small mt-2">
+                    {{ _('Chart values are normalized (0-1) where 1 is excellent.') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // --- i18n translations for JavaScript ---
@@ -148,7 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         found: "{{ _('found') }}",
         showingFirst: "{{ _('Showing first 100 of') }}",
         matches: "{{ _('matches') }}",
-        errorLoading: "{{ _('Error loading dwellings data. Please try refreshing.') }}"
+        errorLoading: "{{ _('Error loading dwellings data. Please try refreshing.') }}",
+        view: "{{ _('View Analysis') }}"
     };
 
     // --- Initialize Bootstrap Tooltips ---
@@ -181,6 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- State ---
     let allDwellings = [];
+    let modalChartInstance = null; // Single instance for the modal
+    const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
 
     // --- Initialization ---
     loadDwellings();
@@ -201,6 +230,18 @@ document.addEventListener('DOMContentLoaded', function() {
             updateLabel(key, 0);
         }
         filterAndRender();
+    });
+
+    // Event delegation for dynamic buttons
+    document.getElementById('resultsBody').addEventListener('click', function(e) {
+        const btn = e.target.closest('.view-chart-btn');
+        if (btn) {
+            const dwellingId = btn.dataset.id;
+            const dwelling = allDwellings.find(d => d.building_id == dwellingId);
+            if (dwelling) {
+                showDwellingModal(dwelling);
+            }
+        }
     });
 
     // --- Functions ---
@@ -249,43 +290,28 @@ document.addEventListener('DOMContentLoaded', function() {
             poi: parseInt(sliders.poi.value)
         };
 
-        // Filter Logic (Client-Side for speed with ~3000 records)
+        // Filter Logic (Client-Side)
         const filtered = allDwellings.filter(d => {
-            // Noise: Lower is better.
-            // 0: All, 1: Fair (<65), 2: Good (<53), 3: Excellent (<45)
             if (criteria.noise > 0) {
                 const maxNoise = criteria.noise === 1 ? 65 : (criteria.noise === 2 ? 53 : 45);
                 if (d.noise_lden >= maxNoise) return false;
             }
-
-            // Daylight: Higher is better
-            // 0: All, 1: Fair (>0.8), 2: Good (>1.5), 3: Excellent (>2.5)
             if (criteria.daylight > 0) {
                 const minDaylight = criteria.daylight === 1 ? 0.8 : (criteria.daylight === 2 ? 1.5 : 2.5);
                 if (d.daylight < minDaylight) return false;
             }
-
-            // Sky View: Higher is better
-            // 0: All, 1: Fair (>0.015), 2: Good (>0.03), 3: Excellent (>0.05)
             if (criteria.sky > 0) {
                 const minSky = criteria.sky === 1 ? 0.015 : (criteria.sky === 2 ? 0.03 : 0.05);
                 if (d.view_sky < minSky) return false;
             }
-
-            // Greenery View: Higher is better
-            // 0: All, 1: Fair (>0.006), 2: Good (>0.012), 3: Excellent (>0.025)
             if (criteria.greenery > 0) {
                 const minGreen = criteria.greenery === 1 ? 0.006 : (criteria.greenery === 2 ? 0.012 : 0.025);
                 if (d.view_greenery < minGreen) return false;
             }
-
-            // POI: Higher is better (log10 value)
-            // 0: All, 1: Fair (>1.9), 2: Good (>2.35), 3: Excellent (>2.9)
             if (criteria.poi > 0) {
                 const minPoi = criteria.poi === 1 ? 1.9 : (criteria.poi === 2 ? 2.35 : 2.9);
                 if (d.location_poi < minPoi) return false;
             }
-
             return true;
         });
 
@@ -310,13 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
         noResults.classList.add('d-none');
         tableContainer.classList.remove('d-none');
 
-        // Render max 100 rows for performance
         const displayData = data.slice(0, 100);
 
         displayData.forEach(d => {
             const tr = document.createElement('tr');
 
-            // Determine FLI badge color
             let badgeClass = 'bg-danger';
             if (d.fli_score >= 65) badgeClass = 'bg-success';
             else if (d.fli_score >= 45) badgeClass = 'bg-primary';
@@ -324,16 +348,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             tr.innerHTML = `
                 <td>${d.building_id}</td>
-                <td class="text-end">${d.noise_lden.toFixed(1)}</td>
-                <td class="text-end">${d.daylight.toFixed(2)}</td>
-                <td class="text-end">${d.view_sky.toFixed(3)}</td>
-                <td class="text-end">${d.view_greenery.toFixed(3)}</td>
-                <td class="text-end">${d.poi_count}</td>
+                <td class="text-center">${d.noise_lden.toFixed(1)}</td>
+                <td class="text-center">${d.daylight.toFixed(2)}</td>
+                <td class="text-center">${d.view_sky.toFixed(3)}</td>
+                <td class="text-center">${d.view_greenery.toFixed(3)}</td>
+                <td class="text-center">${d.poi_count}</td>
                 <td class="text-center"><span class="badge ${badgeClass}">${d.fli_score.toFixed(0)}</span></td>
                 <td class="text-center">
-                    <a href="#" class="btn btn-sm btn-outline-primary view-details" data-id="${d.building_id}">
-                        <i class="bi bi-eye"></i>
-                    </a>
+                    <button class="btn btn-sm btn-outline-primary view-chart-btn" data-id="${d.building_id}" title="${i18n.view}">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -344,6 +368,115 @@ document.addEventListener('DOMContentLoaded', function() {
             infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">${i18n.showingFirst} ${data.length} ${i18n.matches}</td>`;
             tbody.appendChild(infoRow);
         }
+    }
+
+    function showDwellingModal(data) {
+        // Set Title
+        document.getElementById('modalTitle').textContent = `Dwelling ${data.building_id}`;
+        
+        // Set Score Badge
+        const scoreEl = document.getElementById('modalScoreBadge');
+        scoreEl.textContent = `FLI Score: ${data.fli_score.toFixed(1)}`;
+        
+        let badgeClass = 'bg-danger';
+        if (data.fli_score >= 65) badgeClass = 'bg-success';
+        else if (data.fli_score >= 45) badgeClass = 'bg-primary';
+        else if (data.fli_score >= 25) badgeClass = 'bg-warning text-dark';
+        scoreEl.className = `badge fs-5 ${badgeClass}`;
+
+        // Normalize Data
+        // Noise: 35 (Exc) - 75 (Poor). Inverted.
+        let nNoise = (75 - data.noise_lden) / (75 - 35);
+        nNoise = Math.max(0, Math.min(1, nNoise));
+        
+        // Daylight: 0 - 3.0 klx
+        let nDaylight = data.daylight / 3.0;
+        nDaylight = Math.min(1, Math.max(0, nDaylight));
+        
+        // Sky: 0 - 0.05 sr
+        let nSky = data.view_sky / 0.05;
+        nSky = Math.min(1, Math.max(0, nSky));
+        
+        // Greenery: 0 - 0.025 sr
+        let nGreen = data.view_greenery / 0.025;
+        nGreen = Math.min(1, Math.max(0, nGreen));
+        
+        // POI: log10 scale. 0 - 3.0 (1000 POIs)
+        let nPoi = data.location_poi / 3.0;
+        nPoi = Math.min(1, Math.max(0, nPoi));
+
+        // Render Chart
+        const ctx = document.getElementById('modalRadarChart').getContext('2d');
+        
+        if (modalChartInstance) {
+            modalChartInstance.destroy();
+        }
+
+        modalChartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Noise', 
+                    'Light', 
+                    'Sky', 
+                    'Green', 
+                    'POI'
+                ],
+                datasets: [{
+                    label: 'Normalized Score',
+                    data: [nNoise, nDaylight, nSky, nGreen, nPoi],
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgba(13, 110, 253, 0.8)',
+                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 1,
+                        ticks: { 
+                            display: true, 
+                            stepSize: 0.2,
+                            backdropColor: 'transparent' 
+                        },
+                        pointLabels: {
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                // Show original values in tooltip
+                                const idx = context.dataIndex;
+                                let val = '';
+                                let unit = '';
+                                if(idx === 0) { val = data.noise_lden.toFixed(1); unit = ' dBA'; }
+                                if(idx === 1) { val = data.daylight.toFixed(2); unit = ' klx'; }
+                                if(idx === 2) { val = data.view_sky.toFixed(3); unit = ' sr'; }
+                                if(idx === 3) { val = data.view_greenery.toFixed(3); unit = ' sr'; }
+                                if(idx === 4) { val = data.poi_count; unit = ' POIs'; }
+                                return `Raw: ${val}${unit}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Show Modal
+        analysisModal.show();
     }
 });
 </script>
