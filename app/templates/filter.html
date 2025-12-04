@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Filter Dwellings') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
+
+{% block content %}
+<style>
+    .sortable { cursor: pointer; user-select: none; }
+    .sortable:hover { background-color: #e9ecef; }
+    .sort-icon { font-size: 0.75em; opacity: 0.5; }
+    .sortable.active .sort-icon { opacity: 1; color: #0d6efd; }
+</style>
+<div class="row">
+    <!-- Filters Column -->
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 900;">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>{{ _('Filter Metrics') }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">{{ _('Adjust sliders to filter dwellings by minimum requirements.') }}</p>
+
+                <form id="filterForm">
+                    <!-- Noise Slider -->
+                    <div class="mb-4">
+                        <label for="noiseSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Acoustic Comfort') }}</span>
+                            <span id="noiseLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="noiseSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Daylight Slider -->
+                    <div class="mb-4">
+                        <label for="daylightSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Daylight') }}</span>
+                            <span id="daylightLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="daylightSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- View Sky Slider -->
+                    <div class="mb-4">
+                        <label for="skySlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Sky View') }}</span>
+                            <span id="skyLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="skySlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- View Greenery Slider -->
+                    <div class="mb-4">
+                        <label for="greenerySlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Greenery View') }}</span>
+                            <span id="greeneryLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="greenerySlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- POI Slider -->
+                    <div class="mb-4">
+                        <label for="poiSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Location (POI)') }}</span>
+                            <span id="poiLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max="3" step="1" id="poiSlider" value="0">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-secondary w-100" id="resetBtn">
+                        {{ _('Reset Filters') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Column -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">{{ _('Matching Dwellings') }}</h4>
+            <span class="badge bg-primary rounded-pill" id="resultCount">0 {{ _('found') }}</span>
+        </div>
+
+        <div class="table-responsive bg-white rounded shadow-sm" style="max-height: 80vh; overflow-y: auto;">
+            <table class="table table-hover mb-0 sticky-header" id="resultsTable">
+                <thead class="table-light sticky-top" style="z-index: 800;">
+                    <tr>
+                        <th class="sortable" data-sort="building_id">{{ _('ID') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="noise_lden" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Noise (dBA)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="daylight" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.') }}">{{ _('Daylight (klx)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="view_sky" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.') }}">{{ _('Sky (sr)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="view_greenery" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.') }}">{{ _('Green (sr)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="poi_count" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.') }}">{{ _('POI') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="fli_score" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.') }}">{{ _('FLI Score') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center">{{ _('Action') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results populated via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">{{ _('Loading...') }}</span>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center py-5 d-none">
+            <i class="bi bi-search fs-1 text-muted mb-3"></i>
+            <p class="text-muted">{{ _('No dwellings match your criteria.') }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">{{ _('Dwelling Analysis') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center mb-3">
+                    <span id="modalScoreBadge" class="badge fs-5"></span>
+                </div>
+                <div style="height: 350px; width: 100%;">
+                    <canvas id="modalRadarChart"></canvas>
+                </div>
+                <p class="text-center text-muted small mt-2">
+                    {{ _('Chart values are normalized (0-1) where 1 is excellent.') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- i18n translations for JavaScript ---
+    const i18n = {
+        all: "{{ _('All') }}",
+        fairPlus: "{{ _('Fair+') }}",
+        goodPlus: "{{ _('Good+') }}",
+        excellent: "{{ _('Excellent') }}",
+        found: "{{ _('found') }}",
+        showingFirst: "{{ _('Showing first 100 of') }}",
+        matches: "{{ _('matches') }}",
+        errorLoading: "{{ _('Error loading dwellings data. Please try refreshing.') }}",
+        view: "{{ _('View Analysis') }}"
+    };
+
+    // --- Initialize Bootstrap Tooltips ---
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(el => new bootstrap.Tooltip(el));
+
+    // --- Configuration ---
+    const sliders = {
+        'noise': document.getElementById('noiseSlider'),
+        'daylight': document.getElementById('daylightSlider'),
+        'sky': document.getElementById('skySlider'),
+        'greenery': document.getElementById('greenerySlider'),
+        'poi': document.getElementById('poiSlider')
+    };
+
+    const labels = {
+        'noise': document.getElementById('noiseLabel'),
+        'daylight': document.getElementById('daylightLabel'),
+        'sky': document.getElementById('skyLabel'),
+        'greenery': document.getElementById('greeneryLabel'),
+        'poi': document.getElementById('poiLabel')
+    };
+
+    const levelMap = {
+        0: { text: i18n.all, color: 'bg-secondary' },
+        1: { text: i18n.fairPlus, color: 'bg-warning text-dark' },
+        2: { text: i18n.goodPlus, color: 'bg-primary' },
+        3: { text: i18n.excellent, color: 'bg-success' }
+    };
+
+    // --- State ---
+    let allDwellings = [];
+    let modalChartInstance = null; // Single instance for the modal
+    const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+    let sortColumn = null;
+    let sortDirection = 'asc';
+
+    // --- Initialization ---
+    loadDwellings();
+
+    // --- Event Listeners ---
+    for (const [key, slider] of Object.entries(sliders)) {
+        slider.addEventListener('input', () => {
+            updateLabel(key, slider.value);
+            filterAndRender();
+        });
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        for (const slider of Object.values(sliders)) {
+            slider.value = 0;
+        }
+        for (const key of Object.keys(sliders)) {
+            updateLabel(key, 0);
+        }
+        sortColumn = null;
+        sortDirection = 'asc';
+        updateSortIcons();
+        filterAndRender();
+    });
+
+    // Sort column click event
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.dataset.sort;
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            updateSortIcons();
+            filterAndRender();
+        });
+    });
+
+    // Event delegation for dynamic buttons
+    document.getElementById('resultsBody').addEventListener('click', function(e) {
+        const btn = e.target.closest('.view-chart-btn');
+        if (btn) {
+            const dwellingId = btn.dataset.id;
+            const dwelling = allDwellings.find(d => d.building_id == dwellingId);
+            if (dwelling) {
+                showDwellingModal(dwelling);
+            }
+        }
+    });
+
+    // --- Functions ---
+
+    function updateLabel(key, value) {
+        const labelEl = labels[key];
+        const config = levelMap[value];
+
+        labelEl.textContent = config.text;
+        labelEl.className = `badge ${config.color}`;
+    }
+
+    function updateSortIcons() {
+        document.querySelectorAll('.sortable').forEach(th => {
+            const icon = th.querySelector('.sort-icon');
+            const column = th.dataset.sort;
+            if (column === sortColumn) {
+                th.classList.add('active');
+                icon.className = `bi sort-icon ${sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down'}`;
+            } else {
+                th.classList.remove('active');
+                icon.className = 'bi bi-chevron-expand sort-icon';
+            }
+        });
+    }
+
+    async function loadDwellings() {
+        showLoading(true);
+        try {
+            const response = await fetch('/api/dwellings/all');
+            if (!response.ok) throw new Error('Failed to load data');
+            allDwellings = await response.json();
+            filterAndRender();
+        } catch (error) {
+            console.error('Error:', error);
+            alert(i18n.errorLoading);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        const table = document.querySelector('.table-responsive');
+        if (show) {
+            spinner.classList.remove('d-none');
+            table.classList.add('d-none');
+        } else {
+            spinner.classList.add('d-none');
+            table.classList.remove('d-none');
+        }
+    }
+
+    function filterAndRender() {
+        const criteria = {
+            noise: parseInt(sliders.noise.value),
+            daylight: parseInt(sliders.daylight.value),
+            sky: parseInt(sliders.sky.value),
+            greenery: parseInt(sliders.greenery.value),
+            poi: parseInt(sliders.poi.value)
+        };
+
+        // Filter Logic (Client-Side)
+        const filtered = allDwellings.filter(d => {
+            if (criteria.noise > 0) {
+                const maxNoise = criteria.noise === 1 ? 65 : (criteria.noise === 2 ? 53 : 45);
+                if (d.noise_lden >= maxNoise) return false;
+            }
+            if (criteria.daylight > 0) {
+                const minDaylight = criteria.daylight === 1 ? 0.8 : (criteria.daylight === 2 ? 1.5 : 2.5);
+                if (d.daylight < minDaylight) return false;
+            }
+            if (criteria.sky > 0) {
+                const minSky = criteria.sky === 1 ? 0.015 : (criteria.sky === 2 ? 0.03 : 0.05);
+                if (d.view_sky < minSky) return false;
+            }
+            if (criteria.greenery > 0) {
+                const minGreen = criteria.greenery === 1 ? 0.006 : (criteria.greenery === 2 ? 0.012 : 0.025);
+                if (d.view_greenery < minGreen) return false;
+            }
+            if (criteria.poi > 0) {
+                const minPoi = criteria.poi === 1 ? 1.9 : (criteria.poi === 2 ? 2.35 : 2.9);
+                if (d.location_poi < minPoi) return false;
+            }
+            return true;
+        });
+
+        // Sort if a column is selected
+        if (sortColumn) {
+            filtered.sort((a, b) => {
+                const valA = a[sortColumn];
+                const valB = b[sortColumn];
+                if (sortDirection === 'asc') {
+                    return valA - valB;
+                } else {
+                    return valB - valA;
+                }
+            });
+        }
+
+        renderTable(filtered);
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('resultsBody');
+        const countBadge = document.getElementById('resultCount');
+        const noResults = document.getElementById('noResults');
+        const tableContainer = document.querySelector('.table-responsive');
+
+        tbody.innerHTML = '';
+        countBadge.textContent = `${data.length} ${i18n.found}`;
+
+        if (data.length === 0) {
+            noResults.classList.remove('d-none');
+            tableContainer.classList.add('d-none');
+            return;
+        }
+
+        noResults.classList.add('d-none');
+        tableContainer.classList.remove('d-none');
+
+        const displayData = data.slice(0, 100);
+
+        displayData.forEach(d => {
+            const tr = document.createElement('tr');
+
+            let badgeClass = 'bg-danger';
+            if (d.fli_score >= 65) badgeClass = 'bg-success';
+            else if (d.fli_score >= 45) badgeClass = 'bg-primary';
+            else if (d.fli_score >= 25) badgeClass = 'bg-warning text-dark';
+
+            tr.innerHTML = `
+                <td>${d.building_id}</td>
+                <td class="text-center">${d.noise_lden.toFixed(1)}</td>
+                <td class="text-center">${d.daylight.toFixed(2)}</td>
+                <td class="text-center">${d.view_sky.toFixed(3)}</td>
+                <td class="text-center">${d.view_greenery.toFixed(3)}</td>
+                <td class="text-center">${d.poi_count}</td>
+                <td class="text-center"><span class="badge ${badgeClass}">${d.fli_score.toFixed(0)}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary view-chart-btn" data-id="${d.building_id}" title="${i18n.view}">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (data.length > 100) {
+            const infoRow = document.createElement('tr');
+            infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">${i18n.showingFirst} ${data.length} ${i18n.matches}</td>`;
+            tbody.appendChild(infoRow);
+        }
+    }
+
+    function showDwellingModal(data) {
+        // Set Title
+        document.getElementById('modalTitle').textContent = `Dwelling ${data.building_id}`;
+        
+        // Set Score Badge
+        const scoreEl = document.getElementById('modalScoreBadge');
+        scoreEl.textContent = `FLI Score: ${data.fli_score.toFixed(1)}`;
+        
+        let badgeClass = 'bg-danger';
+        if (data.fli_score >= 65) badgeClass = 'bg-success';
+        else if (data.fli_score >= 45) badgeClass = 'bg-primary';
+        else if (data.fli_score >= 25) badgeClass = 'bg-warning text-dark';
+        scoreEl.className = `badge fs-5 ${badgeClass}`;
+
+        // Normalize Data
+        // Noise: 35 (Exc) - 75 (Poor). Inverted.
+        let nNoise = (75 - data.noise_lden) / (75 - 35);
+        nNoise = Math.max(0, Math.min(1, nNoise));
+        
+        // Daylight: 0 - 3.0 klx
+        let nDaylight = data.daylight / 3.0;
+        nDaylight = Math.min(1, Math.max(0, nDaylight));
+        
+        // Sky: 0 - 0.05 sr
+        let nSky = data.view_sky / 0.05;
+        nSky = Math.min(1, Math.max(0, nSky));
+        
+        // Greenery: 0 - 0.025 sr
+        let nGreen = data.view_greenery / 0.025;
+        nGreen = Math.min(1, Math.max(0, nGreen));
+        
+        // POI: log10 scale. 0 - 3.0 (1000 POIs)
+        let nPoi = data.location_poi / 3.0;
+        nPoi = Math.min(1, Math.max(0, nPoi));
+
+        // Render Chart
+        const ctx = document.getElementById('modalRadarChart').getContext('2d');
+        
+        if (modalChartInstance) {
+            modalChartInstance.destroy();
+        }
+
+        modalChartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Noise', 
+                    'Light', 
+                    'Sky', 
+                    'Green', 
+                    'POI'
+                ],
+                datasets: [{
+                    label: 'Normalized Score',
+                    data: [nNoise, nDaylight, nSky, nGreen, nPoi],
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgba(13, 110, 253, 0.8)',
+                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 1,
+                        ticks: { 
+                            display: true, 
+                            stepSize: 0.2,
+                            backdropColor: 'transparent' 
+                        },
+                        pointLabels: {
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                // Show original values in tooltip
+                                const idx = context.dataIndex;
+                                let val = '';
+                                let unit = '';
+                                if(idx === 0) { val = data.noise_lden.toFixed(1); unit = ' dBA'; }
+                                if(idx === 1) { val = data.daylight.toFixed(2); unit = ' klx'; }
+                                if(idx === 2) { val = data.view_sky.toFixed(3); unit = ' sr'; }
+                                if(idx === 3) { val = data.view_greenery.toFixed(3); unit = ' sr'; }
+                                if(idx === 4) { val = data.poi_count; unit = ' POIs'; }
+                                return `Raw: ${val}${unit}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Show Modal
+        analysisModal.show();
+    }
+});
+</script>
+{% endblock %}

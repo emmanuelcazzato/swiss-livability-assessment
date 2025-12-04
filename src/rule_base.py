@@ -1,8 +1,20 @@
 """
-Fuzzy Rule Base Module
+Fuzzy Rule Base Module - V2
 
 Defines the fuzzy inference rules for livability assessment using Mamdani inference.
-Rules are based on expert knowledge and the Computing with Words framework.
+
+V2 Design Principles:
+1. Health-first: noise is a strong negative factor but NOT an absolute veto
+2. Avoid redundancy: daylight and sky-view not hard-ANDed (they're correlated)
+3. POI as conditional bonus: high accessibility only helps if health baseline is decent
+4. City trade-off: high POI + high noise = "convenient but uncomfortable" = fair
+5. Green view matters: associated with stress recovery, explicit in excellent/good rules
+
+Rule Distribution:
+- POOR (7 rules): serious health/comfort issues
+- FAIR (8 rules): acceptable but suboptimal conditions
+- GOOD (6 rules): comfortable living conditions
+- EXCELLENT (3 rules): ideal conditions across all dimensions
 """
 
 import numpy as np
@@ -21,120 +33,67 @@ class FuzzyRuleBase:
     def _define_rules(self) -> List[Dict]:
         """
         Define fuzzy IF-THEN rules for livability assessment.
-        
+
+        V2 Rule Base: 24 rules organized by consequent (poor/fair/good/excellent)
+        Key changes from V1:
+        - No single-variable veto rules for noise (requires combination)
+        - City trade-off rules: high POI + high noise = fair (not poor)
+        - Greenery explicitly required for excellent ratings
+        - Daylight and sky-view not hard-ANDed (avoid redundancy)
+
         Returns:
         --------
         List[Dict]
-            List of fuzzy rules
+            List of 24 fuzzy rules
         """
         rules = [
-            # EXCELLENT LIVABILITY RULES
+            # ============================================================
+            # POOR LIVABILITY RULES (7 rules)
+            # Serious health/comfort issues requiring multiple factors
+            # ============================================================
             {
                 'id': 1,
-                'description': 'Quiet environment with high daylight and good views',
+                'description': 'Both day and night noise are high - severe noise exposure',
                 'antecedents': {
-                    'noise_lden': 'quiet',
-                    'daylight': 'high',
-                    'view_sky': 'good'
-                },
-                'consequent': {'livability': 'excellent'},
-                'weight': 1.0
-            },
-            {
-                'id': 2,
-                'description': 'Quiet with good greenery view and high accessibility',
-                'antecedents': {
-                    'noise_lden': 'quiet',
-                    'view_greenery': 'good',
-                    'location_poi': 'high'
-                },
-                'consequent': {'livability': 'excellent'},
-                'weight': 1.0
-            },
-            
-            # GOOD LIVABILITY RULES
-            {
-                'id': 3,
-                'description': 'Moderate noise with high daylight and good views',
-                'antecedents': {
-                    'noise_lden': 'moderate',
-                    'daylight': 'high',
-                    'view_sky': 'good'
-                },
-                'consequent': {'livability': 'good'},
-                'weight': 1.0
-            },
-            {
-                'id': 4,
-                'description': 'Quiet environment with medium daylight',
-                'antecedents': {
-                    'noise_lden': 'quiet',
-                    'daylight': 'medium',
-                    'view_sky': 'moderate'
-                },
-                'consequent': {'livability': 'good'},
-                'weight': 1.0
-            },
-            {
-                'id': 5,
-                'description': 'Moderate noise but good views and accessibility',
-                'antecedents': {
-                    'noise_lden': 'moderate',
-                    'view_sky': 'good',
-                    'location_poi': 'high'
-                },
-                'consequent': {'livability': 'good'},
-                'weight': 0.9
-            },
-            
-            # FAIR LIVABILITY RULES
-            {
-                'id': 6,
-                'description': 'Moderate noise with medium daylight',
-                'antecedents': {
-                    'noise_lden': 'moderate',
-                    'daylight': 'medium',
-                    'view_sky': 'moderate'
-                },
-                'consequent': {'livability': 'fair'},
-                'weight': 1.0
-            },
-            {
-                'id': 7,
-                'description': 'Quiet but low daylight and poor views',
-                'antecedents': {
-                    'noise_lden': 'quiet',
-                    'daylight': 'low',
-                    'view_sky': 'poor'
-                },
-                'consequent': {'livability': 'fair'},
-                'weight': 1.0
-            },
-            {
-                'id': 8,
-                'description': 'Moderate noise with good accessibility',
-                'antecedents': {
-                    'noise_lden': 'moderate',
-                    'location_poi': 'high',
-                    'view_sky': 'moderate'
-                },
-                'consequent': {'livability': 'fair'},
-                'weight': 0.8
-            },
-            
-            # POOR LIVABILITY RULES
-            {
-                'id': 9,
-                'description': 'Noisy environment regardless of other factors',
-                'antecedents': {
-                    'noise_lden': 'noisy'
+                    'noise_lden': 'noisy',
+                    'noise_lnight': 'noisy'
                 },
                 'consequent': {'livability': 'poor'},
                 'weight': 1.0
             },
             {
-                'id': 10,
-                'description': 'Low daylight with poor views',
+                'id': 2,
+                'description': 'Night noise is high with poor greenery - sleep quality compromised',
+                'antecedents': {
+                    'noise_lnight': 'noisy',
+                    'view_greenery': 'poor'
+                },
+                'consequent': {'livability': 'poor'},
+                'weight': 0.95
+            },
+            {
+                'id': 3,
+                'description': 'Day noise is high with low daylight - multiple health stressors',
+                'antecedents': {
+                    'noise_lden': 'noisy',
+                    'daylight': 'low'
+                },
+                'consequent': {'livability': 'poor'},
+                'weight': 0.90
+            },
+            {
+                'id': 4,
+                'description': 'Day noise is high with poor sky view - confined and loud',
+                'antecedents': {
+                    'noise_lden': 'noisy',
+                    'view_sky': 'poor'
+                },
+                'consequent': {'livability': 'poor'},
+                'weight': 0.90
+            },
+            {
+                'id': 5,
+                'description': 'Triple poor: low daylight, poor sky view, poor greenery',
                 'antecedents': {
                     'daylight': 'low',
                     'view_sky': 'poor',
@@ -144,62 +103,225 @@ class FuzzyRuleBase:
                 'weight': 1.0
             },
             {
-                'id': 11,
-                'description': 'Moderate noise with low daylight and poor views',
+                'id': 6,
+                'description': 'Moderate day noise with noisy nights - sleep disruption',
                 'antecedents': {
                     'noise_lden': 'moderate',
-                    'daylight': 'low',
-                    'view_sky': 'poor'
+                    'noise_lnight': 'noisy'
                 },
                 'consequent': {'livability': 'poor'},
-                'weight': 0.9
+                'weight': 0.90
+            },
+            {
+                'id': 7,
+                'description': 'Moderate day noise with low daylight - substandard environment',
+                'antecedents': {
+                    'noise_lden': 'moderate',
+                    'daylight': 'low'
+                },
+                'consequent': {'livability': 'poor'},
+                'weight': 0.80
+            },
+
+            # ============================================================
+            # FAIR LIVABILITY RULES (8 rules)
+            # Acceptable but suboptimal, includes city trade-off scenarios
+            # ============================================================
+            {
+                'id': 8,
+                'description': 'Moderate noise levels day and night - typical urban condition',
+                'antecedents': {
+                    'noise_lden': 'moderate',
+                    'noise_lnight': 'moderate'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.95
+            },
+            {
+                'id': 9,
+                'description': 'Quiet day noise but low daylight - lighting deficiency',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'daylight': 'low'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.75
+            },
+            {
+                'id': 10,
+                'description': 'Quiet day noise but poor sky view - limited openness',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'view_sky': 'poor'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.75
+            },
+            {
+                'id': 11,
+                'description': 'Poor greenery with medium daylight - limited nature contact',
+                'antecedents': {
+                    'view_greenery': 'poor',
+                    'daylight': 'medium'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.80
             },
             {
                 'id': 12,
-                'description': 'Poor accessibility with low environmental quality',
+                'description': 'Poor greenery with moderate sky view - limited restorative environment',
                 'antecedents': {
-                    'location_poi': 'low',
-                    'daylight': 'low',
-                    'noise_lden': 'moderate'
+                    'view_greenery': 'poor',
+                    'view_sky': 'moderate'
                 },
-                'consequent': {'livability': 'poor'},
-                'weight': 0.7
+                'consequent': {'livability': 'fair'},
+                'weight': 0.80
             },
-            
-            # ADDITIONAL NUANCED RULES
             {
                 'id': 13,
-                'description': 'Excellent daylight compensates for moderate noise',
+                'description': 'City trade-off: high POI but day noise is high - convenient but loud',
                 'antecedents': {
-                    'noise_lden': 'moderate',
-                    'daylight': 'high',
-                    'location_poi': 'high'
+                    'location_poi': 'high',
+                    'noise_lden': 'noisy'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.60
+            },
+            {
+                'id': 14,
+                'description': 'City trade-off: high POI but night noise is high - convenient but sleep-disrupting',
+                'antecedents': {
+                    'location_poi': 'high',
+                    'noise_lnight': 'noisy'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.55
+            },
+            {
+                'id': 15,
+                'description': 'Low POI but quiet with good greenery - peaceful but remote',
+                'antecedents': {
+                    'location_poi': 'low',
+                    'noise_lden': 'quiet',
+                    'view_greenery': 'good'
+                },
+                'consequent': {'livability': 'fair'},
+                'weight': 0.70
+            },
+
+            # ============================================================
+            # GOOD LIVABILITY RULES (6 rules)
+            # Comfortable living conditions
+            # ============================================================
+            {
+                'id': 16,
+                'description': 'Quiet day and night with high daylight - healthy environment',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'noise_lnight': 'quiet',
+                    'daylight': 'high'
+                },
+                'consequent': {'livability': 'good'},
+                'weight': 0.90
+            },
+            {
+                'id': 17,
+                'description': 'Quiet day and night with good sky view - open and peaceful',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'noise_lnight': 'quiet',
+                    'view_sky': 'good'
+                },
+                'consequent': {'livability': 'good'},
+                'weight': 0.90
+            },
+            {
+                'id': 18,
+                'description': 'Quiet day with good greenery and medium daylight - restorative',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'view_greenery': 'good',
+                    'daylight': 'medium'
                 },
                 'consequent': {'livability': 'good'},
                 'weight': 0.85
             },
             {
-                'id': 14,
-                'description': 'Good greenery view with quiet night environment',
+                'id': 19,
+                'description': 'Quiet day with good greenery and moderate sky view - nature contact',
                 'antecedents': {
-                    'noise_lnight': 'quiet',
+                    'noise_lden': 'quiet',
                     'view_greenery': 'good',
-                    'daylight': 'medium'
+                    'view_sky': 'moderate'
                 },
                 'consequent': {'livability': 'good'},
-                'weight': 0.9
+                'weight': 0.85
             },
             {
-                'id': 15,
-                'description': 'Noisy night environment degrades livability',
+                'id': 20,
+                'description': 'Moderate day but quiet night with high daylight - daytime active area',
                 'antecedents': {
-                    'noise_lnight': 'noisy'
+                    'noise_lden': 'moderate',
+                    'noise_lnight': 'quiet',
+                    'daylight': 'high'
                 },
-                'consequent': {'livability': 'poor'},
-                'weight': 0.95
+                'consequent': {'livability': 'good'},
+                'weight': 0.80
+            },
+            {
+                'id': 21,
+                'description': 'Quiet day with high POI and moderate greenery - convenient and quiet',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'location_poi': 'high',
+                    'view_greenery': 'moderate'
+                },
+                'consequent': {'livability': 'good'},
+                'weight': 0.75
+            },
+
+            # ============================================================
+            # EXCELLENT LIVABILITY RULES (3 rules)
+            # Ideal conditions - note: greenery required for excellent
+            # ============================================================
+            {
+                'id': 22,
+                'description': 'Quiet day/night with good greenery and high daylight - ideal healthy home',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'noise_lnight': 'quiet',
+                    'view_greenery': 'good',
+                    'daylight': 'high'
+                },
+                'consequent': {'livability': 'excellent'},
+                'weight': 1.0
+            },
+            {
+                'id': 23,
+                'description': 'Quiet day/night with good greenery and good sky view - ideal open home',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'noise_lnight': 'quiet',
+                    'view_greenery': 'good',
+                    'view_sky': 'good'
+                },
+                'consequent': {'livability': 'excellent'},
+                'weight': 1.0
+            },
+            {
+                'id': 24,
+                'description': 'Quiet day/night with good greenery and high POI - ideal accessible home',
+                'antecedents': {
+                    'noise_lden': 'quiet',
+                    'noise_lnight': 'quiet',
+                    'view_greenery': 'good',
+                    'location_poi': 'high'
+                },
+                'consequent': {'livability': 'excellent'},
+                'weight': 0.90
             }
         ]
-        
+
         return rules
     
     def get_rules(self) -> List[Dict]:

@@ -1,10 +1,17 @@
 """
-Fuzzy Membership Functions Module
+Fuzzy Membership Functions Module - V2
 
 Defines membership functions for linguistic variables based on:
-- WHO 2018 Environmental Noise Guidelines
-- EN 17037 Daylight Provision Standards
-- Domain expert knowledge for views and location
+- WHO 2018 Environmental Noise Guidelines (road traffic: Lden <53 dB, Lnight <45 dB)
+- EN 17037 Daylight Provision Standards (as proxy, using klx units)
+- Data-driven calibration for views (raw sr units matching Swiss Dwellings dataset)
+- POI accessibility using log10 transformation to handle long-tail distribution
+
+V2 Design Principles:
+1. Health-first approach: noise remains strong factor but not absolute veto
+2. Avoid redundant calculations: daylight and sky-view not hard-ANDed in rules
+3. POI as conditional bonus: high accessibility only helps when health baseline is decent
+4. Direct use of raw units for view variables (no scaling)
 """
 
 import numpy as np
@@ -25,79 +32,107 @@ class FuzzyMembershipFunctions:
         self._define_membership_functions()
     
     def _define_universes(self):
-        """Define the universe of discourse for each input/output variable."""
-        # Noise (dBA) - typical range for urban environments
-        self.universes['noise_lden'] = np.arange(30, 85, 0.5)
-        self.universes['noise_lnight'] = np.arange(25, 75, 0.5)
-        
-        # Daylight (klx) - converted to lux for easier interpretation
-        # Note: 1 klx = 1000 lux
-        self.universes['daylight'] = np.arange(0, 1000, 5)  # in lux
-        
-        # View sky (solid angle in steradians)
-        self.universes['view_sky'] = np.arange(0, 4, 0.05)
-        
-        # View greenery (solid angle in steradians)
-        self.universes['view_greenery'] = np.arange(0, 2, 0.02)
-        
-        # Location POI count
-        self.universes['location_poi'] = np.arange(0, 100, 1)
-        
+        """
+        Define the universe of discourse for each input/output variable.
+
+        V2 Changes:
+        - noise_lden: expanded to 20-80 dBA (WHO anchors at 53 dB)
+        - noise_lnight: expanded to 10-72 dBA (WHO anchors at 45 dB)
+        - daylight: now in klx (0-6) instead of lux
+        - view_sky: raw sr units (0-0.13) matching dataset range
+        - view_greenery: raw sr units (0-0.06) matching dataset range
+        - location_poi: log10(count+1) scale (0-3.5)
+        """
+        # Noise (dBA) - WHO 2018 guidelines as anchor points
+        self.universes['noise_lden'] = np.arange(20, 80.5, 0.5)
+        self.universes['noise_lnight'] = np.arange(10, 72.5, 0.5)
+
+        # Daylight (klx) - direct kilolux units, typical noon illuminance
+        self.universes['daylight'] = np.arange(0, 6.05, 0.05)
+
+        # View sky (solid angle in steradians) - raw units from dataset
+        # Dataset range: 0-0.13 sr
+        self.universes['view_sky'] = np.arange(0, 0.131, 0.001)
+
+        # View greenery (solid angle in steradians) - raw units from dataset
+        # Dataset range: 0-0.06 sr
+        self.universes['view_greenery'] = np.arange(0, 0.0605, 0.0005)
+
+        # Location POI - log10(count+1) to handle long-tail distribution
+        # Dataset raw range: 3-2662, log10 range: ~0.6-3.43
+        self.universes['location_poi'] = np.arange(0, 3.55, 0.05)
+
         # Output: Fuzzy Livability Index (0-100)
         self.universes['livability'] = np.arange(0, 101, 1)
     
     def _define_membership_functions(self):
-        """Define membership functions for all linguistic variables."""
-        # NOISE LDEN (based on WHO 2018 guidelines)
-        # Quiet: < 53 dB, Moderate: 53-65 dB, Noisy: > 65 dB
+        """
+        Define membership functions for all linguistic variables.
+
+        V2 Design: Parameters calibrated based on:
+        - WHO 2018 noise guidelines (Lden 53 dB, Lnight 45 dB as anchors)
+        - Dataset distribution percentiles for views
+        - Log-scale POI to handle 3-2662 count range
+        """
+        # NOISE LDEN (WHO 2018: road traffic Lden < 53 dB recommended)
+        # quiet: right boundary at WHO threshold (53 dB)
+        # moderate: covers main density of dataset
+        # noisy: upper quantile and extreme values
         self.membership_functions['noise_lden'] = {
-            'quiet': fuzz.trapmf(self.universes['noise_lden'], [30, 30, 48, 55]),
-            'moderate': fuzz.trimf(self.universes['noise_lden'], [50, 58, 68]),
-            'noisy': fuzz.trapmf(self.universes['noise_lden'], [63, 70, 85, 85])
+            'quiet': fuzz.trapmf(self.universes['noise_lden'], [20, 20, 42, 53]),
+            'moderate': fuzz.trimf(self.universes['noise_lden'], [48, 56, 65]),
+            'noisy': fuzz.trapmf(self.universes['noise_lden'], [60, 68, 80, 80])
         }
-        
-        # NOISE LNIGHT (based on WHO 2018 guidelines)
-        # Quiet: < 45 dB, Moderate: 45-55 dB, Noisy: > 55 dB
+
+        # NOISE LNIGHT (WHO 2018: road traffic Lnight < 45 dB recommended)
+        # quiet: right boundary at WHO threshold (45 dB)
+        # Night noise weighted higher for sleep quality
         self.membership_functions['noise_lnight'] = {
-            'quiet': fuzz.trapmf(self.universes['noise_lnight'], [25, 25, 40, 47]),
-            'moderate': fuzz.trimf(self.universes['noise_lnight'], [42, 50, 58]),
-            'noisy': fuzz.trapmf(self.universes['noise_lnight'], [53, 60, 75, 75])
+            'quiet': fuzz.trapmf(self.universes['noise_lnight'], [10, 10, 32, 45]),
+            'moderate': fuzz.trimf(self.universes['noise_lnight'], [40, 48, 56]),
+            'noisy': fuzz.trapmf(self.universes['noise_lnight'], [52, 60, 72, 72])
         }
-        
-        # DAYLIGHT (based on EN 17037 standards)
-        # Low: < 100 lux, Medium: 100-300 lux, High: > 300 lux
+
+        # DAYLIGHT (klx) - noon illuminance proxy
+        # Note: EN 17037 compliance uses annual/coverage thresholds,
+        # this is a relative daylight sufficiency proxy
+        # Dataset range: 0-3.91 klx (typically 0.24-3.91)
         self.membership_functions['daylight'] = {
-            'low': fuzz.trapmf(self.universes['daylight'], [0, 0, 50, 120]),
-            'medium': fuzz.trimf(self.universes['daylight'], [80, 200, 350]),
-            'high': fuzz.trapmf(self.universes['daylight'], [280, 400, 1000, 1000])
+            'low': fuzz.trapmf(self.universes['daylight'], [0.0, 0.0, 0.3, 1.2]),
+            'medium': fuzz.trimf(self.universes['daylight'], [0.8, 1.6, 2.3]),
+            'high': fuzz.trapmf(self.universes['daylight'], [2.0, 2.7, 6.0, 6.0])
         }
-        
-        # VIEW SKY (based on visual comfort research)
-        # Poor: < 1.0 sr, Moderate: 1.0-2.0 sr, Good: > 2.0 sr
+
+        # VIEW SKY (sr) - raw steradians from dataset
+        # Dataset range: 0-0.13 sr (median ~0.029, 95th pctl ~0.05)
+        # Calibrated based on data distribution
         self.membership_functions['view_sky'] = {
-            'poor': fuzz.trapmf(self.universes['view_sky'], [0, 0, 0.5, 1.2]),
-            'moderate': fuzz.trimf(self.universes['view_sky'], [0.8, 1.5, 2.3]),
-            'good': fuzz.trapmf(self.universes['view_sky'], [2.0, 2.8, 4, 4])
+            'poor': fuzz.trapmf(self.universes['view_sky'], [0.000, 0.000, 0.010, 0.020]),
+            'moderate': fuzz.trimf(self.universes['view_sky'], [0.015, 0.030, 0.040]),
+            'good': fuzz.trapmf(self.universes['view_sky'], [0.035, 0.050, 0.130, 0.130])
         }
-        
-        # VIEW GREENERY
-        # Poor: < 0.3 sr, Moderate: 0.3-0.8 sr, Good: > 0.8 sr
+
+        # VIEW GREENERY (sr) - raw steradians from dataset
+        # Dataset range: 0-0.06 sr (median ~0.01, 95th pctl ~0.026)
+        # Green view associated with stress recovery and wellbeing
         self.membership_functions['view_greenery'] = {
-            'poor': fuzz.trapmf(self.universes['view_greenery'], [0, 0, 0.1, 0.4]),
-            'moderate': fuzz.trimf(self.universes['view_greenery'], [0.2, 0.6, 1.0]),
-            'good': fuzz.trapmf(self.universes['view_greenery'], [0.7, 1.2, 2, 2])
+            'poor': fuzz.trapmf(self.universes['view_greenery'], [0.000, 0.000, 0.003, 0.006]),
+            'moderate': fuzz.trimf(self.universes['view_greenery'], [0.004, 0.010, 0.016]),
+            'good': fuzz.trapmf(self.universes['view_greenery'], [0.012, 0.025, 0.060, 0.060])
         }
-        
-        # LOCATION POI COUNT
-        # Low: < 10, Medium: 10-30, High: > 30
+
+        # LOCATION POI - log10(count+1) scale
+        # Dataset raw range: 3-2662, log10 range: ~0.6-3.43
+        # log10(40+1)=1.61, log10(110+1)=2.05, log10(500+1)=2.70
+        # Reflects 15-minute city accessibility concept
         self.membership_functions['location_poi'] = {
-            'low': fuzz.trapmf(self.universes['location_poi'], [0, 0, 5, 15]),
-            'medium': fuzz.trimf(self.universes['location_poi'], [10, 25, 40]),
-            'high': fuzz.trapmf(self.universes['location_poi'], [35, 50, 100, 100])
+            'low': fuzz.trapmf(self.universes['location_poi'], [0.0, 0.0, 1.60, 2.05]),      # ~0-110 POIs
+            'medium': fuzz.trimf(self.universes['location_poi'], [1.90, 2.35, 2.90]),        # ~80-800 POIs
+            'high': fuzz.trapmf(self.universes['location_poi'], [2.70, 3.05, 3.50, 3.50])    # ~500+ POIs
         }
-        
-        # OUTPUT: LIVABILITY INDEX
-        # Poor: 0-30, Fair: 20-50, Good: 40-70, Excellent: 60-100
+
+        # OUTPUT: LIVABILITY INDEX (unchanged from V1)
+        # Poor: 0-35, Fair: 25-55, Good: 45-75, Excellent: 65-100
         self.membership_functions['livability'] = {
             'poor': fuzz.trapmf(self.universes['livability'], [0, 0, 15, 35]),
             'fair': fuzz.trimf(self.universes['livability'], [25, 40, 55]),
@@ -188,40 +223,53 @@ class FuzzyMembershipFunctions:
     def get_standard_thresholds(self) -> Dict[str, Dict[str, float]]:
         """
         Get the standard thresholds used for membership function design.
-        
+
         Returns:
         --------
         Dict[str, Dict[str, float]]
-            Standard thresholds from WHO 2018 and EN 17037
+            Standard thresholds from WHO 2018, EN 17037, and data-driven calibration
         """
         return {
             'WHO_2018_noise': {
-                'road_traffic_lden': 53,
-                'road_traffic_lnight': 45,
+                'road_traffic_lden': 53,    # dBA - used as quiet/moderate boundary
+                'road_traffic_lnight': 45,  # dBA - used as quiet/moderate boundary
                 'railway_lden': 54,
                 'railway_lnight': 44,
                 'aircraft_lden': 45,
                 'aircraft_lnight': 40
             },
-            'EN_17037_daylight': {
+            'EN_17037_daylight_reference': {
+                # Note: EN 17037 uses annual/coverage thresholds, not single-point illuminance
+                # These are reference values; our MFs use klx proxy from noon simulation
                 'minimum_target': 300,  # lux
                 'minimum_floor': 100,   # lux
                 'medium_target': 500,   # lux
-                'medium_floor': 300,    # lux
                 'high_target': 750,     # lux
-                'high_floor': 500       # lux
+            },
+            'V2_data_driven_view': {
+                # Calibrated from Swiss Dwellings v3.0.0 dataset
+                'view_sky_median': 0.029,      # sr
+                'view_sky_95th_pctl': 0.050,   # sr
+                'view_greenery_median': 0.010, # sr
+                'view_greenery_95th_pctl': 0.026,  # sr
+            },
+            'V2_poi_log_anchors': {
+                # log10(count+1) reference points
+                'low_upper': 2.05,   # ~110 POIs
+                'medium_center': 2.35,  # ~220 POIs
+                'high_lower': 2.70,  # ~500 POIs
             }
         }
 
 
 if __name__ == "__main__":
-    # Example usage
-    print("Fuzzy Membership Functions Module")
-    print("="*60)
-    
+    # Example usage - V2
+    print("Fuzzy Membership Functions Module - V2")
+    print("=" * 60)
+
     # Create membership functions
     mf = FuzzyMembershipFunctions()
-    
+
     # Display standard thresholds
     print("\nStandard Thresholds:")
     thresholds = mf.get_standard_thresholds()
@@ -229,23 +277,39 @@ if __name__ == "__main__":
         print(f"\n{standard}:")
         for key, value in values.items():
             print(f"  {key}: {value}")
-    
-    # Example fuzzification
-    print("\n" + "="*60)
-    print("Example Fuzzification:")
-    print("="*60)
-    
+
+    # Example fuzzification with V2 units
+    print("\n" + "=" * 60)
+    print("Example Fuzzification (V2 Units):")
+    print("=" * 60)
+
     # Test noise fuzzification
     noise_value = 55  # dBA
     noise_memberships = mf.fuzzify_value('noise_lden', noise_value)
     print(f"\nNoise Lden = {noise_value} dBA:")
     for term, degree in noise_memberships.items():
         print(f"  {term}: {degree:.3f}")
-    
-    # Test daylight fuzzification
-    daylight_value = 250  # lux
+
+    # Test daylight fuzzification (now in klx)
+    daylight_value = 1.5  # klx (= 1500 lux)
     daylight_memberships = mf.fuzzify_value('daylight', daylight_value)
-    print(f"\nDaylight = {daylight_value} lux:")
+    print(f"\nDaylight = {daylight_value} klx:")
     for term, degree in daylight_memberships.items():
+        print(f"  {term}: {degree:.3f}")
+
+    # Test view_sky fuzzification (raw sr)
+    view_sky_value = 0.03  # sr (typical median)
+    view_sky_memberships = mf.fuzzify_value('view_sky', view_sky_value)
+    print(f"\nView Sky = {view_sky_value} sr:")
+    for term, degree in view_sky_memberships.items():
+        print(f"  {term}: {degree:.3f}")
+
+    # Test POI fuzzification (log10 scale)
+    import math
+    poi_count = 200  # raw count
+    poi_log = math.log10(poi_count + 1)  # ~2.30
+    poi_memberships = mf.fuzzify_value('location_poi', poi_log)
+    print(f"\nLocation POI = {poi_count} count (log10={poi_log:.2f}):")
+    for term, degree in poi_memberships.items():
         print(f"  {term}: {degree:.3f}")
 

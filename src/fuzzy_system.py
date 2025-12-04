@@ -1,8 +1,13 @@
 """
-Fuzzy Inference System Module
+Fuzzy Inference System Module - V2
 
 Implements the Mamdani fuzzy inference system for livability assessment
 using the Computing with Words framework.
+
+V2 Changes:
+- Feature mapping updated for simplified alignment (raw units)
+- Removed daylight klx->lux conversion (now uses klx directly)
+- Updated example values to match V2 units
 """
 
 import numpy as np
@@ -12,6 +17,7 @@ from skfuzzy import control as ctrl
 from typing import Dict, List, Tuple
 from membership_functions import FuzzyMembershipFunctions
 from rule_base import FuzzyRuleBase
+from assessment import get_fli_label
 
 
 class LiveabilityFuzzySystem:
@@ -132,87 +138,78 @@ class LiveabilityFuzzySystem:
     def _get_linguistic_label(self, fli_score: float) -> str:
         """
         Convert FLI score to linguistic label.
-        
+
+        Uses centralized thresholds from assessment module.
+
         Parameters:
         -----------
         fli_score : float
             Fuzzy Livability Index score
-            
+
         Returns:
         --------
         str
             Linguistic label
         """
-        if fli_score >= 65:
-            return 'excellent'
-        elif fli_score >= 45:
-            return 'good'
-        elif fli_score >= 25:
-            return 'fair'
-        else:
-            return 'poor'
+        return get_fli_label(fli_score)
     
-    def compute_batch(self, df: pd.DataFrame, 
+    def compute_batch(self, df: pd.DataFrame,
                      feature_mapping: Dict[str, str] = None) -> pd.DataFrame:
         """
         Compute FLI for multiple dwellings.
-        
+
         Parameters:
         -----------
         df : pd.DataFrame
             DataFrame with dwelling features
         feature_mapping : Dict[str, str]
             Mapping from dataset columns to fuzzy variable names
-            
+
         Returns:
         --------
         pd.DataFrame
             DataFrame with FLI scores and labels
         """
         print(f"\nComputing Fuzzy Livability Index for {len(df)} dwellings...")
-        
-        # Default feature mapping
+
+        # V2 Default feature mapping (aligned features use simplified units)
         if feature_mapping is None:
             feature_mapping = {
-                'noise_lden': 'noise_lden',
-                'noise_lnight': 'noise_lnight',
-                'daylight_avg': 'daylight',
-                'view_sky': 'view_sky',
-                'view_greenery': 'view_greenery',
-                'location_poi_count': 'location_poi'
+                'noise_lden': 'noise_lden',        # dBA (pass-through)
+                'noise_lnight': 'noise_lnight',    # dBA (pass-through)
+                'daylight': 'daylight',            # V2: klx (no conversion)
+                'view_sky': 'view_sky',            # V2: sr (raw, no scaling)
+                'view_greenery': 'view_greenery',  # V2: sr (raw, no scaling)
+                'location_poi': 'location_poi'     # V2: log10(count+1)
             }
-        
+
         results = []
-        
+
         for idx, row in df.iterrows():
-            # Extract features
+            # Extract features (V2: direct pass-through, no conversion)
             features = {}
             for dataset_col, fuzzy_var in feature_mapping.items():
                 if dataset_col in row:
-                    value = row[dataset_col]
-                    # Convert daylight from klx to lux if needed
-                    if fuzzy_var == 'daylight' and value < 10:
-                        value = value * 1000  # Convert klx to lux
-                    features[fuzzy_var] = value
-            
+                    features[fuzzy_var] = row[dataset_col]
+
             # Compute FLI
             result = self.compute_single_dwelling(features)
-            
+
             results.append({
                 'dwelling_id': idx,
                 'fli_score': result['fli_score'],
                 'linguistic_label': result['linguistic_label'],
                 'num_activated_rules': len(result['activated_rules'])
             })
-        
+
         results_df = pd.DataFrame(results)
-        
+
         print(f"Computation complete!")
         print(f"\nFLI Score Distribution:")
         print(results_df['fli_score'].describe())
         print(f"\nLinguistic Label Distribution:")
         print(results_df['linguistic_label'].value_counts())
-        
+
         return results_df
     
     def explain_dwelling(self, features: Dict[str, float], 
@@ -280,45 +277,33 @@ class LiveabilityFuzzySystem:
         return "\n".join(explanation)
 
 
-def compute_fuzzy_livability_index(df: pd.DataFrame, 
-                                   feature_mapping: Dict[str, str] = None) -> pd.DataFrame:
-    """
-    Main function to compute Fuzzy Livability Index for a dataset.
-    
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        Preprocessed dwelling dataset
-    feature_mapping : Dict[str, str]
-        Mapping from dataset columns to fuzzy variable names
-        
-    Returns:
-    --------
-    pd.DataFrame
-        DataFrame with FLI scores
-    """
-    fis = LiveabilityFuzzySystem()
-    return fis.compute_batch(df, feature_mapping)
-
-
 if __name__ == "__main__":
-    # Example usage with synthetic data
-    print("Fuzzy Inference System for Livability Assessment")
-    print("="*80)
-    
+    # Example usage with synthetic data - V2
+    print("Fuzzy Inference System for Livability Assessment - V2")
+    print("=" * 80)
+
     # Create fuzzy system
     fis = LiveabilityFuzzySystem()
-    
-    # Example dwelling features
+
+    # Example dwelling features (V2 units)
+    import math
     example_dwelling = {
-        'noise_lden': 52,      # dBA - just below WHO threshold
-        'noise_lnight': 43,    # dBA - quiet at night
-        'daylight': 350,       # lux - high daylight
-        'view_sky': 2.5,       # sr - good sky view
-        'view_greenery': 0.8,  # sr - moderate greenery
-        'location_poi': 35     # POI count - high accessibility
+        'noise_lden': 52,              # dBA - just below WHO threshold (53)
+        'noise_lnight': 43,            # dBA - quiet at night (< 45)
+        'daylight': 2.0,               # V2: klx - high daylight
+        'view_sky': 0.04,              # V2: sr (raw) - moderate sky view
+        'view_greenery': 0.015,        # V2: sr (raw) - moderate greenery
+        'location_poi': math.log10(201) # V2: log10(count+1) for 200 POIs ~2.30
     }
-    
+
+    print("\nExample dwelling features (V2 units):")
+    print(f"  noise_lden: {example_dwelling['noise_lden']} dBA")
+    print(f"  noise_lnight: {example_dwelling['noise_lnight']} dBA")
+    print(f"  daylight: {example_dwelling['daylight']} klx")
+    print(f"  view_sky: {example_dwelling['view_sky']} sr")
+    print(f"  view_greenery: {example_dwelling['view_greenery']} sr")
+    print(f"  location_poi: {example_dwelling['location_poi']:.2f} (log10, ~200 POIs)")
+
     # Compute and explain
     explanation = fis.explain_dwelling(example_dwelling)
     print(explanation)

@@ -124,20 +124,6 @@ pip install flask pandas numpy scikit-fuzzy scipy networkx
 app.run(debug=True, host='0.0.0.0', port=5001)  # Change 5000 to 5001
 ```
 
-### **Issue: "Data not loaded"**
-
-**Solution:** Make sure the file paths are correct. The app looks for:
-
-```
-swiss_livability/data/processed/dwellings_sample.csv
-```
-
-If the file doesn't exist, run `create_sample_data.py` first:
-
-```bash
-python create_sample_data.py
-```
-
 ### **Issue: Can't access from another device**
 
 **Solution:** The app runs on `0.0.0.0` which means it's accessible from other devices on your network. Find your IP address:
@@ -249,7 +235,7 @@ swiss_livability/
 │   └── rule_base.py
 └── data/                      # Dataset files
     └── processed/
-        └── dwellings_sample.csv
+        └── dwellings_full.csv
 ```
 
 ---

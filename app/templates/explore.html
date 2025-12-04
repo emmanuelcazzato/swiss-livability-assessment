@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Explore Data') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">{{ _('Explore Dataset') }}</h2>
+        <p class="text-muted mb-0">{{ _('Swiss Dwellings v3.0.0 Analysis') }}</p>
+    </div>
+    <a href="{{ url_for('assess') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{{ _('Assess Custom Dwelling') }}
+    </a>
+</div>
+
+{% if stats %}
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-building text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.total_dwellings }}</h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Total Dwellings') }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-volume-up text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_noise }} <span class="fs-6 text-muted">dB</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Noise (Lden)') }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-sun text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">klx</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Daylight') }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-eye text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_view_sky }}</h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Sky View (sr)') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent border-0 pt-4 ps-4">
+                <h4 class="text-primary mb-0"><i class="bi bi-graph-up-arrow me-2"></i>{{ _('Key Insights') }}</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_noise < 53 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_noise < 65 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('Noise Levels') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_noise < 53 %}
+                                        {{ _('Average noise is below WHO threshold (53 dB) - Excellent acoustic environment!') }}
+                                    {% elif stats.avg_noise < 65 %}
+                                        {{ _('Average noise is moderate (53-65 dB) - Acceptable but could be improved.') }}
+                                    {% else %}
+                                        {{ _('Average noise is above recommended levels (>65 dB) - Noise mitigation needed.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_daylight >= 2.0 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_daylight >= 0.8 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% elif stats.avg_daylight >= 0.3 %}
+                                    <i class="bi bi-info-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('Daylight Quality') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_daylight >= 2.0 %}
+                                        {{ _('Average daylight exceeds EN 17037 target (>=2.0 klx) - Bright, well-lit interiors.') }}
+                                    {% elif stats.avg_daylight >= 0.8 %}
+                                        {{ _('Average daylight is comfortable (0.8-2.0 klx) - Meets typical living space needs.') }}
+                                    {% elif stats.avg_daylight >= 0.3 %}
+                                        {{ _('Average daylight meets the minimum daylight autonomy threshold (>=0.3 klx) but may feel dim deeper in rooms.') }}
+                                    {% else %}
+                                        {{ _('Average daylight is below standards (<0.3 klx) - Insufficient natural light.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_view_sky >= 0.035 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_view_sky >= 0.015 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill text-muted fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('View Quality') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_view_sky >= 0.035 %}
+                                        {{ _('Sky view factor indicates excellent visual connection to the outdoors.') }}
+                                    {% elif stats.avg_view_sky >= 0.015 %}
+                                        {{ _('Sky view factor indicates moderate visual connection to the outdoors.') }}
+                                    {% else %}
+                                        {{ _('Sky view factor indicates limited visual connection to the outdoors.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
+    <div>
+        <strong>{{ _('Data Not Available') }}:</strong> {{ _('The sample dataset could not be loaded. Please ensure the data files are in the correct location.') }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
