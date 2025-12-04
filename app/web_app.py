@@ -28,9 +28,13 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from fuzzy_system import LiveabilityFuzzySystem
-from membership_functions import FuzzyMembershipFunctions
-from rule_base import FuzzyRuleBase
 from feature_alignment import FeatureAlignmentConfig, align_single_input
+from assessment import (
+    get_fli_label,
+    get_fli_color,
+    get_all_assessments,
+    get_recommendations as get_assessment_recommendations
+)
 
 app = Flask(__name__, template_folder=str(APP_DIR / 'templates'))
 app.config['SECRET_KEY'] = 'swiss-livability-2025'
@@ -302,84 +306,37 @@ def assess_dwelling():
             poi_count=poi_count
         )
 
-        # Determine linguistic label
-        if fli_score >= 65:
-            label = _("Excellent")
-            color = "#10b981"  # green
-        elif fli_score >= 45:
-            label = _("Good")
-            color = "#3b82f6"  # blue
-        elif fli_score >= 25:
-            label = _("Fair")
-            color = "#f59e0b"  # orange
-        else:
-            label = _("Poor")
-            color = "#ef4444"  # red
+        # Use centralized assessment functions
+        fli_label = get_fli_label(fli_score)
+        color = get_fli_color(fli_label)
 
-        # V2: Get feature assessments using updated thresholds
-        assessments = {
-            'noise': _('Quiet') if noise_lden < 53 else (_('Moderate') if noise_lden < 65 else _('Noisy')),
-            'daylight': _('High') if daylight_klx > 2.0 else (_('Medium') if daylight_klx > 0.8 else _('Low')),
-            'view_sky': get_view_assessment(view_sky_sr, 'sky'),
-            'view_greenery': get_view_assessment(view_greenery_sr, 'greenery'),
-            'location': get_poi_assessment(poi_count)
-        }
+        # Get feature assessments using centralized thresholds
+        raw_assessments = get_all_assessments(
+            noise_lden=noise_lden,
+            daylight_klx=daylight_klx,
+            view_sky_sr=view_sky_sr,
+            view_greenery_sr=view_greenery_sr,
+            poi_count=poi_count
+        )
+
+        # Translate assessment labels for i18n
+        assessments = {k: _(v) for k, v in raw_assessments.items()}
+
+        # Get recommendations (in English) and translate
+        raw_recommendations = get_assessment_recommendations(fli_score, raw_assessments)
+        recommendations = [_(r) for r in raw_recommendations]
 
         return jsonify({
             'fli_score': round(fli_score, 2),
-            'label': label,
+            'label': _(fli_label.capitalize()),
             'color': color,
             'assessments': assessments,
-            'recommendations': get_recommendations(fli_score, assessments)
+            'recommendations': recommendations
         })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-
-def get_view_assessment(view_sr: float, view_type: str) -> str:
-    """
-    Get linguistic assessment for view based on V2 thresholds.
-
-    V2: Uses raw sr values matching MF boundaries.
-    """
-    if view_type == 'sky':
-        # V2 thresholds based on MF boundaries (0-0.13 sr range)
-        # good: >0.035, moderate: 0.015-0.035, poor: <0.015
-        if view_sr > 0.035:
-            return _('Good')
-        elif view_sr > 0.015:
-            return _('Moderate')
-        else:
-            return _('Limited')
-    else:
-        # V2 thresholds based on MF boundaries (0-0.06 sr range)
-        # good: >0.012, moderate: 0.004-0.012, poor: <0.004
-        if view_sr > 0.012:
-            return _('Good')
-        elif view_sr > 0.004:
-            return _('Moderate')
-        else:
-            return _('Limited')
-
-
-def get_poi_assessment(poi_count: int) -> str:
-    """
-    Get linguistic assessment for POI accessibility - V2.
-
-    V2: Uses log10 scale thresholds matching MF boundaries.
-    """
-    import math
-    # V2: log10(count+1) thresholds based on MF boundaries (0-3.5 range)
-    # high: >2.7 (~500 POIs), medium: 1.9-2.7 (~80-500), low: <1.9 (~<80)
-    poi_log = math.log10(max(poi_count, 0) + 1)
-
-    if poi_log >= 2.7:
-        return _('Excellent')
-    elif poi_log >= 1.9:
-        return _('Good')
-    else:
-        return _('Moderate')
 
 @app.route('/api/dwelling/<building_id>')
 def get_dwelling_details(building_id):
@@ -432,15 +389,8 @@ def get_dwelling_details(building_id):
         result = fuzzy_system.compute_single_dwelling(features)
         fli_score = result['fli_score']
 
-        # Determine label
-        if fli_score >= 65:
-            label = _("Excellent")
-        elif fli_score >= 45:
-            label = _("Good")
-        elif fli_score >= 25:
-            label = _("Fair")
-        else:
-            label = _("Poor")
+        # Use centralized label function
+        label = _(get_fli_label(fli_score).capitalize())
 
         return jsonify({
             'building_id': building_id,
@@ -464,34 +414,6 @@ def get_dwelling_details(building_id):
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 404
-
-def get_recommendations(fli_score, assessments):
-    """Generate recommendations based on assessment"""
-    recommendations = []
-
-    # Note: Compare with translated strings
-    noisy_label = _('Noisy')
-    low_label = _('Low')
-    limited_label = _('Limited')
-
-    if assessments['noise'] == noisy_label:
-        recommendations.append(_("Consider noise reduction measures (better windows, insulation)"))
-
-    if assessments['daylight'] == low_label:
-        recommendations.append(_("Improve natural lighting (larger windows, lighter colors)"))
-
-    if assessments['view_sky'] == limited_label:
-        recommendations.append(_("Limited sky view - consider higher floors or less obstructed locations"))
-
-    if assessments['view_greenery'] == limited_label:
-        recommendations.append(_("Add indoor plants or consider locations with more greenery"))
-
-    if fli_score >= 65:
-        recommendations.append(_("Excellent livability! This dwelling meets high standards."))
-    elif fli_score < 35:
-        recommendations.append(_("Significant improvements needed for better livability"))
-
-    return recommendations
 
 def main():
     """Entry point for the web application"""

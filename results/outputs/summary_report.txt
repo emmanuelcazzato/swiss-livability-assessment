@@ -1,6 +1,6 @@
 ================================================================================
 SWISS RESIDENTIAL PERCEIVED LIVABILITY ASSESSMENT
-Fuzzy Inference System - Prototype Results
+Fuzzy Inference System Results
 ================================================================================
 
 Dataset: 3171 dwellings
@@ -17,10 +17,10 @@ max        77.110656
 Name: fli_score, dtype: float64
 
 Linguistic Label Distribution:
+  Excellent: 117 (3.7%)
+  Good: 725 (22.9%)
   Fair: 1448 (45.7%)
   Poor: 881 (27.8%)
-  Good: 725 (22.9%)
-  Excellent: 117 (3.7%)
 
 ================================================================================
 Standards Applied:

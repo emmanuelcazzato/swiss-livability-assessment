@@ -17,17 +17,18 @@ Expected output:
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import pandas as pd
 import numpy as np
 
-# Add src to path
-SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPT_DIR.parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+from common import (
+    ROOT, setup_paths,
+    load_dwellings_data,
+    FEATURE_COLUMNS,
+    print_section_header
+)
+
+setup_paths()
 
 from membership_functions import FuzzyMembershipFunctions
 from fuzzy_system import LiveabilityFuzzySystem
@@ -39,20 +40,16 @@ from feature_alignment import (
 
 
 def main():
-    print("=" * 70)
-    print("FEATURE ALIGNMENT VALIDATION")
-    print("=" * 70)
+    print_section_header("FEATURE ALIGNMENT VALIDATION", width=70)
 
     # Load data
-    data_path = ROOT_DIR / "data" / "processed" / "dwellings_full.csv"
-    config_path = ROOT_DIR / "data" / "processed" / "feature_alignment.json"
+    config_path = ROOT / "data" / "processed" / "feature_alignment.json"
 
-    if not data_path.exists():
-        print(f"Error: Data file not found: {data_path}")
-        print("Run prepare_full_features.py first.")
+    try:
+        df = load_dwellings_data()
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
         return 1
-
-    df = pd.read_csv(data_path)
 
     # V2: Config file is optional since parameters are fixed defaults
     if config_path.exists():
@@ -71,8 +68,7 @@ def main():
     print(f"  location_poi_log_max: {config.location_poi_log_max}")
 
     # Check if we have aligned columns
-    aligned_cols = ["noise_lden", "noise_lnight", "daylight", "view_sky", "view_greenery", "location_poi"]
-    missing_cols = [c for c in aligned_cols if c not in df.columns]
+    missing_cols = [c for c in FEATURE_COLUMNS if c not in df.columns]
     if missing_cols:
         print(f"\nError: Missing aligned columns: {missing_cols}")
         print("The data file appears to be in the old format.")
@@ -81,14 +77,12 @@ def main():
     # =========================================================================
     # 1. Term Coverage Analysis
     # =========================================================================
-    print("\n" + "=" * 70)
-    print("1. TERM COVERAGE ANALYSIS")
-    print("=" * 70)
+    print_section_header("1. TERM COVERAGE ANALYSIS", width=70)
     print("\n(Shows % of dwellings where each term has membership > 0.1)")
 
     coverage = compute_term_coverage(df, mf, threshold=0.1)
 
-    for var in ["noise_lden", "noise_lnight", "daylight", "view_sky", "view_greenery", "location_poi"]:
+    for var in FEATURE_COLUMNS:
         if var not in coverage:
             print(f"\n{var}: [not computed]")
             continue
@@ -108,9 +102,7 @@ def main():
     # =========================================================================
     # 2. FLI Score Distribution
     # =========================================================================
-    print("\n" + "=" * 70)
-    print("2. FLI SCORE DISTRIBUTION")
-    print("=" * 70)
+    print_section_header("2. FLI SCORE DISTRIBUTION", width=70)
 
     # Compute FLI scores for all dwellings
     print("\nComputing FLI scores for all dwellings...")
@@ -118,14 +110,7 @@ def main():
     labels = {"poor": 0, "fair": 0, "good": 0, "excellent": 0}
 
     for _, row in df.iterrows():
-        features = {
-            "noise_lden": row["noise_lden"],
-            "noise_lnight": row["noise_lnight"],
-            "daylight": row["daylight"],
-            "view_sky": row["view_sky"],
-            "view_greenery": row["view_greenery"],
-            "location_poi": row["location_poi"],
-        }
+        features = {col: row[col] for col in FEATURE_COLUMNS}
 
         # Skip rows with NaN
         if any(pd.isna(v) for v in features.values()):
@@ -191,12 +176,12 @@ def main():
     print("=" * 70)
 
     # Create a dataframe with valid scores
-    valid_df = df.dropna(subset=aligned_cols).copy()
+    valid_df = df.dropna(subset=FEATURE_COLUMNS).copy()
     valid_df = valid_df.head(len(fli_scores))
     valid_df["fli_score"] = fli_scores
 
     print("\nPearson correlation with FLI score:")
-    for col in aligned_cols:
+    for col in FEATURE_COLUMNS:
         if col in valid_df.columns:
             corr = valid_df["fli_score"].corr(valid_df[col])
             direction = "+" if corr > 0 else "-"

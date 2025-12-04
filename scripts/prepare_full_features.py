@@ -30,18 +30,15 @@ Also outputs: data/processed/feature_alignment.json with V2 config parameters
 from __future__ import annotations
 
 import math
-import sys
 from pathlib import Path
 from typing import List
 
 import pandas as pd
 
-# Add src to path for feature_alignment import
-SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPT_DIR.parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+from common import ROOT, setup_paths, print_section_header
+
+# Add src to path
+setup_paths()
 
 from feature_alignment import (
     FeatureAlignmentConfig,
@@ -283,4 +280,3 @@ def prepare_features(
 
 if __name__ == "__main__":
     prepare_features()
-

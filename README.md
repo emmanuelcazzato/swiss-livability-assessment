@@ -20,12 +20,11 @@ swiss-livability-assessment/
 │
 ├── src/                     # Core fuzzy inference modules
 │   ├── __init__.py
-│   ├── data_processing.py   # Data loading and preprocessing
 │   ├── membership_functions.py  # Fuzzy membership functions
 │   ├── rule_base.py         # Fuzzy inference rules
 │   ├── fuzzy_system.py      # Mamdani FIS implementation
 │   ├── feature_alignment.py # Feature alignment layer (raw → FIS)
-│   └── validation.py        # Validation utilities
+│   └── assessment.py        # Centralized assessment thresholds and labels
 │
 ├── app/                     # Web application
 │   ├── __init__.py
@@ -38,11 +37,10 @@ swiss-livability-assessment/
 │       └── filter.html
 │
 ├── scripts/                 # Utility scripts
-│   ├── run_prototype.py     # Main prototype execution
-│   ├── create_visualizations.py  # Generate plots
+│   ├── common.py            # Shared utilities (paths, data loading, constants)
 │   ├── prepare_full_features.py  # Data preparation (two-stage)
-│   ├── validate_alignment.py    # Alignment validation
-│   └── explore_dataset.py   # Dataset exploration
+│   ├── validate_alignment.py     # Alignment validation
+│   └── run_assessment.py    # Run FIS assessment + visualizations
 │
 ├── data/
 │   ├── raw/                 # Original dataset
@@ -81,11 +79,6 @@ uv sync
 
 ### Data Preprocessing
 
-Explore the raw dataset:
-```bash
-uv run python scripts/explore_dataset.py
-```
-
 Prepare full features from raw data (two-stage processing):
 ```bash
 uv run python scripts/prepare_full_features.py
@@ -100,6 +93,18 @@ Validate the feature alignment:
 uv run python scripts/validate_alignment.py
 ```
 
+### Run Assessment
+
+Run the full FIS assessment with visualizations:
+```bash
+uv run python scripts/run_assessment.py
+```
+
+Run assessment only (skip visualization generation):
+```bash
+uv run python scripts/run_assessment.py --no-viz
+```
+
 ### Run Web Application
 ```bash
 uv run python -m app.web_app
@@ -112,16 +117,6 @@ Then open http://localhost:5001 in your browser.
 - **Assess** (`/assess`): Manually input dwelling parameters to compute FLI score
 - **Filter** (`/filter`): Filter and sort all dwellings by livability criteria
 - **i18n Support**: Available in English, German (Deutsch), and French (Français)
-
-### Run Prototype Analysis
-```bash
-uv run python scripts/run_prototype.py
-```
-
-### Generate Visualizations
-```bash
-uv run python scripts/create_visualizations.py
-```
 
 ## Dataset
 

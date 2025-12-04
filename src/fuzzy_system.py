@@ -17,6 +17,7 @@ from skfuzzy import control as ctrl
 from typing import Dict, List, Tuple
 from membership_functions import FuzzyMembershipFunctions
 from rule_base import FuzzyRuleBase
+from assessment import get_fli_label
 
 
 class LiveabilityFuzzySystem:
@@ -137,25 +138,20 @@ class LiveabilityFuzzySystem:
     def _get_linguistic_label(self, fli_score: float) -> str:
         """
         Convert FLI score to linguistic label.
-        
+
+        Uses centralized thresholds from assessment module.
+
         Parameters:
         -----------
         fli_score : float
             Fuzzy Livability Index score
-            
+
         Returns:
         --------
         str
             Linguistic label
         """
-        if fli_score >= 65:
-            return 'excellent'
-        elif fli_score >= 45:
-            return 'good'
-        elif fli_score >= 25:
-            return 'fair'
-        else:
-            return 'poor'
+        return get_fli_label(fli_score)
     
     def compute_batch(self, df: pd.DataFrame,
                      feature_mapping: Dict[str, str] = None) -> pd.DataFrame:
@@ -279,27 +275,6 @@ class LiveabilityFuzzySystem:
         explanation.append("\n" + "="*80)
         
         return "\n".join(explanation)
-
-
-def compute_fuzzy_livability_index(df: pd.DataFrame, 
-                                   feature_mapping: Dict[str, str] = None) -> pd.DataFrame:
-    """
-    Main function to compute Fuzzy Livability Index for a dataset.
-    
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        Preprocessed dwelling dataset
-    feature_mapping : Dict[str, str]
-        Mapping from dataset columns to fuzzy variable names
-        
-    Returns:
-    --------
-    pd.DataFrame
-        DataFrame with FLI scores
-    """
-    fis = LiveabilityFuzzySystem()
-    return fis.compute_batch(df, feature_mapping)
 
 
 if __name__ == "__main__":
