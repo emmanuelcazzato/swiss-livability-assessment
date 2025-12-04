@@ -1,8 +1,12 @@
 """
-Validate Feature Alignment
+Validate Feature Alignment - V2
 
 This script checks that the feature alignment produces reasonable term activation
 across all linguistic terms. It ensures that no dimension is "silent" in the FIS.
+
+V2 Changes:
+- Updated config parameter names to V2 (daylight_klx_cap, view_*_max, location_poi_log_max)
+- Uses simplified alignment (klx, raw sr, log10 POI)
 
 Expected output:
 - Coverage percentages for each variable-term combination
@@ -48,22 +52,23 @@ def main():
         print("Run prepare_full_features.py first.")
         return 1
 
-    if not config_path.exists():
-        print(f"Error: Alignment config not found: {config_path}")
-        print("Run prepare_full_features.py first.")
-        return 1
-
     df = pd.read_csv(data_path)
-    config = FeatureAlignmentConfig.from_json(config_path)
+
+    # V2: Config file is optional since parameters are fixed defaults
+    if config_path.exists():
+        config = FeatureAlignmentConfig.from_json(config_path)
+    else:
+        print("Note: Using default V2 alignment config (config file not found)")
+        config = FeatureAlignmentConfig.get_default()
     mf = FuzzyMembershipFunctions()
     fuzzy_system = LiveabilityFuzzySystem()
 
     print(f"\nLoaded {len(df)} dwellings")
-    print(f"\nAlignment configuration:")
-    print(f"  view_sky_ref: {config.view_sky_ref:.6f} sr")
-    print(f"  view_greenery_ref: {config.view_greenery_ref:.6f} sr")
-    print(f"  poi_log_p01: {config.poi_log_p01:.3f}")
-    print(f"  poi_log_p99: {config.poi_log_p99:.3f}")
+    print(f"\nV2 Alignment configuration:")
+    print(f"  daylight_klx_cap: {config.daylight_klx_cap} klx")
+    print(f"  view_sky_max: {config.view_sky_max} sr")
+    print(f"  view_greenery_max: {config.view_greenery_max} sr")
+    print(f"  location_poi_log_max: {config.location_poi_log_max}")
 
     # Check if we have aligned columns
     aligned_cols = ["noise_lden", "noise_lnight", "daylight", "view_sky", "view_greenery", "location_poi"]

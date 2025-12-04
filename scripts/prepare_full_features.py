@@ -1,24 +1,30 @@
 """
-Prepare full features from swiss-dwellings dataset for the Fuzzy Inference System.
+Prepare full features from swiss-dwellings dataset for the Fuzzy Inference System - V2.
 
 Two-stage processing:
 1. Build raw building-level features (with raw_* prefix, original units)
-2. Apply feature alignment to transform raw features to match FIS input universes
+2. Apply V2 feature alignment (simplified: mostly pass-through)
 
-Decisions (confirmed by user):
-- Noise: use window-level max per source (traffic/train) with energy summation, by day/night.
-- View: use p80 aggregates (view_sky_p80, view_greenery_p80).
-- Daylight: use sun klx at 12:00 for equinox, summer solstice, winter solstice and average them.
+Feature extraction decisions:
+- Noise: window-level max per source (traffic/train) with energy summation, by day/night
+- View: p80 aggregates (view_sky_p80, view_greenery_p80) in raw sr units
+- Daylight: sun klx at 12:00 for equinox, summer solstice, winter solstice, averaged
+
+V2 Changes from V1:
+- Daylight: stays in klx (no conversion to lux)
+- View: pass-through (raw sr, no percentile scaling)
+- POI: log10(count+1) only (no min-max scaling)
 
 Output: data/processed/dwellings_full.csv with columns:
   Raw features (for debugging/analysis):
     building_id, raw_noise_day_dba, raw_noise_night_dba, raw_daylight_klx,
     raw_view_sky_sr, raw_view_greenery_sr, raw_poi_count
 
-  Aligned features (for FIS input):
-    noise_lden, noise_lnight, daylight, view_sky, view_greenery, location_poi
+  V2 Aligned features (for FIS input):
+    noise_lden (dBA), noise_lnight (dBA), daylight (klx),
+    view_sky (sr), view_greenery (sr), location_poi (log10)
 
-Also outputs: data/processed/feature_alignment.json with fitted alignment parameters
+Also outputs: data/processed/feature_alignment.json with V2 config parameters
 """
 
 from __future__ import annotations
@@ -225,10 +231,10 @@ def prepare_features(
     print("\nFitting alignment configuration...")
     alignment_config = fit_alignment_config(raw_df)
 
-    print(f"  view_sky_ref (95th pctl): {alignment_config.view_sky_ref:.6f} sr")
-    print(f"  view_greenery_ref (95th pctl): {alignment_config.view_greenery_ref:.6f} sr")
-    print(f"  poi_log_p01: {alignment_config.poi_log_p01:.3f}")
-    print(f"  poi_log_p99: {alignment_config.poi_log_p99:.3f}")
+    print(f"  daylight_klx_cap: {alignment_config.daylight_klx_cap} klx")
+    print(f"  view_sky_max: {alignment_config.view_sky_max} sr")
+    print(f"  view_greenery_max: {alignment_config.view_greenery_max} sr")
+    print(f"  location_poi_log_max: {alignment_config.location_poi_log_max}")
 
     # Save alignment config
     config_path = output_path.parent / "feature_alignment.json"
@@ -239,14 +245,14 @@ def prepare_features(
     print("\nApplying alignment transformation...")
     aligned_df = align_features(raw_df, alignment_config)
 
-    # Print aligned feature distributions
-    print("\nAligned feature distributions:")
+    # Print aligned feature distributions (V2 units)
+    print("\nAligned feature distributions (V2):")
     print(f"  noise_lden (dBA): {qstats(aligned_df['noise_lden'].dropna())}")
     print(f"  noise_lnight (dBA): {qstats(aligned_df['noise_lnight'].dropna())}")
-    print(f"  daylight (lux, 0-1000): {qstats(aligned_df['daylight'])}")
-    print(f"  view_sky (scaled, 0-4): {qstats(aligned_df['view_sky'])}")
-    print(f"  view_greenery (scaled, 0-2): {qstats(aligned_df['view_greenery'])}")
-    print(f"  location_poi (scaled, 0-100): {qstats(aligned_df['location_poi'])}")
+    print(f"  daylight (klx, 0-6): {qstats(aligned_df['daylight'])}")
+    print(f"  view_sky (sr, 0-0.13): {qstats(aligned_df['view_sky'])}")
+    print(f"  view_greenery (sr, 0-0.06): {qstats(aligned_df['view_greenery'])}")
+    print(f"  location_poi (log10, 0-3.5): {qstats(aligned_df['location_poi'])}")
 
     # =========================================================================
     # Save final output with both raw and aligned columns

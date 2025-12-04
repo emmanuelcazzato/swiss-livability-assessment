@@ -1,6 +1,12 @@
 """
-Swiss Residential Perceived Livability Assessment - Web Interface
+Swiss Residential Perceived Livability Assessment - Web Interface - V2
 A proof-of-concept web application for fuzzy livability assessment
+
+V2 Changes:
+- Daylight input now in klx (not lux)
+- View variables use raw sr values (no scaling)
+- POI uses log10 transformation
+- Simplified alignment (no percentile-based scaling)
 """
 
 from flask import Flask, render_template, request, jsonify
@@ -31,20 +37,13 @@ app.config['SECRET_KEY'] = 'swiss-livability-2025'
 # Initialize fuzzy system
 fuzzy_system = LiveabilityFuzzySystem()
 
-# Load feature alignment configuration
-alignment_config = None
-try:
-    config_path = DATA_DIR / 'processed' / 'feature_alignment.json'
-    alignment_config = FeatureAlignmentConfig.from_json(config_path)
-    print(f"Loaded alignment config from {config_path}")
-    print(f"  view_sky_ref: {alignment_config.view_sky_ref:.6f} sr")
-    print(f"  view_greenery_ref: {alignment_config.view_greenery_ref:.6f} sr")
-    print(f"  poi_log_p01: {alignment_config.poi_log_p01:.3f}")
-    print(f"  poi_log_p99: {alignment_config.poi_log_p99:.3f}")
-except Exception as e:
-    print(f"Warning: Could not load alignment config: {e}")
-    print("  Web API will use raw input values without alignment.")
-    print("  Run prepare_full_features.py to generate the config file.")
+# V2: Use default alignment config (simplified, no external file needed)
+alignment_config = FeatureAlignmentConfig.get_default()
+print("V2 Alignment config loaded (simplified defaults):")
+print(f"  daylight_klx_cap: {alignment_config.daylight_klx_cap} klx")
+print(f"  view_sky_max: {alignment_config.view_sky_max} sr")
+print(f"  view_greenery_max: {alignment_config.view_greenery_max} sr")
+print(f"  location_poi_log_max: {alignment_config.location_poi_log_max}")
 
 
 def compute_single_dwelling_fli(noise_lden, noise_lnight, daylight, view_sky, view_greenery, poi_count):
@@ -69,48 +68,38 @@ def compute_single_dwelling_fli(noise_lden, noise_lnight, daylight, view_sky, vi
 def compute_fli_from_raw_inputs(
     noise_lden_dba: float,
     noise_lnight_dba: float,
-    daylight_lux: float,
+    daylight_klx: float,
     view_sky_sr: float,
     view_greenery_sr: float,
     poi_count: int
 ) -> float:
     """
-    Compute FLI score from raw user inputs (physical units).
+    Compute FLI score from raw user inputs (physical units) - V2.
 
-    Applies feature alignment before passing to FIS.
+    V2: Simplified alignment - direct pass-through for most features,
+    only POI gets log10 transformation.
 
     Parameters:
         noise_lden_dba: Day noise level in dBA
         noise_lnight_dba: Night noise level in dBA
-        daylight_lux: Daylight illuminance in lux
-        view_sky_sr: Sky view in steradians
-        view_greenery_sr: Greenery view in steradians
+        daylight_klx: Daylight illuminance in klx (V2: user provides klx)
+        view_sky_sr: Sky view in steradians (V2: raw value)
+        view_greenery_sr: Greenery view in steradians (V2: raw value)
         poi_count: Number of POIs within 10-min walk
 
     Returns:
         FLI score (0-100)
     """
-    if alignment_config is not None:
-        # Apply alignment transformation
-        aligned = align_single_input(
-            noise_lden=noise_lden_dba,
-            noise_lnight=noise_lnight_dba,
-            daylight_lux=daylight_lux,
-            view_sky_sr=view_sky_sr,
-            view_greenery_sr=view_greenery_sr,
-            poi_count=poi_count,
-            cfg=alignment_config
-        )
-    else:
-        # Fallback: use values as-is with basic capping
-        aligned = {
-            'noise_lden': noise_lden_dba,
-            'noise_lnight': noise_lnight_dba,
-            'daylight': min(daylight_lux, 1000),
-            'view_sky': min(view_sky_sr, 4.0),
-            'view_greenery': min(view_greenery_sr, 2.0),
-            'location_poi': min(poi_count, 100)
-        }
+    # V2: Apply simplified alignment
+    aligned = align_single_input(
+        noise_lden=noise_lden_dba,
+        noise_lnight=noise_lnight_dba,
+        daylight_klx=daylight_klx,
+        view_sky_sr=view_sky_sr,
+        view_greenery_sr=view_greenery_sr,
+        poi_count=poi_count,
+        cfg=alignment_config
+    )
 
     result = fuzzy_system.compute_single_dwelling(aligned)
     return result['fli_score']
@@ -179,34 +168,34 @@ def get_dwellings():
 @app.route('/api/assess', methods=['POST'])
 def assess_dwelling():
     """
-    API endpoint to assess a dwelling from user-provided raw inputs.
+    API endpoint to assess a dwelling from user-provided raw inputs - V2.
 
-    Expected input (physical units):
+    Expected input (physical units - V2):
         noise_lden: Day noise level in dBA
         noise_lnight: Night noise level in dBA
-        daylight: Daylight illuminance in lux
-        view_sky: Sky view in steradians (raw)
-        view_greenery: Greenery view in steradians (raw)
+        daylight: Daylight illuminance in klx (V2: not lux!)
+        view_sky: Sky view in steradians (raw, 0-0.13)
+        view_greenery: Greenery view in steradians (raw, 0-0.06)
         poi_count: Number of POIs within 10-min walk
 
-    The alignment layer transforms these to FIS-compatible values.
+    The V2 alignment layer transforms POI to log10 scale.
     """
     try:
         data = request.json
 
-        # Extract raw features (physical units from user input)
+        # Extract raw features (V2 physical units from user input)
         noise_lden = float(data.get('noise_lden', 55))
         noise_lnight = float(data.get('noise_lnight', 45))
-        daylight_lux = float(data.get('daylight', 300))
-        view_sky_sr = float(data.get('view_sky', 0.01))  # Default ~median of real data
-        view_greenery_sr = float(data.get('view_greenery', 0.01))  # Default ~median
-        poi_count = int(data.get('poi_count', 200))  # Default ~median of real data
+        daylight_klx = float(data.get('daylight', 1.5))     # V2: klx, default ~median
+        view_sky_sr = float(data.get('view_sky', 0.03))     # V2: sr, default ~median
+        view_greenery_sr = float(data.get('view_greenery', 0.01))  # V2: sr, default ~median
+        poi_count = int(data.get('poi_count', 200))         # Default ~median of real data
 
-        # Compute FLI using alignment-aware function
+        # Compute FLI using V2 alignment
         fli_score = compute_fli_from_raw_inputs(
             noise_lden_dba=noise_lden,
             noise_lnight_dba=noise_lnight,
-            daylight_lux=daylight_lux,
+            daylight_klx=daylight_klx,
             view_sky_sr=view_sky_sr,
             view_greenery_sr=view_greenery_sr,
             poi_count=poi_count
@@ -226,11 +215,10 @@ def assess_dwelling():
             label = "Poor"
             color = "#ef4444"  # red
 
-        # Get feature assessments (using raw values for display)
-        # Thresholds based on WHO/EN standards and data distribution
+        # V2: Get feature assessments using updated thresholds
         assessments = {
             'noise': 'Quiet' if noise_lden < 53 else ('Moderate' if noise_lden < 65 else 'Noisy'),
-            'daylight': 'High' if daylight_lux > 300 else ('Medium' if daylight_lux > 100 else 'Low'),
+            'daylight': 'High' if daylight_klx > 2.0 else ('Medium' if daylight_klx > 0.8 else 'Low'),
             'view_sky': get_view_assessment(view_sky_sr, 'sky'),
             'view_greenery': get_view_assessment(view_greenery_sr, 'greenery'),
             'location': get_poi_assessment(poi_count)
@@ -249,52 +237,45 @@ def assess_dwelling():
 
 
 def get_view_assessment(view_sr: float, view_type: str) -> str:
-    """Get linguistic assessment for view based on data-driven thresholds."""
-    if alignment_config is None:
-        # Fallback to original thresholds
-        if view_type == 'sky':
-            return 'Good' if view_sr > 0.8 else ('Moderate' if view_sr > 0.4 else 'Limited')
-        else:
-            return 'Good' if view_sr > 0.6 else ('Moderate' if view_sr > 0.3 else 'Limited')
+    """
+    Get linguistic assessment for view based on V2 thresholds.
 
-    # Use data-driven thresholds based on alignment config
-    # Good: top 20% (> 75th percentile of typical values)
-    # Moderate: 20-60% (between 40th and 75th percentile)
-    # Limited: bottom 40%
+    V2: Uses raw sr values matching MF boundaries.
+    """
     if view_type == 'sky':
-        ref = alignment_config.view_sky_ref
-        good_threshold = ref * 0.6  # ~75th percentile
-        moderate_threshold = ref * 0.2  # ~40th percentile
+        # V2 thresholds based on MF boundaries (0-0.13 sr range)
+        # good: >0.035, moderate: 0.015-0.035, poor: <0.015
+        if view_sr > 0.035:
+            return 'Good'
+        elif view_sr > 0.015:
+            return 'Moderate'
+        else:
+            return 'Limited'
     else:
-        ref = alignment_config.view_greenery_ref
-        good_threshold = ref * 0.6
-        moderate_threshold = ref * 0.2
-
-    if view_sr > good_threshold:
-        return 'Good'
-    elif view_sr > moderate_threshold:
-        return 'Moderate'
-    else:
-        return 'Limited'
+        # V2 thresholds based on MF boundaries (0-0.06 sr range)
+        # good: >0.012, moderate: 0.004-0.012, poor: <0.004
+        if view_sr > 0.012:
+            return 'Good'
+        elif view_sr > 0.004:
+            return 'Moderate'
+        else:
+            return 'Limited'
 
 
 def get_poi_assessment(poi_count: int) -> str:
-    """Get linguistic assessment for POI accessibility based on data distribution."""
-    if alignment_config is None:
-        return 'Excellent' if poi_count > 80 else ('Good' if poi_count > 50 else 'Moderate')
+    """
+    Get linguistic assessment for POI accessibility - V2.
 
-    # Use log-scale thresholds from alignment config
+    V2: Uses log10 scale thresholds matching MF boundaries.
+    """
     import math
-    poi_log = math.log1p(max(poi_count, 0))
-    p01 = alignment_config.poi_log_p01
-    p99 = alignment_config.poi_log_p99
+    # V2: log10(count+1) thresholds based on MF boundaries (0-3.5 range)
+    # high: >2.7 (~500 POIs), medium: 1.9-2.7 (~80-500), low: <1.9 (~<80)
+    poi_log = math.log10(max(poi_count, 0) + 1)
 
-    # Normalize to 0-100 scale
-    normalized = 100 * (poi_log - p01) / (p99 - p01)
-
-    if normalized >= 70:
+    if poi_log >= 2.7:
         return 'Excellent'
-    elif normalized >= 40:
+    elif poi_log >= 1.9:
         return 'Good'
     else:
         return 'Moderate'
@@ -302,47 +283,50 @@ def get_poi_assessment(poi_count: int) -> str:
 @app.route('/api/dwelling/<building_id>')
 def get_dwelling_details(building_id):
     """
-    API endpoint to get specific dwelling details.
+    API endpoint to get specific dwelling details - V2.
 
     Uses pre-aligned features from the processed dataframe.
-    The dataframe contains both raw (raw_*) and aligned columns.
+    V2: Features use simplified alignment (klx, raw sr, log10 POI).
     """
     if df is None:
         return jsonify({'error': 'Data not loaded'}), 500
 
     try:
+        import math
         dwelling = df[df['building_id'] == int(building_id)].iloc[0]
 
-        # Check if we have the new aligned columns or old format
+        # V2: Check column format and extract raw values
         if 'daylight' in dwelling.index and 'location_poi' in dwelling.index:
-            # New format: use pre-aligned features
+            # New V2 format: aligned features already in V2 units
             features = {
                 'noise_lden': dwelling['noise_lden'],
                 'noise_lnight': dwelling['noise_lnight'],
-                'daylight': dwelling['daylight'],
-                'view_sky': dwelling['view_sky'],
-                'view_greenery': dwelling['view_greenery'],
-                'location_poi': dwelling['location_poi']
+                'daylight': dwelling['daylight'],           # V2: klx
+                'view_sky': dwelling['view_sky'],           # V2: raw sr
+                'view_greenery': dwelling['view_greenery'], # V2: raw sr
+                'location_poi': dwelling['location_poi']    # V2: log10
             }
             # Raw values for display
-            raw_daylight_klx = dwelling.get('raw_daylight_klx', dwelling['daylight'] / 1000)
+            raw_daylight_klx = dwelling.get('raw_daylight_klx', dwelling['daylight'])
             raw_view_sky = dwelling.get('raw_view_sky_sr', dwelling['view_sky'])
             raw_view_greenery = dwelling.get('raw_view_greenery_sr', dwelling['view_greenery'])
-            raw_poi = dwelling.get('raw_poi_count', dwelling['location_poi'])
+            raw_poi = dwelling.get('raw_poi_count', int(10 ** dwelling['location_poi'] - 1))
         else:
-            # Old format: convert on the fly (backwards compatibility)
+            # Old format: convert on the fly for V2 (backwards compatibility)
+            raw_daylight_klx = dwelling.get('daylight_avg_klx', dwelling.get('raw_daylight_klx', 1.0))
+            raw_view_sky = dwelling.get('raw_view_sky_sr', dwelling.get('view_sky', 0.03))
+            raw_view_greenery = dwelling.get('raw_view_greenery_sr', dwelling.get('view_greenery', 0.01))
+            raw_poi = int(dwelling.get('raw_poi_count', dwelling.get('location_poi_count', 100)))
+
+            # V2 aligned features
             features = {
                 'noise_lden': dwelling['noise_lden'],
                 'noise_lnight': dwelling['noise_lnight'],
-                'daylight': dwelling['daylight_avg_klx'] * 1000,  # Convert klx to lux
-                'view_sky': dwelling['view_sky'],
-                'view_greenery': dwelling['view_greenery'],
-                'location_poi': dwelling['location_poi_count']
+                'daylight': raw_daylight_klx,               # V2: klx
+                'view_sky': raw_view_sky,                   # V2: raw sr
+                'view_greenery': raw_view_greenery,         # V2: raw sr
+                'location_poi': math.log10(raw_poi + 1)     # V2: log10
             }
-            raw_daylight_klx = dwelling['daylight_avg_klx']
-            raw_view_sky = dwelling['view_sky']
-            raw_view_greenery = dwelling['view_greenery']
-            raw_poi = dwelling['location_poi_count']
 
         result = fuzzy_system.compute_single_dwelling(features)
         fli_score = result['fli_score']
@@ -362,18 +346,19 @@ def get_dwelling_details(building_id):
             'fli_score': round(fli_score, 2),
             'label': label,
             'features': {
+                # V2: Field names match form input IDs
                 'noise_lden': round(dwelling['noise_lden'], 1),
                 'noise_lnight': round(dwelling['noise_lnight'], 1),
-                'daylight_klx': round(raw_daylight_klx, 3),
-                'view_sky_sr': round(raw_view_sky, 4),
-                'view_greenery_sr': round(raw_view_greenery, 4),
+                'daylight': round(raw_daylight_klx, 3),      # V2: klx
+                'view_sky': round(raw_view_sky, 4),          # V2: raw sr
+                'view_greenery': round(raw_view_greenery, 4), # V2: raw sr
                 'poi_count': int(raw_poi)
             },
             'aligned_features': {
-                'daylight': round(features['daylight'], 1),
-                'view_sky': round(features['view_sky'], 3),
-                'view_greenery': round(features['view_greenery'], 3),
-                'location_poi': round(features['location_poi'], 1)
+                'daylight': round(features['daylight'], 3),   # V2: klx
+                'view_sky': round(features['view_sky'], 4),   # V2: raw sr
+                'view_greenery': round(features['view_greenery'], 4), # V2: raw sr
+                'location_poi': round(features['location_poi'], 2)   # V2: log10
             }
         })
     except Exception as e:

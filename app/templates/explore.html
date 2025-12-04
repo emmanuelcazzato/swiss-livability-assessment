@@ -43,7 +43,7 @@
                 <div class="mb-3">
                     <i class="bi bi-sun text-primary fs-1"></i>
                 </div>
-                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">lux</span></h3>
+                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">klx</span></h3>
                 <span class="text-muted small text-uppercase tracking-wide">Avg. Daylight</span>
             </div>
         </div>
@@ -98,10 +98,12 @@
                     <div class="list-group-item border-0 px-0 py-3">
                         <div class="d-flex align-items-start">
                             <div class="me-3 mt-1">
-                                {% if stats.avg_daylight > 300 %}
+                                {% if stats.avg_daylight >= 2.0 %}
                                     <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                                {% elif stats.avg_daylight > 100 %}
+                                {% elif stats.avg_daylight >= 0.8 %}
                                     <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% elif stats.avg_daylight >= 0.3 %}
+                                    <i class="bi bi-info-circle-fill text-warning fs-4"></i>
                                 {% else %}
                                     <i class="bi bi-x-circle-fill text-danger fs-4"></i>
                                 {% endif %}
@@ -109,12 +111,14 @@
                             <div>
                                 <h6 class="fw-bold mb-1">Daylight Quality</h6>
                                 <p class="mb-0 text-muted">
-                                    {% if stats.avg_daylight > 300 %}
-                                        Average daylight <strong>exceeds EN 17037 minimum</strong> (300 lux) - Good natural lighting!
-                                    {% elif stats.avg_daylight > 100 %}
-                                        Average daylight is <strong>moderate</strong> (100-300 lux) - Meets floor requirement.
+                                    {% if stats.avg_daylight >= 2.0 %}
+                                        Average daylight <strong>exceeds EN 17037 target</strong> (&ge;2.0 klx) - Bright, well-lit interiors.
+                                    {% elif stats.avg_daylight >= 0.8 %}
+                                        Average daylight is <strong>comfortable</strong> (0.8-2.0 klx) - Meets typical living space needs.
+                                    {% elif stats.avg_daylight >= 0.3 %}
+                                        Average daylight meets the <strong>minimum daylight autonomy</strong> threshold (&ge;0.3 klx) but may feel dim deeper in rooms.
                                     {% else %}
-                                        Average daylight is <strong>below standards</strong> (&lt;100 lux) - Insufficient natural light.
+                                        Average daylight is <strong>below standards</strong> (&lt;0.3 klx) - Insufficient natural light.
                                     {% endif %}
                                 </p>
                             </div>
@@ -124,9 +128,9 @@
                     <div class="list-group-item border-0 px-0 py-3">
                         <div class="d-flex align-items-start">
                             <div class="me-3 mt-1">
-                                {% if stats.avg_view_sky > 0.8 %}
+                                {% if stats.avg_view_sky >= 0.035 %}
                                     <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                                {% elif stats.avg_view_sky > 0.4 %}
+                                {% elif stats.avg_view_sky >= 0.015 %}
                                     <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
                                 {% else %}
                                     <i class="bi bi-info-circle-fill text-muted fs-4"></i>
@@ -136,7 +140,7 @@
                                 <h6 class="fw-bold mb-1">View Quality</h6>
                                 <p class="mb-0 text-muted">
                                     Sky view factor of {{ stats.avg_view_sky }} sr and greenery exposure of {{ stats.avg_view_greenery }} sr 
-                                    indicate {% if stats.avg_view_sky > 0.8 %}excellent{% elif stats.avg_view_sky > 0.4 %}moderate{% else %}limited{% endif %} 
+                                    indicate {% if stats.avg_view_sky >= 0.035 %}excellent{% elif stats.avg_view_sky >= 0.015 %}moderate{% else %}limited{% endif %} 
                                     visual connection to the outdoors.
                                 </p>
                             </div>
@@ -157,5 +161,4 @@
 </div>
 {% endif %}
 {% endblock %}
-
 

@@ -1,21 +1,24 @@
 """
-Feature Alignment Module
+Feature Alignment Module - V2
 
 Transforms raw features from Swiss Dwellings dataset to match the FIS input universes.
-This ensures that all dimensions (noise, daylight, view, location) properly contribute
-to the fuzzy inference process.
 
-Key transformations:
-- Daylight: klx -> lux (×1000), capped at universe max
-- View sky/greenery: sr -> normalized index (data-driven scaling to match MF universe)
-- Location POI: log transform + robust min-max scaling to 0-100
+V2 Simplifications:
+- Daylight: stays in klx (no conversion to lux)
+- View sky/greenery: direct pass-through (raw sr values, no scaling)
+- Location POI: log10(count+1) transformation only (no min-max scaling)
 - Noise: dBA pass-through with <=0 treated as missing
 
+V2 Design Rationale:
+- MF universes now calibrated to match actual data distributions
+- Removes complex percentile-based scaling that caused saturation issues
+- POI uses log10 (base-10) for intuitive interpretation
+
 Reference data statistics (Swiss Dwellings v3.0.0):
-- view_sky: median=0.0039 sr, max=3.88 sr (but very skewed toward 0)
-- view_greenery: median=0.0089 sr, max=0.059 sr
-- daylight: 0-3.91 klx (stored as klx, needs ×1000 for lux)
-- location_poi: 3-2662 counts (long-tailed distribution)
+- view_sky: 0-0.13 sr (median ~0.029, 95th pctl ~0.05)
+- view_greenery: 0-0.06 sr (median ~0.01, 95th pctl ~0.026)
+- daylight: 0-3.91 klx (noon illuminance)
+- location_poi: 3-2662 counts -> log10: ~0.6-3.43
 """
 
 from __future__ import annotations
@@ -37,29 +40,22 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "data" / "process
 @dataclass(frozen=True)
 class FeatureAlignmentConfig:
     """
-    Configuration for feature alignment transformations.
+    Configuration for feature alignment transformations - V2.
 
-    These parameters are fitted on the full dataset and saved to JSON
-    to ensure consistency between batch processing and web API.
+    V2 Simplification: Most parameters are now fixed based on dataset analysis.
+    Only POI-related parameters are retained for reference.
 
     Attributes:
-        view_sky_ref: Reference value (95th percentile) for view_sky scaling
-        view_greenery_ref: Reference value (95th percentile) for view_greenery scaling
-        poi_log_p01: 1st percentile of log1p(poi_count) for robust min-max
-        poi_log_p99: 99th percentile of log1p(poi_count) for robust min-max
-        daylight_lux_cap: Maximum daylight value in lux (matches FIS universe max)
-        view_sky_universe_max: Maximum view_sky in FIS universe (steradians)
-        view_greenery_universe_max: Maximum view_greenery in FIS universe (steradians)
-        location_poi_universe_max: Maximum location_poi in FIS universe
+        daylight_klx_cap: Maximum daylight value in klx (matches FIS universe max)
+        view_sky_max: Maximum view_sky in sr (matches FIS universe max)
+        view_greenery_max: Maximum view_greenery in sr (matches FIS universe max)
+        location_poi_log_max: Maximum location_poi in log10 scale (matches FIS universe max)
     """
-    view_sky_ref: float
-    view_greenery_ref: float
-    poi_log_p01: float
-    poi_log_p99: float
-    daylight_lux_cap: float = 1000.0
-    view_sky_universe_max: float = 4.0
-    view_greenery_universe_max: float = 2.0
-    location_poi_universe_max: float = 100.0
+    # V2: Fixed values based on dataset analysis and MF universe design
+    daylight_klx_cap: float = 6.0       # klx, matching universe max
+    view_sky_max: float = 0.13          # sr, matching universe max
+    view_greenery_max: float = 0.06     # sr, matching universe max
+    location_poi_log_max: float = 3.5   # log10 scale, matching universe max
 
     def to_json(self, path: Optional[Path] = None) -> None:
         """Save configuration to JSON file."""
@@ -76,12 +72,15 @@ class FeatureAlignmentConfig:
             path = DEFAULT_CONFIG_PATH
         path = Path(path)
         if not path.exists():
-            raise FileNotFoundError(
-                f"Alignment config not found at {path}. "
-                "Run prepare_full_features.py first to generate it."
-            )
+            # V2: Config is optional since values are fixed
+            return FeatureAlignmentConfig()
         obj = json.loads(path.read_text())
         return FeatureAlignmentConfig(**obj)
+
+    @staticmethod
+    def get_default() -> "FeatureAlignmentConfig":
+        """Get default V2 configuration."""
+        return FeatureAlignmentConfig()
 
 
 def fit_alignment_config(
@@ -91,11 +90,11 @@ def fit_alignment_config(
     poi_count_col: str = "raw_poi_count",
 ) -> FeatureAlignmentConfig:
     """
-    Fit alignment configuration parameters from raw feature data.
+    Fit alignment configuration parameters from raw feature data - V2.
 
-    Uses data-driven calibration to determine scaling parameters:
-    - View: 95th percentile as reference for "good" view
-    - POI: 1st and 99th percentile of log-transformed counts for robust scaling
+    V2 Simplification: Returns default config since parameters are now fixed.
+    This function is retained for API compatibility but simply validates
+    that the data falls within expected ranges.
 
     Parameters:
         df_raw: DataFrame with raw feature columns
@@ -104,61 +103,54 @@ def fit_alignment_config(
         poi_count_col: Column name for raw POI count
 
     Returns:
-        FeatureAlignmentConfig with fitted parameters
+        FeatureAlignmentConfig with default V2 parameters
     """
-    # View sky reference (95th percentile)
-    view_sky_vals = df_raw[view_sky_col].dropna()
-    view_sky_ref = float(view_sky_vals.quantile(0.95))
-    if view_sky_ref <= 0:
-        view_sky_ref = 1e-6  # Avoid division by zero
+    # V2: Validate data ranges (informational only)
+    if view_sky_col in df_raw.columns:
+        view_sky_max = df_raw[view_sky_col].max()
+        if view_sky_max > 0.13:
+            print(f"Warning: view_sky max ({view_sky_max:.4f}) exceeds expected range (0-0.13 sr)")
 
-    # View greenery reference (95th percentile)
-    view_greenery_vals = df_raw[view_greenery_col].dropna()
-    view_greenery_ref = float(view_greenery_vals.quantile(0.95))
-    if view_greenery_ref <= 0:
-        view_greenery_ref = 1e-6
+    if view_greenery_col in df_raw.columns:
+        view_greenery_max = df_raw[view_greenery_col].max()
+        if view_greenery_max > 0.06:
+            print(f"Warning: view_greenery max ({view_greenery_max:.4f}) exceeds expected range (0-0.06 sr)")
 
-    # POI log-transformed percentiles for robust min-max scaling
-    poi_vals = df_raw[poi_count_col].clip(lower=0).fillna(0)
-    poi_log = np.log1p(poi_vals)
-    poi_log_p01 = float(poi_log.quantile(0.01))
-    poi_log_p99 = float(poi_log.quantile(0.99))
+    if poi_count_col in df_raw.columns:
+        poi_max = df_raw[poi_count_col].max()
+        poi_log_max = np.log10(poi_max + 1) if poi_max > 0 else 0
+        if poi_log_max > 3.5:
+            print(f"Warning: poi_log max ({poi_log_max:.2f}) exceeds expected range (0-3.5)")
 
-    # Ensure denominator is positive
-    if (poi_log_p99 - poi_log_p01) <= 1e-9:
-        poi_log_p99 = poi_log_p01 + 1.0
-
-    return FeatureAlignmentConfig(
-        view_sky_ref=view_sky_ref,
-        view_greenery_ref=view_greenery_ref,
-        poi_log_p01=poi_log_p01,
-        poi_log_p99=poi_log_p99,
-    )
+    return FeatureAlignmentConfig.get_default()
 
 
 def align_features(
     df_raw: pd.DataFrame,
-    cfg: FeatureAlignmentConfig,
+    cfg: FeatureAlignmentConfig = None,
     inplace: bool = False,
 ) -> pd.DataFrame:
     """
-    Transform raw features to aligned features matching FIS input universes.
+    Transform raw features to aligned features matching FIS input universes - V2.
 
-    Transformations:
+    V2 Transformations (simplified):
     1. Noise: Pass-through, treat <=0 as missing
-    2. Daylight: klx -> lux (×1000), capped at universe max
-    3. View sky: sr -> normalized index (0 to universe_max)
-    4. View greenery: sr -> normalized index (0 to universe_max)
-    5. Location POI: log1p + robust min-max scaling -> 0 to universe_max
+    2. Daylight: stays in klx (pass-through), capped at universe max
+    3. View sky: pass-through (raw sr), capped at universe max
+    4. View greenery: pass-through (raw sr), capped at universe max
+    5. Location POI: log10(count+1) only, capped at universe max
 
     Parameters:
         df_raw: DataFrame with raw feature columns (raw_* prefix)
-        cfg: FeatureAlignmentConfig with fitted parameters
+        cfg: FeatureAlignmentConfig (optional, uses default if None)
         inplace: If True, modifies df_raw; otherwise returns a copy
 
     Returns:
         DataFrame with aligned feature columns added
     """
+    if cfg is None:
+        cfg = FeatureAlignmentConfig.get_default()
+
     out = df_raw if inplace else df_raw.copy()
 
     # Noise: treat <=0 as missing (these are likely invalid measurements)
@@ -166,30 +158,23 @@ def align_features(
         if col in out.columns:
             out.loc[out[col] <= 0, col] = np.nan
 
-    # Daylight: klx -> lux, then cap
+    # Daylight: stays in klx (V2), just clip to universe max
     if "raw_daylight_klx" in out.columns:
-        out["daylight"] = (out["raw_daylight_klx"] * 1000.0).clip(0, cfg.daylight_lux_cap)
+        out["daylight"] = out["raw_daylight_klx"].clip(0, cfg.daylight_klx_cap)
 
-    # View sky: sr -> scaled index to match MF universe (0-4)
-    # Maps 95th percentile to ~universe_max, allowing some headroom
+    # View sky: pass-through (V2), clip to universe max
     if "raw_view_sky_sr" in out.columns:
-        out["view_sky"] = (
-            out["raw_view_sky_sr"] / cfg.view_sky_ref * cfg.view_sky_universe_max
-        ).clip(0, cfg.view_sky_universe_max)
+        out["view_sky"] = out["raw_view_sky_sr"].clip(0, cfg.view_sky_max)
 
-    # View greenery: sr -> scaled index to match MF universe (0-2)
+    # View greenery: pass-through (V2), clip to universe max
     if "raw_view_greenery_sr" in out.columns:
-        out["view_greenery"] = (
-            out["raw_view_greenery_sr"] / cfg.view_greenery_ref * cfg.view_greenery_universe_max
-        ).clip(0, cfg.view_greenery_universe_max)
+        out["view_greenery"] = out["raw_view_greenery_sr"].clip(0, cfg.view_greenery_max)
 
-    # POI: log1p + robust min-max -> 0-100
+    # POI: log10(count+1) transformation (V2)
     if "raw_poi_count" in out.columns:
-        poi_log = np.log1p(out["raw_poi_count"].clip(lower=0))
-        denom = cfg.poi_log_p99 - cfg.poi_log_p01
-        out["location_poi"] = (
-            cfg.location_poi_universe_max * (poi_log - cfg.poi_log_p01) / denom
-        ).clip(0, cfg.location_poi_universe_max)
+        out["location_poi"] = np.log10(
+            out["raw_poi_count"].clip(lower=0) + 1
+        ).clip(0, cfg.location_poi_log_max)
 
     # Map noise columns to FIS naming convention
     if "raw_noise_day_dba" in out.columns:
@@ -203,55 +188,53 @@ def align_features(
 def align_single_input(
     noise_lden: float,
     noise_lnight: float,
-    daylight_lux: float,
+    daylight_klx: float,
     view_sky_sr: float,
     view_greenery_sr: float,
     poi_count: int,
-    cfg: FeatureAlignmentConfig,
+    cfg: FeatureAlignmentConfig = None,
 ) -> dict:
     """
-    Align a single dwelling's input features for the FIS.
+    Align a single dwelling's input features for the FIS - V2.
 
     This is used by the web API to align user-provided inputs
     before passing them to the fuzzy inference system.
 
+    V2 Simplification: Direct pass-through for most features,
+    only POI gets log10 transformation.
+
     Parameters:
         noise_lden: Day noise level in dBA
         noise_lnight: Night noise level in dBA
-        daylight_lux: Daylight illuminance in lux (user provides lux directly)
-        view_sky_sr: Sky view in steradians
-        view_greenery_sr: Greenery view in steradians
+        daylight_klx: Daylight illuminance in klx (V2: user provides klx directly)
+        view_sky_sr: Sky view in steradians (V2: raw value, no scaling)
+        view_greenery_sr: Greenery view in steradians (V2: raw value, no scaling)
         poi_count: Number of POIs within 10-min walk
-        cfg: FeatureAlignmentConfig with fitted parameters
+        cfg: FeatureAlignmentConfig (optional, uses default if None)
 
     Returns:
         Dictionary with aligned feature values ready for FIS
     """
+    if cfg is None:
+        cfg = FeatureAlignmentConfig.get_default()
+
     # Noise: pass-through (but validate)
     aligned_noise_lden = noise_lden if noise_lden > 0 else np.nan
     aligned_noise_lnight = noise_lnight if noise_lnight > 0 else np.nan
 
-    # Daylight: cap at universe max (user already provides lux)
-    aligned_daylight = min(max(daylight_lux, 0), cfg.daylight_lux_cap)
+    # Daylight: stays in klx (V2), just clip to universe max
+    aligned_daylight = min(max(daylight_klx, 0), cfg.daylight_klx_cap)
 
-    # View sky: scale to universe
-    aligned_view_sky = min(
-        max(view_sky_sr / cfg.view_sky_ref * cfg.view_sky_universe_max, 0),
-        cfg.view_sky_universe_max
-    )
+    # View sky: pass-through (V2), clip to universe max
+    aligned_view_sky = min(max(view_sky_sr, 0), cfg.view_sky_max)
 
-    # View greenery: scale to universe
-    aligned_view_greenery = min(
-        max(view_greenery_sr / cfg.view_greenery_ref * cfg.view_greenery_universe_max, 0),
-        cfg.view_greenery_universe_max
-    )
+    # View greenery: pass-through (V2), clip to universe max
+    aligned_view_greenery = min(max(view_greenery_sr, 0), cfg.view_greenery_max)
 
-    # POI: log + robust min-max
-    poi_log = math.log1p(max(poi_count, 0))
-    denom = cfg.poi_log_p99 - cfg.poi_log_p01
+    # POI: log10(count+1) transformation (V2)
     aligned_poi = min(
-        max(cfg.location_poi_universe_max * (poi_log - cfg.poi_log_p01) / denom, 0),
-        cfg.location_poi_universe_max
+        max(math.log10(max(poi_count, 0) + 1), 0),
+        cfg.location_poi_log_max
     )
 
     return {
@@ -358,16 +341,16 @@ def validate_alignment(
 
 
 if __name__ == "__main__":
-    # Example usage and testing
-    print("Feature Alignment Module")
+    # Example usage and testing - V2
+    print("Feature Alignment Module - V2")
     print("=" * 60)
 
     # Create sample raw data
     sample_data = pd.DataFrame({
         "raw_noise_day_dba": [55.0, 65.0, 45.0, 70.0],
         "raw_noise_night_dba": [45.0, 55.0, 35.0, 60.0],
-        "raw_daylight_klx": [0.5, 0.3, 0.8, 0.2],
-        "raw_view_sky_sr": [0.01, 0.05, 0.1, 0.002],
+        "raw_daylight_klx": [0.5, 1.3, 2.8, 0.2],
+        "raw_view_sky_sr": [0.01, 0.05, 0.10, 0.002],
         "raw_view_greenery_sr": [0.02, 0.01, 0.04, 0.005],
         "raw_poi_count": [100, 500, 50, 1000],
     })
@@ -375,30 +358,33 @@ if __name__ == "__main__":
     print("\nSample raw data:")
     print(sample_data)
 
-    # Fit alignment config
-    cfg = fit_alignment_config(sample_data)
-    print(f"\nFitted alignment config:")
-    print(f"  view_sky_ref: {cfg.view_sky_ref:.6f} sr")
-    print(f"  view_greenery_ref: {cfg.view_greenery_ref:.6f} sr")
-    print(f"  poi_log_p01: {cfg.poi_log_p01:.3f}")
-    print(f"  poi_log_p99: {cfg.poi_log_p99:.3f}")
+    # Get default V2 config
+    cfg = FeatureAlignmentConfig.get_default()
+    print(f"\nV2 alignment config (fixed values):")
+    print(f"  daylight_klx_cap: {cfg.daylight_klx_cap} klx")
+    print(f"  view_sky_max: {cfg.view_sky_max} sr")
+    print(f"  view_greenery_max: {cfg.view_greenery_max} sr")
+    print(f"  location_poi_log_max: {cfg.location_poi_log_max}")
 
-    # Align features
+    # Align features (V2: mostly pass-through)
     aligned = align_features(sample_data, cfg)
-    print("\nAligned features:")
+    print("\nAligned features (V2):")
     aligned_cols = ["noise_lden", "noise_lnight", "daylight", "view_sky", "view_greenery", "location_poi"]
     print(aligned[aligned_cols])
 
-    # Test single input alignment
-    print("\nSingle input alignment test:")
+    # Test single input alignment (V2)
+    print("\nSingle input alignment test (V2):")
     single = align_single_input(
         noise_lden=55.0,
         noise_lnight=45.0,
-        daylight_lux=300.0,
-        view_sky_sr=0.05,
-        view_greenery_sr=0.02,
+        daylight_klx=1.5,        # V2: klx input
+        view_sky_sr=0.03,        # V2: raw sr
+        view_greenery_sr=0.01,   # V2: raw sr
         poi_count=200,
         cfg=cfg,
     )
     for k, v in single.items():
-        print(f"  {k}: {v:.2f}")
+        if isinstance(v, float) and not np.isnan(v):
+            print(f"  {k}: {v:.4f}")
+        else:
+            print(f"  {k}: {v}")
