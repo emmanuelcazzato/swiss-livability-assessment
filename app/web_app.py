@@ -9,7 +9,8 @@ V2 Changes:
 - Simplified alignment (no percentile-based scaling)
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
+from flask_babel import Babel, gettext as _
 import pandas as pd
 import numpy as np
 import os
@@ -33,6 +34,42 @@ from feature_alignment import FeatureAlignmentConfig, align_single_input
 
 app = Flask(__name__, template_folder=str(APP_DIR / 'templates'))
 app.config['SECRET_KEY'] = 'swiss-livability-2025'
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'de', 'fr']
+
+# Supported languages
+LANGUAGES = {
+    'en': 'English',
+    'de': 'Deutsch',
+    'fr': 'Français'
+}
+
+# Initialize Babel
+babel = Babel(app)
+
+def get_locale():
+    """Select locale based on user preference or browser settings."""
+    # Check URL parameter first
+    if 'lang' in request.args:
+        lang = request.args.get('lang')
+        if lang in LANGUAGES:
+            session['lang'] = lang
+            return lang
+    # Check session
+    if 'lang' in session:
+        return session.get('lang')
+    # Fall back to browser preference
+    return request.accept_languages.best_match(LANGUAGES.keys(), default='en')
+
+babel.init_app(app, locale_selector=get_locale)
+
+@app.context_processor
+def inject_locale():
+    """Inject locale and language list into all templates."""
+    return {
+        'current_locale': get_locale(),
+        'languages': LANGUAGES
+    }
 
 # Initialize fuzzy system
 fuzzy_system = LiveabilityFuzzySystem()
@@ -267,22 +304,22 @@ def assess_dwelling():
 
         # Determine linguistic label
         if fli_score >= 65:
-            label = "Excellent"
+            label = _("Excellent")
             color = "#10b981"  # green
         elif fli_score >= 45:
-            label = "Good"
+            label = _("Good")
             color = "#3b82f6"  # blue
         elif fli_score >= 25:
-            label = "Fair"
+            label = _("Fair")
             color = "#f59e0b"  # orange
         else:
-            label = "Poor"
+            label = _("Poor")
             color = "#ef4444"  # red
 
         # V2: Get feature assessments using updated thresholds
         assessments = {
-            'noise': 'Quiet' if noise_lden < 53 else ('Moderate' if noise_lden < 65 else 'Noisy'),
-            'daylight': 'High' if daylight_klx > 2.0 else ('Medium' if daylight_klx > 0.8 else 'Low'),
+            'noise': _('Quiet') if noise_lden < 53 else (_('Moderate') if noise_lden < 65 else _('Noisy')),
+            'daylight': _('High') if daylight_klx > 2.0 else (_('Medium') if daylight_klx > 0.8 else _('Low')),
             'view_sky': get_view_assessment(view_sky_sr, 'sky'),
             'view_greenery': get_view_assessment(view_greenery_sr, 'greenery'),
             'location': get_poi_assessment(poi_count)
@@ -310,20 +347,20 @@ def get_view_assessment(view_sr: float, view_type: str) -> str:
         # V2 thresholds based on MF boundaries (0-0.13 sr range)
         # good: >0.035, moderate: 0.015-0.035, poor: <0.015
         if view_sr > 0.035:
-            return 'Good'
+            return _('Good')
         elif view_sr > 0.015:
-            return 'Moderate'
+            return _('Moderate')
         else:
-            return 'Limited'
+            return _('Limited')
     else:
         # V2 thresholds based on MF boundaries (0-0.06 sr range)
         # good: >0.012, moderate: 0.004-0.012, poor: <0.004
         if view_sr > 0.012:
-            return 'Good'
+            return _('Good')
         elif view_sr > 0.004:
-            return 'Moderate'
+            return _('Moderate')
         else:
-            return 'Limited'
+            return _('Limited')
 
 
 def get_poi_assessment(poi_count: int) -> str:
@@ -338,11 +375,11 @@ def get_poi_assessment(poi_count: int) -> str:
     poi_log = math.log10(max(poi_count, 0) + 1)
 
     if poi_log >= 2.7:
-        return 'Excellent'
+        return _('Excellent')
     elif poi_log >= 1.9:
-        return 'Good'
+        return _('Good')
     else:
-        return 'Moderate'
+        return _('Moderate')
 
 @app.route('/api/dwelling/<building_id>')
 def get_dwelling_details(building_id):
@@ -397,13 +434,13 @@ def get_dwelling_details(building_id):
 
         # Determine label
         if fli_score >= 65:
-            label = "Excellent"
+            label = _("Excellent")
         elif fli_score >= 45:
-            label = "Good"
+            label = _("Good")
         elif fli_score >= 25:
-            label = "Fair"
+            label = _("Fair")
         else:
-            label = "Poor"
+            label = _("Poor")
 
         return jsonify({
             'building_id': building_id,
@@ -431,24 +468,29 @@ def get_dwelling_details(building_id):
 def get_recommendations(fli_score, assessments):
     """Generate recommendations based on assessment"""
     recommendations = []
-    
-    if assessments['noise'] == 'Noisy':
-        recommendations.append("Consider noise reduction measures (better windows, insulation)")
-    
-    if assessments['daylight'] == 'Low':
-        recommendations.append("Improve natural lighting (larger windows, lighter colors)")
-    
-    if assessments['view_sky'] == 'Limited':
-        recommendations.append("Limited sky view - consider higher floors or less obstructed locations")
-    
-    if assessments['view_greenery'] == 'Limited':
-        recommendations.append("Add indoor plants or consider locations with more greenery")
-    
+
+    # Note: Compare with translated strings
+    noisy_label = _('Noisy')
+    low_label = _('Low')
+    limited_label = _('Limited')
+
+    if assessments['noise'] == noisy_label:
+        recommendations.append(_("Consider noise reduction measures (better windows, insulation)"))
+
+    if assessments['daylight'] == low_label:
+        recommendations.append(_("Improve natural lighting (larger windows, lighter colors)"))
+
+    if assessments['view_sky'] == limited_label:
+        recommendations.append(_("Limited sky view - consider higher floors or less obstructed locations"))
+
+    if assessments['view_greenery'] == limited_label:
+        recommendations.append(_("Add indoor plants or consider locations with more greenery"))
+
     if fli_score >= 65:
-        recommendations.append("Excellent livability! This dwelling meets high standards.")
+        recommendations.append(_("Excellent livability! This dwelling meets high standards."))
     elif fli_score < 35:
-        recommendations.append("Significant improvements needed for better livability")
-    
+        recommendations.append(_("Significant improvements needed for better livability"))
+
     return recommendations
 
 def main():

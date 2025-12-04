@@ -34,16 +34,31 @@
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav gap-2">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">{{ _('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}" href="{{ url_for('explore') }}">Explore Data</a>
+                        <a class="nav-link {% if request.endpoint == 'explore' %}active{% endif %}" href="{{ url_for('explore') }}">{{ _('Explore Data') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'filter_page' %}active{% endif %}" href="{{ url_for('filter_page') }}">Filter Dwellings</a>
+                        <a class="nav-link {% if request.endpoint == 'filter_page' %}active{% endif %}" href="{{ url_for('filter_page') }}">{{ _('Filter Dwellings') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'assess' %}active{% endif %}" href="{{ url_for('assess') }}">Assess Dwelling</a>
+                        <a class="nav-link {% if request.endpoint == 'assess' %}active{% endif %}" href="{{ url_for('assess') }}">{{ _('Assess Dwelling') }}</a>
+                    </li>
+                    <!-- Language Switcher -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-globe me-1"></i>{{ languages[current_locale] }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% for code, name in languages.items() %}
+                            <li>
+                                <a class="dropdown-item {% if code == current_locale %}active{% endif %}" href="?lang={{ code }}">
+                                    {{ name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -61,12 +76,12 @@
 
     <footer>
         <div class="container text-center">
-            <h5 class="mb-3 fw-bold text-dark">Swiss Residential Perceived Livability Assessment Framework</h5>
+            <h5 class="mb-3 fw-bold text-dark">{{ _('Swiss Residential Perceived Livability Assessment Framework') }}</h5>
             <p class="text-muted mb-0">
-                Based on WHO 2018 & EN 17037 Standards | Computing with Words Approach
+                {{ _('Based on WHO 2018 & EN 17037 Standards | Computing with Words Approach') }}
             </p>
             <p class="text-muted small mt-2">
-                &copy; 2025 Urban Computing Project
+                &copy; 2025 {{ _('Urban Computing Project') }}
             </p>
         </div>
     </footer>

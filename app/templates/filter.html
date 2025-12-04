@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Filter Dwellings - Swiss Livability Assessment{% endblock %}
+{% block title %}{{ _('Filter Dwellings') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -8,79 +8,79 @@
     <div class="col-lg-3 mb-4">
         <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 900;">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>Filter Metrics</h5>
+                <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>{{ _('Filter Metrics') }}</h5>
             </div>
             <div class="card-body">
-                <p class="text-muted small mb-4">Adjust sliders to filter dwellings by minimum requirements.</p>
-                
+                <p class="text-muted small mb-4">{{ _('Adjust sliders to filter dwellings by minimum requirements.') }}</p>
+
                 <form id="filterForm">
                     <!-- Noise Slider -->
                     <div class="mb-4">
                         <label for="noiseSlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>Acoustic Comfort</span>
-                            <span id="noiseLabel" class="badge bg-secondary">All</span>
+                            <span>{{ _('Acoustic Comfort') }}</span>
+                            <span id="noiseLabel" class="badge bg-secondary">{{ _('All') }}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max="3" step="1" id="noiseSlider" value="0">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>All</span>
-                            <span>Exc.</span>
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
                         </div>
                     </div>
 
                     <!-- Daylight Slider -->
                     <div class="mb-4">
                         <label for="daylightSlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>Daylight</span>
-                            <span id="daylightLabel" class="badge bg-secondary">All</span>
+                            <span>{{ _('Daylight') }}</span>
+                            <span id="daylightLabel" class="badge bg-secondary">{{ _('All') }}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max="3" step="1" id="daylightSlider" value="0">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>All</span>
-                            <span>Exc.</span>
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
                         </div>
                     </div>
 
                     <!-- View Sky Slider -->
                     <div class="mb-4">
                         <label for="skySlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>Sky View</span>
-                            <span id="skyLabel" class="badge bg-secondary">All</span>
+                            <span>{{ _('Sky View') }}</span>
+                            <span id="skyLabel" class="badge bg-secondary">{{ _('All') }}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max="3" step="1" id="skySlider" value="0">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>All</span>
-                            <span>Exc.</span>
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
                         </div>
                     </div>
 
                     <!-- View Greenery Slider -->
                     <div class="mb-4">
                         <label for="greenerySlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>Greenery View</span>
-                            <span id="greeneryLabel" class="badge bg-secondary">All</span>
+                            <span>{{ _('Greenery View') }}</span>
+                            <span id="greeneryLabel" class="badge bg-secondary">{{ _('All') }}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max="3" step="1" id="greenerySlider" value="0">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>All</span>
-                            <span>Exc.</span>
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
                         </div>
                     </div>
 
                     <!-- POI Slider -->
                     <div class="mb-4">
                         <label for="poiSlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>Location (POI)</span>
-                            <span id="poiLabel" class="badge bg-secondary">All</span>
+                            <span>{{ _('Location (POI)') }}</span>
+                            <span id="poiLabel" class="badge bg-secondary">{{ _('All') }}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max="3" step="1" id="poiSlider" value="0">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>All</span>
-                            <span>Exc.</span>
+                            <span>{{ _('All') }}</span>
+                            <span>{{ _('Exc.') }}</span>
                         </div>
                     </div>
-                    
+
                     <button type="button" class="btn btn-outline-secondary w-100" id="resetBtn">
-                        Reset Filters
+                        {{ _('Reset Filters') }}
                     </button>
                 </form>
             </div>
@@ -90,28 +90,28 @@
     <!-- Results Column -->
     <div class="col-lg-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">Matching Dwellings</h4>
-            <span class="badge bg-primary rounded-pill" id="resultCount">0 found</span>
+            <h4 class="mb-0">{{ _('Matching Dwellings') }}</h4>
+            <span class="badge bg-primary rounded-pill" id="resultCount">0 {{ _('found') }}</span>
         </div>
 
         <div class="table-responsive bg-white rounded shadow-sm" style="max-height: 80vh; overflow-y: auto;">
             <table class="table table-hover mb-0 sticky-header" id="resultsTable">
                 <thead class="table-light sticky-top" style="z-index: 800;">
                     <tr>
-                        <th>ID</th>
+                        <th>{{ _('ID') }}</th>
                         <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.">Noise (dBA)</th>
+                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Noise (dBA)') }}</th>
                         <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.">Daylight (klx)</th>
+                            title="{{ _('Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.') }}">{{ _('Daylight (klx)') }}</th>
                         <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.">Sky (sr)</th>
+                            title="{{ _('Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.') }}">{{ _('Sky (sr)') }}</th>
                         <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.">Green (sr)</th>
+                            title="{{ _('Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.') }}">{{ _('Green (sr)') }}</th>
                         <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.">POI</th>
+                            title="{{ _('Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.') }}">{{ _('POI') }}</th>
                         <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.">FLI Score</th>
-                        <th class="text-center">Action</th>
+                            title="{{ _('Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.') }}">{{ _('FLI Score') }}</th>
+                        <th class="text-center">{{ _('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody id="resultsBody">
@@ -119,18 +119,18 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Loading Spinner -->
         <div id="loadingSpinner" class="text-center py-5 d-none">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ _('Loading...') }}</span>
             </div>
         </div>
-        
+
         <!-- No Results Message -->
         <div id="noResults" class="text-center py-5 d-none">
             <i class="bi bi-search fs-1 text-muted mb-3"></i>
-            <p class="text-muted">No dwellings match your criteria.</p>
+            <p class="text-muted">{{ _('No dwellings match your criteria.') }}</p>
         </div>
     </div>
 </div>
@@ -139,6 +139,18 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- i18n translations for JavaScript ---
+    const i18n = {
+        all: "{{ _('All') }}",
+        fairPlus: "{{ _('Fair+') }}",
+        goodPlus: "{{ _('Good+') }}",
+        excellent: "{{ _('Excellent') }}",
+        found: "{{ _('found') }}",
+        showingFirst: "{{ _('Showing first 100 of') }}",
+        matches: "{{ _('matches') }}",
+        errorLoading: "{{ _('Error loading dwellings data. Please try refreshing.') }}"
+    };
+
     // --- Initialize Bootstrap Tooltips ---
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(el => new bootstrap.Tooltip(el));
@@ -151,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'greenery': document.getElementById('greenerySlider'),
         'poi': document.getElementById('poiSlider')
     };
-    
+
     const labels = {
         'noise': document.getElementById('noiseLabel'),
         'daylight': document.getElementById('daylightLabel'),
@@ -161,10 +173,10 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const levelMap = {
-        0: { text: 'All', color: 'bg-secondary' },
-        1: { text: 'Fair+', color: 'bg-warning text-dark' },
-        2: { text: 'Good+', color: 'bg-primary' },
-        3: { text: 'Excellent', color: 'bg-success' }
+        0: { text: i18n.all, color: 'bg-secondary' },
+        1: { text: i18n.fairPlus, color: 'bg-warning text-dark' },
+        2: { text: i18n.goodPlus, color: 'bg-primary' },
+        3: { text: i18n.excellent, color: 'bg-success' }
     };
 
     // --- State ---
@@ -196,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateLabel(key, value) {
         const labelEl = labels[key];
         const config = levelMap[value];
-        
+
         labelEl.textContent = config.text;
         labelEl.className = `badge ${config.color}`;
     }
@@ -210,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             filterAndRender();
         } catch (error) {
             console.error('Error:', error);
-            alert('Error loading dwellings data. Please try refreshing.');
+            alert(i18n.errorLoading);
         } finally {
             showLoading(false);
         }
@@ -239,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Filter Logic (Client-Side for speed with ~3000 records)
         const filtered = allDwellings.filter(d => {
-            // Noise: Lower is better. 
+            // Noise: Lower is better.
             // 0: All, 1: Fair (<65), 2: Good (<53), 3: Excellent (<45)
             if (criteria.noise > 0) {
                 const maxNoise = criteria.noise === 1 ? 65 : (criteria.noise === 2 ? 53 : 45);
@@ -287,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableContainer = document.querySelector('.table-responsive');
 
         tbody.innerHTML = '';
-        countBadge.textContent = `${data.length} found`;
+        countBadge.textContent = `${data.length} ${i18n.found}`;
 
         if (data.length === 0) {
             noResults.classList.remove('d-none');
@@ -303,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         displayData.forEach(d => {
             const tr = document.createElement('tr');
-            
+
             // Determine FLI badge color
             let badgeClass = 'bg-danger';
             if (d.fli_score >= 65) badgeClass = 'bg-success';
@@ -329,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (data.length > 100) {
             const infoRow = document.createElement('tr');
-            infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">Showing first 100 of ${data.length} matches</td>`;
+            infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">${i18n.showingFirst} ${data.length} ${i18n.matches}</td>`;
             tbody.appendChild(infoRow);
         }
     }

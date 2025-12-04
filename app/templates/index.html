@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Swiss Livability Assessment{% endblock %}
+{% block title %}{{ _('Home') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
 
 {% block content %}
 <div class="text-center py-5">
-    <h1 class="display-4 fw-bold mb-3 text-dark">Swiss Livability Assessment</h1>
+    <h1 class="display-4 fw-bold mb-3 text-dark">{{ _('Swiss Livability Assessment') }}</h1>
     <p class="lead text-muted mx-auto" style="max-width: 700px;">
-        Experience the intersection of data and perception. Our fuzzy logic system translates complex environmental metrics into human-centric livability scores.
+        {{ _('Experience the intersection of data and perception. Our fuzzy logic system translates complex environmental metrics into human-centric livability scores.') }}
     </p>
 </div>
 
@@ -14,14 +14,14 @@
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h3 class="h4 mb-4 text-primary"><i class="bi bi-bullseye me-2"></i>What We Assess</h3>
+                <h3 class="h4 mb-4 text-primary"><i class="bi bi-bullseye me-2"></i>{{ _('What We Assess') }}</h3>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item border-0 px-0 py-3">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-volume-mute text-secondary me-3 fs-5"></i>
                             <div>
-                                <strong class="d-block text-dark">Acoustic Comfort</strong>
-                                <span class="text-muted small">Based on WHO 2018 noise guidelines</span>
+                                <strong class="d-block text-dark">{{ _('Acoustic Comfort') }}</strong>
+                                <span class="text-muted small">{{ _('Based on WHO 2018 noise guidelines') }}</span>
                             </div>
                         </div>
                     </li>
@@ -29,8 +29,8 @@
                         <div class="d-flex align-items-center">
                             <i class="bi bi-sun text-secondary me-3 fs-5"></i>
                             <div>
-                                <strong class="d-block text-dark">Daylight Quality</strong>
-                                <span class="text-muted small">Based on EN 17037 standards</span>
+                                <strong class="d-block text-dark">{{ _('Daylight Quality') }}</strong>
+                                <span class="text-muted small">{{ _('Based on EN 17037 standards') }}</span>
                             </div>
                         </div>
                     </li>
@@ -38,8 +38,8 @@
                         <div class="d-flex align-items-center">
                             <i class="bi bi-eye text-secondary me-3 fs-5"></i>
                             <div>
-                                <strong class="d-block text-dark">View Quality</strong>
-                                <span class="text-muted small">Sky visibility and greenery exposure</span>
+                                <strong class="d-block text-dark">{{ _('View Quality') }}</strong>
+                                <span class="text-muted small">{{ _('Sky visibility and greenery exposure') }}</span>
                             </div>
                         </div>
                     </li>
@@ -47,8 +47,8 @@
                         <div class="d-flex align-items-center">
                             <i class="bi bi-geo-alt text-secondary me-3 fs-5"></i>
                             <div>
-                                <strong class="d-block text-dark">Location Convenience</strong>
-                                <span class="text-muted small">Accessibility to amenities</span>
+                                <strong class="d-block text-dark">{{ _('Location Convenience') }}</strong>
+                                <span class="text-muted small">{{ _('Accessibility to amenities') }}</span>
                             </div>
                         </div>
                     </li>
@@ -56,19 +56,19 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h3 class="h4 mb-4 text-primary"><i class="bi bi-gear-wide-connected me-2"></i>How It Works</h3>
+                <h3 class="h4 mb-4 text-primary"><i class="bi bi-gear-wide-connected me-2"></i>{{ _('How It Works') }}</h3>
                 <div class="position-relative ps-3">
                     <div class="d-flex mb-4">
                         <div class="me-3">
                             <span class="badge bg-light text-primary rounded-circle p-2 border border-primary">1</span>
                         </div>
                         <div>
-                            <strong class="d-block text-dark">Input</strong>
-                            <span class="text-muted">Environmental measurements (noise, daylight, views, POIs)</span>
+                            <strong class="d-block text-dark">{{ _('Input') }}</strong>
+                            <span class="text-muted">{{ _('Environmental measurements (noise, daylight, views, POIs)') }}</span>
                         </div>
                     </div>
                     <div class="d-flex mb-4">
@@ -76,8 +76,8 @@
                             <span class="badge bg-light text-primary rounded-circle p-2 border border-primary">2</span>
                         </div>
                         <div>
-                            <strong class="d-block text-dark">Fuzzification</strong>
-                            <span class="text-muted">Convert numbers to linguistic terms (e.g., "Quiet", "Bright")</span>
+                            <strong class="d-block text-dark">{{ _('Fuzzification') }}</strong>
+                            <span class="text-muted">{{ _('Convert numbers to linguistic terms (e.g., "Quiet", "Bright")') }}</span>
                         </div>
                     </div>
                     <div class="d-flex mb-4">
@@ -85,8 +85,8 @@
                             <span class="badge bg-light text-primary rounded-circle p-2 border border-primary">3</span>
                         </div>
                         <div>
-                            <strong class="d-block text-dark">Inference</strong>
-                            <span class="text-muted">Apply 15 expert-defined fuzzy rules</span>
+                            <strong class="d-block text-dark">{{ _('Inference') }}</strong>
+                            <span class="text-muted">{{ _('Apply 15 expert-defined fuzzy rules') }}</span>
                         </div>
                     </div>
                     <div class="d-flex">
@@ -94,8 +94,8 @@
                             <span class="badge bg-light text-primary rounded-circle p-2 border border-primary">4</span>
                         </div>
                         <div>
-                            <strong class="d-block text-dark">Output</strong>
-                            <span class="text-muted">Fuzzy Livability Index (0-100) with linguistic label</span>
+                            <strong class="d-block text-dark">{{ _('Output') }}</strong>
+                            <span class="text-muted">{{ _('Fuzzy Livability Index (0-100) with linguistic label') }}</span>
                         </div>
                     </div>
                 </div>
@@ -106,38 +106,38 @@
 
 <div class="card bg-gradient-primary text-white mb-5 border-0 overflow-hidden">
     <div class="card-body p-5">
-        <h3 class="text-center mb-5 text-white">Livability Levels</h3>
+        <h3 class="text-center mb-5 text-white">{{ _('Livability Levels') }}</h3>
         <div class="row g-4">
             <div class="col-md-6">
                 <div class="p-4 rounded-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong class="h5 mb-0 text-white">Excellent</strong>
+                        <strong class="h5 mb-0 text-white">{{ _('Excellent') }}</strong>
                         <span class="badge bg-success rounded-pill">65-100</span>
                     </div>
-                    <p class="mb-0 opacity-75 small">Quiet environment, high daylight, good views</p>
+                    <p class="mb-0 opacity-75 small">{{ _('Quiet environment, high daylight, good views') }}</p>
                 </div>
                 <div class="p-4 rounded-3 mt-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong class="h5 mb-0 text-white">Good</strong>
+                        <strong class="h5 mb-0 text-white">{{ _('Good') }}</strong>
                         <span class="badge bg-primary rounded-pill">45-75</span>
                     </div>
-                    <p class="mb-0 opacity-75 small">Balanced environmental quality</p>
+                    <p class="mb-0 opacity-75 small">{{ _('Balanced environmental quality') }}</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="p-4 rounded-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong class="h5 mb-0 text-white">Fair</strong>
+                        <strong class="h5 mb-0 text-white">{{ _('Fair') }}</strong>
                         <span class="badge bg-warning text-dark rounded-pill">25-55</span>
                     </div>
-                    <p class="mb-0 opacity-75 small">Moderate quality, some improvements needed</p>
+                    <p class="mb-0 opacity-75 small">{{ _('Moderate quality, some improvements needed') }}</p>
                 </div>
                 <div class="p-4 rounded-3 mt-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong class="h5 mb-0 text-white">Poor</strong>
+                        <strong class="h5 mb-0 text-white">{{ _('Poor') }}</strong>
                         <span class="badge bg-danger rounded-pill">0-35</span>
                     </div>
-                    <p class="mb-0 opacity-75 small">Significant environmental challenges</p>
+                    <p class="mb-0 opacity-75 small">{{ _('Significant environmental challenges') }}</p>
                 </div>
             </div>
         </div>
@@ -147,23 +147,20 @@
 <div class="text-center mb-5">
     <div class="d-flex justify-content-center gap-3">
         <a href="{{ url_for('explore') }}" class="btn btn-outline-primary btn-lg">
-            <i class="bi bi-bar-chart me-2"></i>Explore Dataset
+            <i class="bi bi-bar-chart me-2"></i>{{ _('Explore Dataset') }}
         </a>
         <a href="{{ url_for('assess') }}" class="btn btn-primary btn-lg">
-            <i class="bi bi-search me-2"></i>Assess a Dwelling
+            <i class="bi bi-search me-2"></i>{{ _('Assess a Dwelling') }}
         </a>
     </div>
 </div>
 
 <div class="card bg-light border-0">
     <div class="card-body p-4 text-center">
-        <h5 class="text-secondary mb-3"><i class="bi bi-info-circle me-2"></i>About This Project</h5>
+        <h5 class="text-secondary mb-3"><i class="bi bi-info-circle me-2"></i>{{ _('About This Project') }}</h5>
         <p class="text-muted mb-0 mx-auto" style="max-width: 800px;">
-            This is a proof-of-concept implementation of the Swiss Residential Perceived Livability Assessment Framework. 
-            The system processes data from the Swiss Dwellings v3.0.0 dataset and uses a Mamdani Fuzzy Inference System 
-            to compute livability scores that align with human perception.
+            {{ _('This is a proof-of-concept implementation of the Swiss Residential Perceived Livability Assessment Framework. The system processes data from the Swiss Dwellings v3.0.0 dataset and uses a Mamdani Fuzzy Inference System to compute livability scores that align with human perception.') }}
         </p>
     </div>
 </div>
 {% endblock %}
-
