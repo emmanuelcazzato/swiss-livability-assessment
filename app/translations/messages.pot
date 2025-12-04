@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-04 13:11+0100\n"
+"POT-Creation-Date: 2025-12-04 13:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/templates/filter.html:147 app/templates/index.html:114
+#: app/templates/filter.html:179 app/templates/index.html:114
 #: app/web_app.py:307 app/web_app.py:378 app/web_app.py:437
 msgid "Excellent"
 msgstr ""
@@ -179,15 +179,15 @@ msgstr ""
 msgid "Acoustic"
 msgstr ""
 
-#: app/templates/assess.html:96 app/templates/filter.html:33
+#: app/templates/assess.html:96 app/templates/filter.html:39
 msgid "Daylight"
 msgstr ""
 
-#: app/templates/assess.html:103 app/templates/filter.html:46
+#: app/templates/assess.html:103 app/templates/filter.html:52
 msgid "Sky View"
 msgstr ""
 
-#: app/templates/assess.html:110 app/templates/filter.html:59
+#: app/templates/assess.html:110 app/templates/filter.html:65
 msgid "Greenery View"
 msgstr ""
 
@@ -369,143 +369,155 @@ msgid ""
 "in the correct location."
 msgstr ""
 
-#: app/templates/filter.html:11
+#: app/templates/filter.html:17
 msgid "Filter Metrics"
 msgstr ""
 
-#: app/templates/filter.html:14
+#: app/templates/filter.html:20
 msgid "Adjust sliders to filter dwellings by minimum requirements."
 msgstr ""
 
-#: app/templates/filter.html:20 app/templates/index.html:23
+#: app/templates/filter.html:26 app/templates/index.html:23
 msgid "Acoustic Comfort"
 msgstr ""
 
-#: app/templates/filter.html:21 app/templates/filter.html:25
-#: app/templates/filter.html:34 app/templates/filter.html:38
-#: app/templates/filter.html:47 app/templates/filter.html:51
-#: app/templates/filter.html:60 app/templates/filter.html:64
-#: app/templates/filter.html:73 app/templates/filter.html:77
-#: app/templates/filter.html:144
+#: app/templates/filter.html:27 app/templates/filter.html:31
+#: app/templates/filter.html:40 app/templates/filter.html:44
+#: app/templates/filter.html:53 app/templates/filter.html:57
+#: app/templates/filter.html:66 app/templates/filter.html:70
+#: app/templates/filter.html:79 app/templates/filter.html:83
+#: app/templates/filter.html:176
 msgid "All"
 msgstr ""
 
-#: app/templates/filter.html:26 app/templates/filter.html:39
-#: app/templates/filter.html:52 app/templates/filter.html:65
-#: app/templates/filter.html:78
+#: app/templates/filter.html:32 app/templates/filter.html:45
+#: app/templates/filter.html:58 app/templates/filter.html:71
+#: app/templates/filter.html:84
 msgid "Exc."
 msgstr ""
 
-#: app/templates/filter.html:72
+#: app/templates/filter.html:78
 msgid "Location (POI)"
 msgstr ""
 
-#: app/templates/filter.html:83
+#: app/templates/filter.html:89
 msgid "Reset Filters"
 msgstr ""
 
-#: app/templates/filter.html:93
+#: app/templates/filter.html:99
 msgid "Matching Dwellings"
 msgstr ""
 
-#: app/templates/filter.html:94 app/templates/filter.html:148
+#: app/templates/filter.html:100 app/templates/filter.html:180
 msgid "found"
 msgstr ""
 
-#: app/templates/filter.html:101
+#: app/templates/filter.html:107
 msgid "ID"
 msgstr ""
 
-#: app/templates/filter.html:103
+#: app/templates/filter.html:109
 msgid ""
 "Day-evening-night noise level in decibels. Lower values indicate quieter "
 "environments. WHO recommends <53 dB for residential areas."
 msgstr ""
 
-#: app/templates/filter.html:103
+#: app/templates/filter.html:109
 msgid "Noise (dBA)"
 msgstr ""
 
-#: app/templates/filter.html:105
+#: app/templates/filter.html:111
 msgid ""
 "Natural daylight illuminance in kilolux. Higher values mean better "
 "natural lighting conditions indoors."
 msgstr ""
 
-#: app/templates/filter.html:105
+#: app/templates/filter.html:111
 msgid "Daylight (klx)"
 msgstr ""
 
-#: app/templates/filter.html:107
+#: app/templates/filter.html:113
 msgid ""
 "Visible sky solid angle in steradians. Measures how much sky is visible "
 "from the dwelling, affecting natural light and openness."
 msgstr ""
 
-#: app/templates/filter.html:107
+#: app/templates/filter.html:113
 msgid "Sky (sr)"
 msgstr ""
 
-#: app/templates/filter.html:109
+#: app/templates/filter.html:115
 msgid ""
 "Visible greenery solid angle in steradians. Measures the amount of "
 "vegetation visible from the dwelling, linked to well-being."
 msgstr ""
 
-#: app/templates/filter.html:109
+#: app/templates/filter.html:115
 msgid "Green (sr)"
 msgstr ""
 
-#: app/templates/filter.html:111
+#: app/templates/filter.html:117
 msgid ""
 "Points of Interest count nearby. Higher values indicate better access to "
 "amenities like shops, restaurants, and services."
 msgstr ""
 
-#: app/templates/filter.html:111
+#: app/templates/filter.html:117
 msgid "POI"
 msgstr ""
 
-#: app/templates/filter.html:113
+#: app/templates/filter.html:119
 msgid ""
 "Fuzzy Livability Index (0-100). Composite score combining all "
 "environmental factors. Higher is better."
 msgstr ""
 
-#: app/templates/filter.html:113
+#: app/templates/filter.html:119
 msgid "FLI Score"
 msgstr ""
 
-#: app/templates/filter.html:114
+#: app/templates/filter.html:120
 msgid "Action"
 msgstr ""
 
-#: app/templates/filter.html:126
+#: app/templates/filter.html:132
 msgid "Loading..."
 msgstr ""
 
-#: app/templates/filter.html:133
+#: app/templates/filter.html:139
 msgid "No dwellings match your criteria."
 msgstr ""
 
-#: app/templates/filter.html:145
+#: app/templates/filter.html:149
+msgid "Dwelling Analysis"
+msgstr ""
+
+#: app/templates/filter.html:160
+msgid "Chart values are normalized (0-1) where 1 is excellent."
+msgstr ""
+
+#: app/templates/filter.html:177
 msgid "Fair+"
 msgstr ""
 
-#: app/templates/filter.html:146
+#: app/templates/filter.html:178
 msgid "Good+"
 msgstr ""
 
-#: app/templates/filter.html:149
+#: app/templates/filter.html:181
 msgid "Showing first 100 of"
 msgstr ""
 
-#: app/templates/filter.html:150
+#: app/templates/filter.html:182
 msgid "matches"
 msgstr ""
 
-#: app/templates/filter.html:151
+#: app/templates/filter.html:183
 msgid "Error loading dwellings data. Please try refreshing."
+msgstr ""
+
+#: app/templates/filter.html:184
+msgid "View Analysis"
 msgstr ""
 
 #: app/templates/index.html:9

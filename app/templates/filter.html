@@ -3,6 +3,12 @@
 {% block title %}{{ _('Filter Dwellings') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
 
 {% block content %}
+<style>
+    .sortable { cursor: pointer; user-select: none; }
+    .sortable:hover { background-color: #e9ecef; }
+    .sort-icon { font-size: 0.75em; opacity: 0.5; }
+    .sortable.active .sort-icon { opacity: 1; color: #0d6efd; }
+</style>
 <div class="row">
     <!-- Filters Column -->
     <div class="col-lg-3 mb-4">
@@ -98,19 +104,19 @@
             <table class="table table-hover mb-0 sticky-header" id="resultsTable">
                 <thead class="table-light sticky-top" style="z-index: 800;">
                     <tr>
-                        <th>{{ _('ID') }}</th>
-                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Noise (dBA)') }}</th>
-                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.') }}">{{ _('Daylight (klx)') }}</th>
-                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.') }}">{{ _('Sky (sr)') }}</th>
-                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.') }}">{{ _('Green (sr)') }}</th>
-                        <th class="text-end" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.') }}">{{ _('POI') }}</th>
-                        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.') }}">{{ _('FLI Score') }}</th>
+                        <th class="sortable" data-sort="building_id">{{ _('ID') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="noise_lden" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Noise (dBA)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="daylight" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.') }}">{{ _('Daylight (klx)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="view_sky" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Visible sky solid angle in steradians. Measures how much sky is visible from the dwelling, affecting natural light and openness.') }}">{{ _('Sky (sr)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="view_greenery" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Visible greenery solid angle in steradians. Measures the amount of vegetation visible from the dwelling, linked to well-being.') }}">{{ _('Green (sr)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="poi_count" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Points of Interest count nearby. Higher values indicate better access to amenities like shops, restaurants, and services.') }}">{{ _('POI') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="fli_score" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Fuzzy Livability Index (0-100). Composite score combining all environmental factors. Higher is better.') }}">{{ _('FLI Score') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
                         <th class="text-center">{{ _('Action') }}</th>
                     </tr>
                 </thead>
@@ -210,6 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let allDwellings = [];
     let modalChartInstance = null; // Single instance for the modal
     const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+    let sortColumn = null;
+    let sortDirection = 'asc';
 
     // --- Initialization ---
     loadDwellings();
@@ -229,7 +237,25 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const key of Object.keys(sliders)) {
             updateLabel(key, 0);
         }
+        sortColumn = null;
+        sortDirection = 'asc';
+        updateSortIcons();
         filterAndRender();
+    });
+
+    // Sort column click event
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.dataset.sort;
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            updateSortIcons();
+            filterAndRender();
+        });
     });
 
     // Event delegation for dynamic buttons
@@ -252,6 +278,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         labelEl.textContent = config.text;
         labelEl.className = `badge ${config.color}`;
+    }
+
+    function updateSortIcons() {
+        document.querySelectorAll('.sortable').forEach(th => {
+            const icon = th.querySelector('.sort-icon');
+            const column = th.dataset.sort;
+            if (column === sortColumn) {
+                th.classList.add('active');
+                icon.className = `bi sort-icon ${sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down'}`;
+            } else {
+                th.classList.remove('active');
+                icon.className = 'bi bi-chevron-expand sort-icon';
+            }
+        });
     }
 
     async function loadDwellings() {
@@ -314,6 +354,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return true;
         });
+
+        // Sort if a column is selected
+        if (sortColumn) {
+            filtered.sort((a, b) => {
+                const valA = a[sortColumn];
+                const valB = b[sortColumn];
+                if (sortDirection === 'asc') {
+                    return valA - valB;
+                } else {
+                    return valB - valA;
+                }
+            });
+        }
 
         renderTable(filtered);
     }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-04 13:11+0100\n"
+"POT-Creation-Date: 2025-12-04 13:42+0100\n"
 "PO-Revision-Date: 2025-12-04 13:11+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/templates/filter.html:147 app/templates/index.html:114
+#: app/templates/filter.html:179 app/templates/index.html:114
 #: app/web_app.py:307 app/web_app.py:378 app/web_app.py:437
 msgid "Excellent"
 msgstr "Excellent"
@@ -90,8 +90,7 @@ msgstr ""
 
 #: app/web_app.py:490
 msgid "Excellent livability! This dwelling meets high standards."
-msgstr ""
-"Excellente habitabilité ! Ce logement répond à des normes élevées."
+msgstr "Excellente habitabilité ! Ce logement répond à des normes élevées."
 
 #: app/web_app.py:492
 msgid "Significant improvements needed for better livability"
@@ -131,8 +130,7 @@ msgstr "Niveau de bruit (Lden) - dB"
 
 #: app/templates/assess.html:25
 msgid "WHO 2018: <53 dB (Quiet), 53-65 dB (Moderate), >65 dB (Noisy)"
-msgstr ""
-"OMS 2018 : <53 dB (Calme), 53–65 dB (Modéré), >65 dB (Bruyant)"
+msgstr "OMS 2018 : <53 dB (Calme), 53–65 dB (Modéré), >65 dB (Bruyant)"
 
 #: app/templates/assess.html:29
 msgid "Noise Level (Lnight) - dB"
@@ -140,8 +138,7 @@ msgstr "Niveau de bruit (Lnight) - dB"
 
 #: app/templates/assess.html:31
 msgid "WHO 2018: <45 dB (Quiet), 45-56 dB (Moderate), >56 dB (Noisy)"
-msgstr ""
-"OMS 2018 : <45 dB (Calme), 45–56 dB (Modéré), >56 dB (Bruyant)"
+msgstr "OMS 2018 : <45 dB (Calme), 45–56 dB (Modéré), >56 dB (Bruyant)"
 
 #: app/templates/assess.html:35
 msgid "Daylight Illuminance - klx"
@@ -149,8 +146,7 @@ msgstr "Éclairement en lumière du jour - klx"
 
 #: app/templates/assess.html:37
 msgid "V2 (klx): <0.3 (Low), 0.3-2.0 (Medium), >2.0 (High)"
-msgstr ""
-"V2 (klx) : <0,3 (Faible), 0,3–2,0 (Moyen), >2,0 (Élevé)"
+msgstr "V2 (klx) : <0,3 (Faible), 0,3–2,0 (Moyen), >2,0 (Élevé)"
 
 #: app/templates/assess.html:41
 msgid "Sky View Factor - sr"
@@ -158,8 +154,7 @@ msgstr "Facteur de vue sur le ciel - sr"
 
 #: app/templates/assess.html:43
 msgid "V2 (sr): <0.015 (Limited), 0.015-0.035 (Moderate), >0.035 (Good)"
-msgstr ""
-"V2 (sr) : <0,015 (Limité), 0,015–0,035 (Modéré), >0,035 (Bon)"
+msgstr "V2 (sr) : <0,015 (Limité), 0,015–0,035 (Modéré), >0,035 (Bon)"
 
 #: app/templates/assess.html:47
 msgid "Greenery View - sr"
@@ -167,8 +162,7 @@ msgstr "Vue sur la verdure - sr"
 
 #: app/templates/assess.html:49
 msgid "V2 (sr): <0.004 (Limited), 0.004-0.012 (Moderate), >0.012 (Good)"
-msgstr ""
-"V2 (sr) : <0,004 (Limité), 0,004–0,012 (Modéré), >0,012 (Bon)"
+msgstr "V2 (sr) : <0,004 (Limité), 0,004–0,012 (Modéré), >0,012 (Bon)"
 
 #: app/templates/assess.html:53
 msgid "POI Count (Accessibility)"
@@ -176,8 +170,7 @@ msgstr "Nombre de POI (accessibilité)"
 
 #: app/templates/assess.html:55
 msgid "10-min walk POIs: <80 (Moderate), 80-500 (Good), >500 (Excellent)"
-msgstr ""
-"POI à 10 minutes à pied : <80 (Modéré), 80–500 (Bon), >500 (Excellent)"
+msgstr "POI à 10 minutes à pied : <80 (Modéré), 80–500 (Bon), >500 (Excellent)"
 
 #: app/templates/assess.html:61
 msgid "Compute Index"
@@ -199,15 +192,15 @@ msgstr "Évaluations par dimension"
 msgid "Acoustic"
 msgstr "Acoustique"
 
-#: app/templates/assess.html:96 app/templates/filter.html:33
+#: app/templates/assess.html:96 app/templates/filter.html:39
 msgid "Daylight"
 msgstr "Lumière du jour"
 
-#: app/templates/assess.html:103 app/templates/filter.html:46
+#: app/templates/assess.html:103 app/templates/filter.html:52
 msgid "Sky View"
 msgstr "Vue sur le ciel"
 
-#: app/templates/assess.html:110 app/templates/filter.html:59
+#: app/templates/assess.html:110 app/templates/filter.html:65
 msgid "Greenery View"
 msgstr "Vue sur la verdure"
 
@@ -229,13 +222,11 @@ msgstr "Saisissez les paramètres environnementaux de votre logement."
 
 #: app/templates/assess.html:143
 msgid "Click \"Compute Index\" to run the assessment."
-msgstr ""
-"Cliquez sur \"Calculer l'indice\" pour lancer l'évaluation."
+msgstr "Cliquez sur \"Calculer l'indice\" pour lancer l'évaluation."
 
 #: app/templates/assess.html:144
 msgid "Review the FLI score (0-100) and linguistic label."
-msgstr ""
-"Consultez le score FLI (0–100) ainsi que son étiquette linguistique."
+msgstr "Consultez le score FLI (0–100) ainsi que son étiquette linguistique."
 
 #: app/templates/assess.html:145
 msgid "Check dimension-specific assessments for details."
@@ -259,8 +250,7 @@ msgstr "Erreur lors du calcul du FLI"
 
 #: app/templates/assess.html:162
 msgid "No specific recommendations found. Conditions appear optimal."
-msgstr ""
-"Aucune recommandation particulière. Les conditions semblent optimales."
+msgstr "Aucune recommandation particulière. Les conditions semblent optimales."
 
 #: app/templates/base.html:37 app/templates/index.html:3
 msgid "Home"
@@ -276,8 +266,7 @@ msgstr "Filtrer les logements"
 
 #: app/templates/base.html:79
 msgid "Swiss Residential Perceived Livability Assessment Framework"
-msgstr ""
-"Cadre d'évaluation de l'habitabilité perçue des logements suisses"
+msgstr "Cadre d'évaluation de l'habitabilité perçue des logements suisses"
 
 #: app/templates/base.html:81
 msgid "Based on WHO 2018 & EN 17037 Standards | Computing with Words Approach"
@@ -335,8 +324,7 @@ msgstr ""
 
 #: app/templates/explore.html:89
 msgid "Average noise is moderate (53-65 dB) - Acceptable but could be improved."
-msgstr ""
-"Le bruit moyen est modéré (53–65 dB) – acceptable mais améliorable."
+msgstr "Le bruit moyen est modéré (53–65 dB) – acceptable mais améliorable."
 
 #: app/templates/explore.html:91
 msgid ""
@@ -379,8 +367,8 @@ msgid ""
 "Average daylight is below standards (<0.3 klx) - Insufficient natural "
 "light."
 msgstr ""
-"La lumière du jour moyenne est inférieure aux normes (<0,3 klx) – lumière "
-"naturelle insuffisante."
+"La lumière du jour moyenne est inférieure aux normes (<0,3 klx) – lumière"
+" naturelle insuffisante."
 
 #: app/templates/explore.html:140 app/templates/index.html:41
 msgid "View Quality"
@@ -395,14 +383,14 @@ msgstr ""
 #: app/templates/explore.html:145
 msgid "Sky view factor indicates moderate visual connection to the outdoors."
 msgstr ""
-"Le facteur de vue sur le ciel indique une connexion visuelle modérée "
-"avec l'extérieur."
+"Le facteur de vue sur le ciel indique une connexion visuelle modérée avec"
+" l'extérieur."
 
 #: app/templates/explore.html:147
 msgid "Sky view factor indicates limited visual connection to the outdoors."
 msgstr ""
-"Le facteur de vue sur le ciel indique une connexion visuelle limitée "
-"avec l'extérieur."
+"Le facteur de vue sur le ciel indique une connexion visuelle limitée avec"
+" l'extérieur."
 
 #: app/templates/explore.html:163
 msgid "Data Not Available"
@@ -416,56 +404,56 @@ msgstr ""
 "L'échantillon de données n'a pas pu être chargé. Veuillez vérifier que "
 "les fichiers de données se trouvent au bon emplacement."
 
-#: app/templates/filter.html:11
+#: app/templates/filter.html:17
 msgid "Filter Metrics"
 msgstr "Filtrer les indicateurs"
 
-#: app/templates/filter.html:14
+#: app/templates/filter.html:20
 msgid "Adjust sliders to filter dwellings by minimum requirements."
 msgstr ""
 "Ajustez les curseurs pour filtrer les logements selon des exigences "
 "minimales."
 
-#: app/templates/filter.html:20 app/templates/index.html:23
+#: app/templates/filter.html:26 app/templates/index.html:23
 msgid "Acoustic Comfort"
 msgstr "Confort acoustique"
 
-#: app/templates/filter.html:21 app/templates/filter.html:25
-#: app/templates/filter.html:34 app/templates/filter.html:38
-#: app/templates/filter.html:47 app/templates/filter.html:51
-#: app/templates/filter.html:60 app/templates/filter.html:64
-#: app/templates/filter.html:73 app/templates/filter.html:77
-#: app/templates/filter.html:144
+#: app/templates/filter.html:27 app/templates/filter.html:31
+#: app/templates/filter.html:40 app/templates/filter.html:44
+#: app/templates/filter.html:53 app/templates/filter.html:57
+#: app/templates/filter.html:66 app/templates/filter.html:70
+#: app/templates/filter.html:79 app/templates/filter.html:83
+#: app/templates/filter.html:176
 msgid "All"
 msgstr "Tous"
 
-#: app/templates/filter.html:26 app/templates/filter.html:39
-#: app/templates/filter.html:52 app/templates/filter.html:65
-#: app/templates/filter.html:78
+#: app/templates/filter.html:32 app/templates/filter.html:45
+#: app/templates/filter.html:58 app/templates/filter.html:71
+#: app/templates/filter.html:84
 msgid "Exc."
 msgstr "Exc."
 
-#: app/templates/filter.html:72
+#: app/templates/filter.html:78
 msgid "Location (POI)"
 msgstr "Emplacement (POI)"
 
-#: app/templates/filter.html:83
+#: app/templates/filter.html:89
 msgid "Reset Filters"
 msgstr "Réinitialiser les filtres"
 
-#: app/templates/filter.html:93
+#: app/templates/filter.html:99
 msgid "Matching Dwellings"
 msgstr "Logements correspondants"
 
-#: app/templates/filter.html:94 app/templates/filter.html:148
+#: app/templates/filter.html:100 app/templates/filter.html:180
 msgid "found"
 msgstr "trouvés"
 
-#: app/templates/filter.html:101
+#: app/templates/filter.html:107
 msgid "ID"
 msgstr "ID"
 
-#: app/templates/filter.html:103
+#: app/templates/filter.html:109
 msgid ""
 "Day-evening-night noise level in decibels. Lower values indicate quieter "
 "environments. WHO recommends <53 dB for residential areas."
@@ -474,11 +462,11 @@ msgstr ""
 "indiquent des environnements plus calmes. L'OMS recommande <53 dB pour "
 "les zones résidentielles."
 
-#: app/templates/filter.html:103
+#: app/templates/filter.html:109
 msgid "Noise (dBA)"
 msgstr "Bruit (dBA)"
 
-#: app/templates/filter.html:105
+#: app/templates/filter.html:111
 msgid ""
 "Natural daylight illuminance in kilolux. Higher values mean better "
 "natural lighting conditions indoors."
@@ -486,11 +474,11 @@ msgstr ""
 "Éclairement en lumière du jour en kilolux. Des valeurs plus élevées "
 "indiquent de meilleures conditions d'éclairage naturel à l'intérieur."
 
-#: app/templates/filter.html:105
+#: app/templates/filter.html:111
 msgid "Daylight (klx)"
 msgstr "Lumière du jour (klx)"
 
-#: app/templates/filter.html:107
+#: app/templates/filter.html:113
 msgid ""
 "Visible sky solid angle in steradians. Measures how much sky is visible "
 "from the dwelling, affecting natural light and openness."
@@ -499,11 +487,11 @@ msgstr ""
 "visible depuis le logement, ce qui affecte la lumière naturelle et la "
 "sensation d'ouverture."
 
-#: app/templates/filter.html:107
+#: app/templates/filter.html:113
 msgid "Sky (sr)"
 msgstr "Ciel (sr)"
 
-#: app/templates/filter.html:109
+#: app/templates/filter.html:115
 msgid ""
 "Visible greenery solid angle in steradians. Measures the amount of "
 "vegetation visible from the dwelling, linked to well-being."
@@ -511,11 +499,11 @@ msgstr ""
 "Angle solide de verdure visible en stéradians. Mesure la quantité de "
 "végétation visible depuis le logement, liée au bien-être."
 
-#: app/templates/filter.html:109
+#: app/templates/filter.html:115
 msgid "Green (sr)"
 msgstr "Verdure (sr)"
 
-#: app/templates/filter.html:111
+#: app/templates/filter.html:117
 msgid ""
 "Points of Interest count nearby. Higher values indicate better access to "
 "amenities like shops, restaurants, and services."
@@ -524,11 +512,11 @@ msgstr ""
 "indiquent un meilleur accès aux commodités comme les magasins, "
 "restaurants et services."
 
-#: app/templates/filter.html:111
+#: app/templates/filter.html:117
 msgid "POI"
 msgstr "POI"
 
-#: app/templates/filter.html:113
+#: app/templates/filter.html:119
 msgid ""
 "Fuzzy Livability Index (0-100). Composite score combining all "
 "environmental factors. Higher is better."
@@ -536,43 +524,55 @@ msgstr ""
 "Indice de viabilité floue (0–100). Score composite combinant tous les "
 "facteurs environnementaux. Plus il est élevé, mieux c'est."
 
-#: app/templates/filter.html:113
+#: app/templates/filter.html:119
 msgid "FLI Score"
 msgstr "Score FLI"
 
-#: app/templates/filter.html:114
+#: app/templates/filter.html:120
 msgid "Action"
 msgstr "Action"
 
-#: app/templates/filter.html:126
+#: app/templates/filter.html:132
 msgid "Loading..."
 msgstr "Chargement..."
 
-#: app/templates/filter.html:133
+#: app/templates/filter.html:139
 msgid "No dwellings match your criteria."
 msgstr "Aucun logement ne correspond à vos critères."
 
-#: app/templates/filter.html:145
+#: app/templates/filter.html:149
+msgid "Dwelling Analysis"
+msgstr "Analyse du logement"
+
+#: app/templates/filter.html:160
+msgid "Chart values are normalized (0-1) where 1 is excellent."
+msgstr "Les valeurs du graphique sont normalisées (0–1), où 1 est excellent."
+
+#: app/templates/filter.html:177
 msgid "Fair+"
 msgstr "Passable+"
 
-#: app/templates/filter.html:146
+#: app/templates/filter.html:178
 msgid "Good+"
 msgstr "Bon+"
 
-#: app/templates/filter.html:149
+#: app/templates/filter.html:181
 msgid "Showing first 100 of"
 msgstr "Affichage des 100 premiers sur"
 
-#: app/templates/filter.html:150
+#: app/templates/filter.html:182
 msgid "matches"
 msgstr "correspondances"
 
-#: app/templates/filter.html:151
+#: app/templates/filter.html:183
 msgid "Error loading dwellings data. Please try refreshing."
 msgstr ""
 "Erreur lors du chargement des données de logements. Veuillez essayer "
 "d'actualiser."
+
+#: app/templates/filter.html:184
+msgid "View Analysis"
+msgstr "Afficher l'analyse"
 
 #: app/templates/index.html:9
 msgid ""
@@ -644,8 +644,7 @@ msgstr "Sortie"
 
 #: app/templates/index.html:98
 msgid "Fuzzy Livability Index (0-100) with linguistic label"
-msgstr ""
-"Indice de viabilité floue (0–100) avec étiquette linguistique"
+msgstr "Indice de viabilité floue (0–100) avec étiquette linguistique"
 
 #: app/templates/index.html:109
 msgid "Livability Levels"
@@ -682,8 +681,8 @@ msgid ""
 " the Swiss Dwellings v3.0.0 dataset and uses a Mamdani Fuzzy Inference "
 "System to compute livability scores that align with human perception."
 msgstr ""
-"Ceci est une implémentation de preuve de concept du cadre d'évaluation de "
-"l'habitabilité perçue des logements suisses. Le système traite les données "
-"du jeu de données Swiss Dwellings v3.0.0 et utilise un système "
+"Ceci est une implémentation de preuve de concept du cadre d'évaluation de"
+" l'habitabilité perçue des logements suisses. Le système traite les "
+"données du jeu de données Swiss Dwellings v3.0.0 et utilise un système "
 "d'inférence floue de Mamdani pour calculer des scores d'habitabilité "
 "alignés sur la perception humaine."
