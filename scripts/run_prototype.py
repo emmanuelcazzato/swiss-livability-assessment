@@ -43,15 +43,14 @@ def main():
     print("Step 2: Preparing features for fuzzy inference...")
     print("="*80)
     
-    # Create feature dataframe with proper naming
-    # Note: daylight_avg is in klx here; FIS converts to lux internally when value < 10
+    # Create feature dataframe with proper naming (V2 aligned columns)
     features_df = pd.DataFrame({
         'noise_lden': df['noise_lden'],
         'noise_lnight': df['noise_lnight'],
-        'daylight_avg': df['daylight_avg_klx'],  # in klx
-        'view_sky': df['view_sky'],
-        'view_greenery': df['view_greenery'],
-        'location_poi_count': df['location_poi_count']
+        'daylight': df['daylight'],              # V2: klx
+        'view_sky': df['view_sky'],              # V2: sr (raw)
+        'view_greenery': df['view_greenery'],    # V2: sr (raw)
+        'location_poi': df['location_poi']       # V2: log10(count+1)
     })
     
     # Display statistics
@@ -119,10 +118,10 @@ def main():
         print(f"\nInput Features:")
         print(f"  Noise Lden: {row['noise_lden']:.1f} dBA")
         print(f"  Noise Lnight: {row['noise_lnight']:.1f} dBA")
-        print(f"  Daylight: {row['daylight_avg_klx']:.3f} klx ({row['daylight_avg_klx']*1000:.0f} lux)")
-        print(f"  View Sky (p80): {row['view_sky']:.4f} sr")
-        print(f"  View Greenery (p80): {row['view_greenery']:.4f} sr")
-        print(f"  POI Count: {int(row['location_poi_count'])}")
+        print(f"  Daylight: {row['raw_daylight_klx']:.3f} klx ({row['raw_daylight_klx']*1000:.0f} lux)")
+        print(f"  View Sky (p80): {row['raw_view_sky_sr']:.4f} sr")
+        print(f"  View Greenery (p80): {row['raw_view_greenery_sr']:.4f} sr")
+        print(f"  POI Count: {int(row['raw_poi_count'])}")
     
     # Step 7: Detailed explanation for one dwelling
     print("\n" + "="*80)
@@ -136,10 +135,10 @@ def main():
     sample_features = {
         'noise_lden': sample_row['noise_lden'],
         'noise_lnight': sample_row['noise_lnight'],
-        'daylight': sample_row['daylight_avg_klx'] * 1000,  # Convert to lux
-        'view_sky': sample_row['view_sky'],
-        'view_greenery': sample_row['view_greenery'],
-        'location_poi': sample_row['location_poi_count']
+        'daylight': sample_row['daylight'],           # V2: klx (no conversion)
+        'view_sky': sample_row['view_sky'],           # V2: sr (raw)
+        'view_greenery': sample_row['view_greenery'], # V2: sr (raw)
+        'location_poi': sample_row['location_poi']    # V2: log10(count+1)
     }
     
     explanation = fis.explain_dwelling(sample_features, top_n_rules=3)

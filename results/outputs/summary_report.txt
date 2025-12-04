@@ -7,19 +7,20 @@ Dataset: 3171 dwellings
 
 FLI Score Statistics:
 count    3171.000000
-mean       39.954795
-std        16.033784
+mean       37.515209
+std        15.346958
 min        13.166667
-25%        16.779850
-50%        50.000000
-75%        50.000000
-max        60.000000
+25%        23.273415
+50%        40.000000
+75%        46.839974
+max        77.110656
 Name: fli_score, dtype: float64
 
 Linguistic Label Distribution:
-  Good: 2252 (71.0%)
-  Poor: 904 (28.5%)
-  Fair: 15 (0.5%)
+  Fair: 1448 (45.7%)
+  Poor: 881 (27.8%)
+  Good: 725 (22.9%)
+  Excellent: 117 (3.7%)
 
 ================================================================================
 Standards Applied:

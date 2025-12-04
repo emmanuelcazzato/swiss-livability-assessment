@@ -34,7 +34,8 @@ swiss-livability-assessment/
 │       ├── base.html
 │       ├── index.html
 │       ├── explore.html
-│       └── assess.html
+│       ├── assess.html
+│       └── filter.html
 │
 ├── scripts/                 # Utility scripts
 │   ├── run_prototype.py     # Main prototype execution
@@ -105,6 +106,13 @@ uv run python -m app.web_app
 ```
 Then open http://localhost:5001 in your browser.
 
+**Features:**
+- **Home** (`/`): Overview of the livability assessment system
+- **Explore** (`/explore`): Browse dwelling statistics and sample data
+- **Assess** (`/assess`): Manually input dwelling parameters to compute FLI score
+- **Filter** (`/filter`): Filter and sort all dwellings by livability criteria
+- **i18n Support**: Available in English, German (Deutsch), and French (Français)
+
 ### Run Prototype Analysis
 ```bash
 uv run python scripts/run_prototype.py
@@ -129,63 +137,67 @@ Raw features (from simulations.csv and locations.csv):
 
 The Feature Alignment layer transforms raw dataset values to match the FIS input universes, ensuring all dimensions properly contribute to the fuzzy inference.
 
-### Problem Addressed
+### FIS Design
 
-The raw Swiss Dwellings data has different scales than the FIS membership function universes:
-- **view_sky**: Raw data 0-0.13 sr, but MF expects 0-4 sr
-- **view_greenery**: Raw data 0-0.06 sr, but MF expects 0-2 sr
-- **daylight**: Raw data in klx, but MF expects lux (0-1000)
-- **location_poi**: Raw counts 3-2662, but MF expects 0-100
+The alignment uses a simplified approach where membership function universes are calibrated directly to match the raw data distributions, eliminating complex scaling transformations.
+
+Reference data statistics (Swiss Dwellings v3.0.0):
+- **view_sky**: 0–0.13 sr (median ~0.029, 95th pctl ~0.05)
+- **view_greenery**: 0–0.06 sr (median ~0.01, 95th pctl ~0.026)
+- **daylight**: 0–3.91 klx (noon illuminance)
+- **location_poi**: 3–2662 counts → log10: ~0.6–3.43
 
 ### Transformations
 
 | Variable | Transformation | Purpose |
 |----------|---------------|---------|
-| **Daylight** | klx × 1000, cap at 1000 lux | Unit conversion to match EN 17037 |
-| **View sky** | sr / ref_95pctl × 4.0 | Data-driven scaling to universe |
-| **View greenery** | sr / ref_95pctl × 2.0 | Data-driven scaling to universe |
-| **Location POI** | log1p + robust min-max → 0-100 | Handle long-tail distribution |
 | **Noise** | Pass-through, ≤0 → missing | Already in dBA |
+| **Daylight** | Pass-through (klx), cap at 6.0 | MF universe calibrated to klx |
+| **View sky** | Pass-through (sr), cap at 0.13 | MF universe matches raw data range |
+| **View greenery** | Pass-through (sr), cap at 0.06 | MF universe matches raw data range |
+| **Location POI** | log10(count+1), cap at 3.5 | Compress long-tail distribution |
 
 ### Configuration
 
-Alignment parameters are fitted on the full dataset and saved to `data/processed/feature_alignment.json`:
+Alignment parameters are saved to `data/processed/feature_alignment.json`:
 ```json
 {
-  "view_sky_ref": 0.0507,
-  "view_greenery_ref": 0.0258,
-  "poi_log_p01": 0.0,
-  "poi_log_p99": 7.44
+  "daylight_klx_cap": 6.0,
+  "view_sky_max": 0.13,
+  "view_greenery_max": 0.06,
+  "location_poi_log_max": 3.5
 }
 ```
 
-This ensures consistency between batch processing and the web API.
+These values define the upper bounds for each FIS input universe, ensuring consistency between batch processing and the web API.
 
 ## FLI Results
 
-After feature alignment, the Fuzzy Livability Index shows a well-distributed output:
+After feature alignment, the Fuzzy Livability Index distribution (n=2,988 valid dwellings):
 
 | Statistic | Value |
 |-----------|-------|
-| Mean | 50.43 |
-| Std Dev | 22.20 |
+| Mean | 37.57 |
+| Std Dev | 15.36 |
 | Min | 13.17 |
-| Max | 85.91 |
+| Median | 40.00 |
+| Max | 77.11 |
 
 **Linguistic Label Distribution:**
 | Label | Count | Percentage |
 |-------|-------|------------|
-| Excellent | 614 | 20.5% |
-| Good | 1,410 | 47.2% |
-| Fair | 397 | 13.3% |
-| Poor | 567 | 19.0% |
+| Excellent | 114 | 3.8% |
+| Good | 683 | 22.9% |
+| Fair | 1,362 | 45.6% |
+| Poor | 829 | 27.7% |
 
 **Feature Correlations with FLI:**
-- noise_lden: -0.75 (strong negative - more noise = lower livability)
-- noise_lnight: -0.73 (strong negative)
-- view_greenery: +0.23 (moderate positive)
-- view_sky: +0.16 (moderate positive)
-- daylight: +0.14 (moderate positive)
+- noise_lden: −0.74 (strong negative — more noise = lower livability)
+- noise_lnight: −0.73 (strong negative)
+- daylight: +0.35 (moderate positive)
+- view_sky: +0.35 (moderate positive)
+- view_greenery: +0.20 (moderate positive)
+- location_poi: −0.16 (weak negative)
 
 ## Standards Applied
 
