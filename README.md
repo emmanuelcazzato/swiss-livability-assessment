@@ -6,9 +6,8 @@ This project implements a **Fuzzy Inference System** to assess the perceived liv
 
 ## Research Questions
 
-1. **RQ1**: How to deconstruct "perceived livability" into measurable dimensions and map them to available dataset columns?
-2. **RQ2**: How to design a Fuzzy Inference System to transform quantitative simulations into linguistic levels?
-3. **RQ3**: How to validate the "Fuzzy Livability Index" using external benchmarks?
+1. **RQ1**: *How can a fuzzy-logic-based web application represent urban residential livability in a way that is understandable and meaningful for citizens?*
+2. **RQ2**: *How do potential users perceive the usability and perceived usefulness of the proposed livability tool?*
 
 ## Project Structure
 
