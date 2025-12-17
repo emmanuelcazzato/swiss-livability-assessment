@@ -210,9 +210,11 @@ def explore():
         stats = {
             'total_dwellings': len(df),
             'avg_noise': round(df['noise_lden'].mean(), 1),
+            'avg_noise_night': round(df['noise_lnight'].mean(), 1),
             'avg_daylight': round(df[daylight_col].mean(), 3),
             'avg_view_sky': round(df[view_sky_col].mean(), 4),
-            'avg_view_greenery': round(df[view_greenery_col].mean(), 4)
+            'avg_view_greenery': round(df[view_greenery_col].mean(), 4),
+            'avg_location_poi': round(df['raw_poi_count'].mean(), 0)
         }
         return render_template('explore.html', stats=stats)
     return render_template('explore.html', stats=None)

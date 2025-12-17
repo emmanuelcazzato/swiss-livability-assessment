@@ -622,13 +622,13 @@ msgstr "Begrenzt+"
 
 #: app/templates/index.html:9
 msgid ""
-"Experience the intersection of data and perception. Our fuzzy logic "
+"A Design Science Research project applying the computing with words paradigm. Our fuzzy logic "
 "system translates complex environmental metrics into human-centric "
-"livability scores."
+"livability scores for citizens, real estate agents, and urban planners."
 msgstr ""
-"Erleben Sie die Schnittstelle von Daten und Wahrnehmung. Unser Fuzzy-"
+"Ein Design-Science-Research-Projekt, das das Paradigma des Rechnens mit Worten anwendet. Unser Fuzzy-"
 "Logik-System übersetzt komplexe Umweltkennzahlen in menschenzentrierte "
-"Wohnlichkeitswerte."
+"Wohnlichkeitswerte für Bürger, Immobilienmakler und Stadtplaner."
 
 #: app/templates/index.html:17
 msgid "What We Assess"
@@ -679,8 +679,8 @@ msgid "Inference"
 msgstr "Schlussfolgerung"
 
 #: app/templates/index.html:89
-msgid "Apply 15 expert-defined fuzzy rules"
-msgstr "Anwendung von 15 expertenbasierten Fuzzy-Regeln"
+msgid "Apply 24 weighted fuzzy rules"
+msgstr "Anwendung von 24 gewichteten Fuzzy-Regeln"
 
 #: app/templates/index.html:97
 msgid "Output"
@@ -730,6 +730,18 @@ msgstr ""
 "Daten aus dem Datensatz „Swiss Dwellings v3.0.0" und verwendet ein "
 "Mamdani-Fuzzy-Inferenzsystem, um Wohnlichkeitswerte zu berechnen, die mit"
 " der menschlichen Wahrnehmung übereinstimmen."
+
+#: app/templates/index.html:165
+msgid ""
+"Validated through user-centred evaluation with 14 participants from Geneva, "
+"Fribourg, and Bern, and technical evaluation on 3,171 dwellings. The system "
+"uses 24 weighted fuzzy rules anchored to WHO 2018 noise guidelines and EN "
+"17037 daylight standards."
+msgstr ""
+"Validiert durch eine nutzerzentrierte Evaluation mit 14 Teilnehmern aus Genf, "
+"Freiburg und Bern sowie eine technische Evaluation an 3.171 Wohnungen. Das System "
+"verwendet 24 gewichtete Fuzzy-Regeln, die auf den WHO-Lärmrichtlinien 2018 und "
+"den EN-17037-Tageslichtstandards basieren."
 
 #: app/templates/assess.html (new)
 msgid "Adjust the sliders to set environmental parameters and compute the Fuzzy Livability Index (FLI)."
@@ -906,3 +918,52 @@ msgstr "Der FLI verwendet Schwerpunkt-Defuzzifizierung, um einen scharfen Wert a
 
 msgid "Close"
 msgstr "Schließen"
+
+#: app/templates/explore.html (new dimensions)
+msgid "Avg. Noise (Lnight)"
+msgstr "Durchschn. Lärm (Lnight)"
+
+msgid "Avg. Sky View"
+msgstr "Durchschn. Himmelsblick"
+
+msgid "Avg. Greenery View"
+msgstr "Durchschn. Grünblick"
+
+msgid "Avg. POI Count"
+msgstr "Durchschn. POI-Anzahl"
+
+msgid "Sky View Quality"
+msgstr "Himmelsblick-Qualität"
+
+msgid "Nighttime Noise"
+msgstr "Nachtlärm"
+
+msgid "Nighttime noise is below WHO threshold (40 dB) - Excellent sleep conditions."
+msgstr "Der nächtliche Lärm liegt unter dem WHO-Grenzwert (40 dB) – ausgezeichnete Schlafbedingungen."
+
+msgid "Nighttime noise is moderate (40-55 dB) - Sleep quality may be affected."
+msgstr "Der nächtliche Lärm ist moderat (40–55 dB) – die Schlafqualität kann beeinträchtigt sein."
+
+msgid "Nighttime noise exceeds recommended levels (>55 dB) - Significant sleep disruption risk."
+msgstr "Der nächtliche Lärm überschreitet die empfohlenen Werte (>55 dB) – erhebliches Risiko für Schlafstörungen."
+
+msgid "Greenery view factor indicates excellent access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen ausgezeichneten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Greenery view factor indicates moderate access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen moderaten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Greenery view factor indicates limited access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen begrenzten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Location Accessibility"
+msgstr "Lageerreichbarkeit"
+
+msgid "Excellent walkability with many points of interest (>500 POIs) within 10-minute walk."
+msgstr "Ausgezeichnete Erreichbarkeit mit vielen Points of Interest (>500 POIs) im 10-Minuten-Fußweg."
+
+msgid "Good walkability with moderate points of interest (100-500 POIs) within 10-minute walk."
+msgstr "Gute Erreichbarkeit mit moderaten Points of Interest (100–500 POIs) im 10-Minuten-Fußweg."
+
+msgid "Limited walkability with few points of interest (<100 POIs) within 10-minute walk."
+msgstr "Begrenzte Erreichbarkeit mit wenigen Points of Interest (<100 POIs) im 10-Minuten-Fußweg."

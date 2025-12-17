@@ -14,7 +14,7 @@
 </div>
 
 {% if stats %}
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-4">
     <div class="col-6 col-lg-3">
         <div class="card h-100 border-0 bg-light">
             <div class="card-body text-center p-4">
@@ -41,10 +41,10 @@
         <div class="card h-100 border-0 bg-light">
             <div class="card-body text-center p-4">
                 <div class="mb-3">
-                    <i class="bi bi-sun text-primary fs-1"></i>
+                    <i class="bi bi-moon-stars text-primary fs-1"></i>
                 </div>
-                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">klx</span></h3>
-                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Daylight') }}</span>
+                <h3 class="fw-bold mb-1">{{ stats.avg_noise_night }} <span class="fs-6 text-muted">dB</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Noise (Lnight)') }}</span>
             </div>
         </div>
     </div>
@@ -52,10 +52,45 @@
         <div class="card h-100 border-0 bg-light">
             <div class="card-body text-center p-4">
                 <div class="mb-3">
+                    <i class="bi bi-sun text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_daylight }} <span class="fs-6 text-muted">klx</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Daylight') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-4">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
                     <i class="bi bi-eye text-primary fs-1"></i>
                 </div>
-                <h3 class="fw-bold mb-1">{{ stats.avg_view_sky }}</h3>
-                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Sky View (sr)') }}</span>
+                <h3 class="fw-bold mb-1">{{ stats.avg_view_sky }} <span class="fs-6 text-muted">sr</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Sky View') }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-tree text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_view_greenery }} <span class="fs-6 text-muted">sr</span></h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. Greenery View') }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="card h-100 border-0 bg-light">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-geo-alt text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">{{ stats.avg_location_poi|int }}</h3>
+                <span class="text-muted small text-uppercase tracking-wide">{{ _('Avg. POI Count') }}</span>
             </div>
         </div>
     </div>
@@ -137,7 +172,7 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <h6 class="fw-bold mb-1">{{ _('View Quality') }}</h6>
+                                <h6 class="fw-bold mb-1">{{ _('Sky View Quality') }}</h6>
                                 <p class="mb-0 text-muted">
                                     {% if stats.avg_view_sky >= 0.035 %}
                                         {{ _('Sky view factor indicates excellent visual connection to the outdoors.') }}
@@ -145,6 +180,84 @@
                                         {{ _('Sky view factor indicates moderate visual connection to the outdoors.') }}
                                     {% else %}
                                         {{ _('Sky view factor indicates limited visual connection to the outdoors.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_noise_night < 40 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_noise_night < 55 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('Nighttime Noise') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_noise_night < 40 %}
+                                        {{ _('Nighttime noise is below WHO threshold (40 dB) - Excellent sleep conditions.') }}
+                                    {% elif stats.avg_noise_night < 55 %}
+                                        {{ _('Nighttime noise is moderate (40-55 dB) - Sleep quality may be affected.') }}
+                                    {% else %}
+                                        {{ _('Nighttime noise exceeds recommended levels (>55 dB) - Significant sleep disruption risk.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_view_greenery >= 0.02 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_view_greenery >= 0.005 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill text-muted fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('Greenery View') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_view_greenery >= 0.02 %}
+                                        {{ _('Greenery view factor indicates excellent access to natural green spaces.') }}
+                                    {% elif stats.avg_view_greenery >= 0.005 %}
+                                        {{ _('Greenery view factor indicates moderate access to natural green spaces.') }}
+                                    {% else %}
+                                        {{ _('Greenery view factor indicates limited access to natural green spaces.') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 mt-1">
+                                {% if stats.avg_location_poi >= 500 %}
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                {% elif stats.avg_location_poi >= 100 %}
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-4"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill text-muted fs-4"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ _('Location Accessibility') }}</h6>
+                                <p class="mb-0 text-muted">
+                                    {% if stats.avg_location_poi >= 500 %}
+                                        {{ _('Excellent walkability with many points of interest (>500 POIs) within 10-minute walk.') }}
+                                    {% elif stats.avg_location_poi >= 100 %}
+                                        {{ _('Good walkability with moderate points of interest (100-500 POIs) within 10-minute walk.') }}
+                                    {% else %}
+                                        {{ _('Limited walkability with few points of interest (<100 POIs) within 10-minute walk.') }}
                                     {% endif %}
                                 </p>
                             </div>
