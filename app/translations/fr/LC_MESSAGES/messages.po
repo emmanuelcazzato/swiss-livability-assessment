@@ -749,6 +749,12 @@ msgstr "Bruit de jour (Lden)"
 msgid "Night Noise (Lnight)"
 msgstr "Bruit de nuit (Lnight)"
 
+msgid "Day Noise"
+msgstr "Bruit de jour"
+
+msgid "Night Noise"
+msgstr "Bruit de nuit"
+
 msgid "WHO"
 msgstr "OMS"
 

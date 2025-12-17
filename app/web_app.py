@@ -393,7 +393,8 @@ def assess_dwelling():
             daylight_klx=daylight_klx,
             view_sky_sr=view_sky_sr,
             view_greenery_sr=view_greenery_sr,
-            poi_count=poi_count
+            poi_count=poi_count,
+            noise_lnight=noise_lnight
         )
 
         # Translate assessment labels for i18n

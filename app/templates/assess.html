@@ -235,8 +235,15 @@
                 <div class="col-md-4 col-6">
                     <div class="p-3 border rounded-3 bg-light h-100">
                         <i class="bi bi-volume-up text-primary fs-3 mb-2"></i>
-                        <h6 class="text-muted mb-1">{{ _('Acoustic') }}</h6>
+                        <h6 class="text-muted mb-1">{{ _('Day Noise') }}</h6>
                         <div id="assess-noise" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-moon-stars text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Night Noise') }}</h6>
+                        <div id="assess-noise-night" class="fw-bold fs-5">--</div>
                     </div>
                 </div>
                 <div class="col-md-4 col-6">
@@ -253,14 +260,14 @@
                         <div id="assess-view-sky" class="fw-bold fs-5">--</div>
                     </div>
                 </div>
-                <div class="col-md-6 col-6">
+                <div class="col-md-4 col-6">
                     <div class="p-3 border rounded-3 bg-light h-100">
                         <i class="bi bi-tree text-primary fs-3 mb-2"></i>
                         <h6 class="text-muted mb-1">{{ _('Greenery View') }}</h6>
                         <div id="assess-view-greenery" class="fw-bold fs-5">--</div>
                     </div>
                 </div>
-                <div class="col-md-6 col-12">
+                <div class="col-md-4 col-6">
                     <div class="p-3 border rounded-3 bg-light h-100">
                         <i class="bi bi-geo-alt text-primary fs-3 mb-2"></i>
                         <h6 class="text-muted mb-1">{{ _('Location') }}</h6>
@@ -578,6 +585,7 @@
             // Display detailed results section
             document.getElementById('results').style.display = 'block';
             document.getElementById('assess-noise').textContent = data.assessments.noise;
+            document.getElementById('assess-noise-night').textContent = data.assessments.noise_night;
             document.getElementById('assess-daylight').textContent = data.assessments.daylight;
             document.getElementById('assess-view-sky').textContent = data.assessments.view_sky;
             document.getElementById('assess-view-greenery').textContent = data.assessments.view_greenery;

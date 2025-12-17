@@ -747,6 +747,12 @@ msgstr "Tageslärm (Lden)"
 msgid "Night Noise (Lnight)"
 msgstr "Nachtlärm (Lnight)"
 
+msgid "Day Noise"
+msgstr "Tageslärm"
+
+msgid "Night Noise"
+msgstr "Nachtlärm"
+
 msgid "WHO"
 msgstr "WHO"
 
