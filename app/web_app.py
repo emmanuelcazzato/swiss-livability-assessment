@@ -112,8 +112,9 @@ def compute_fli_from_raw_inputs(
     daylight_klx: float,
     view_sky_sr: float,
     view_greenery_sr: float,
-    poi_count: int
-) -> float:
+    poi_count: int,
+    return_full_result: bool = False
+):
     """
     Compute FLI score from raw user inputs (physical units) - V2.
 
@@ -127,9 +128,10 @@ def compute_fli_from_raw_inputs(
         view_sky_sr: Sky view in steradians (V2: raw value)
         view_greenery_sr: Greenery view in steradians (V2: raw value)
         poi_count: Number of POIs within 10-min walk
+        return_full_result: If True, return full result dict with memberships and rules
 
     Returns:
-        FLI score (0-100)
+        FLI score (0-100) or full result dict if return_full_result=True
     """
     # V2: Apply simplified alignment
     aligned = align_single_input(
@@ -143,6 +145,9 @@ def compute_fli_from_raw_inputs(
     )
 
     result = fuzzy_system.compute_single_dwelling(aligned)
+
+    if return_full_result:
+        return result
     return result['fli_score']
 
 
@@ -296,15 +301,17 @@ def assess_dwelling():
         view_greenery_sr = float(data.get('view_greenery', 0.01))  # V2: sr, default ~median
         poi_count = int(data.get('poi_count', 200))         # Default ~median of real data
 
-        # Compute FLI using V2 alignment
-        fli_score = compute_fli_from_raw_inputs(
+        # Compute FLI using V2 alignment (get full result for UI features)
+        fli_result = compute_fli_from_raw_inputs(
             noise_lden_dba=noise_lden,
             noise_lnight_dba=noise_lnight,
             daylight_klx=daylight_klx,
             view_sky_sr=view_sky_sr,
             view_greenery_sr=view_greenery_sr,
-            poi_count=poi_count
+            poi_count=poi_count,
+            return_full_result=True
         )
+        fli_score = fli_result['fli_score']
 
         # Use centralized assessment functions
         fli_label = get_fli_label(fli_score)
@@ -326,12 +333,36 @@ def assess_dwelling():
         raw_recommendations = get_assessment_recommendations(fli_score, raw_assessments)
         recommendations = [_(r) for r in raw_recommendations]
 
+        # Prepare output memberships for stacked bar visualization
+        output_memberships = {
+            'poor': round(fli_result['output_memberships'].get('poor', 0), 3),
+            'fair': round(fli_result['output_memberships'].get('fair', 0), 3),
+            'good': round(fli_result['output_memberships'].get('good', 0), 3),
+            'excellent': round(fli_result['output_memberships'].get('excellent', 0), 3)
+        }
+
+        # Prepare activated rules for rule log (top 8 by activation)
+        activated_rules = [
+            {
+                'rule_id': r['rule_id'],
+                'description': r['description'],
+                'activation': round(r['activation'], 3)
+            }
+            for r in sorted(
+                fli_result.get('activated_rules', []),
+                key=lambda x: x['activation'],
+                reverse=True
+            )[:8]
+        ]
+
         return jsonify({
             'fli_score': round(fli_score, 2),
             'label': _(fli_label.capitalize()),
             'color': color,
             'assessments': assessments,
-            'recommendations': recommendations
+            'recommendations': recommendations,
+            'output_memberships': output_memberships,
+            'activated_rules': activated_rules
         })
 
     except Exception as e:

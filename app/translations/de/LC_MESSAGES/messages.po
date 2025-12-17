@@ -681,6 +681,76 @@ msgid ""
 msgstr ""
 "Dies ist eine Proof-of-Concept-Implementierung des Schweizer Rahmenwerks "
 "zur Bewertung der wahrgenommenen Wohnqualität. Das System verarbeitet "
-"Daten aus dem Datensatz „Swiss Dwellings v3.0.0“ und verwendet ein "
+"Daten aus dem Datensatz „Swiss Dwellings v3.0.0" und verwendet ein "
 "Mamdani-Fuzzy-Inferenzsystem, um Wohnlichkeitswerte zu berechnen, die mit"
 " der menschlichen Wahrnehmung übereinstimmen."
+
+#: app/templates/assess.html (new)
+msgid "Adjust the sliders to set environmental parameters and compute the Fuzzy Livability Index (FLI)."
+msgstr "Passen Sie die Schieberegler an, um die Umweltparameter einzustellen und den Fuzzy-Livability-Index (FLI) zu berechnen."
+
+msgid "Acoustic Environment"
+msgstr "Akustische Umgebung"
+
+msgid "Visual Environment"
+msgstr "Visuelle Umgebung"
+
+msgid "Day Noise (Lden)"
+msgstr "Tageslärm (Lden)"
+
+msgid "Night Noise (Lnight)"
+msgstr "Nachtlärm (Lnight)"
+
+msgid "WHO"
+msgstr "WHO"
+
+msgid "Sleep"
+msgstr "Schlaf"
+
+msgid "Greenery"
+msgstr "Grünfläche"
+
+msgid "POI Accessibility"
+msgstr "POI-Erreichbarkeit"
+
+msgid "Shops, transit, restaurants within 10-min walk"
+msgstr "Geschäfte, Verkehr, Restaurants im 10-Minuten-Fußweg"
+
+msgid "Fuzzy Membership Visualization"
+msgstr "Fuzzy-Zugehörigkeitsvisualisierung"
+
+msgid "This graph shows how noise values are fuzzified into linguistic terms (Quiet, Moderate, Noisy)."
+msgstr "Dieses Diagramm zeigt, wie Lärmwerte in sprachliche Begriffe (Ruhig, Mittel, Laut) umgewandelt werden."
+
+msgid "Noise Level"
+msgstr "Lärmpegel"
+
+msgid "Assessment Result"
+msgstr "Bewertungsergebnis"
+
+msgid "Submit to see result"
+msgstr "Absenden, um Ergebnis zu sehen"
+
+msgid "Exc"
+msgstr "Ausz."
+
+msgid "Rule Engine Log"
+msgstr "Regel-Engine-Protokoll"
+
+msgid "Submit to see activated rules"
+msgstr "Absenden, um aktivierte Regeln zu sehen"
+
+msgid "No rules strongly activated"
+msgstr "Keine Regeln stark aktiviert"
+
+msgid "Top-tier livability. Quiet, bright, and green."
+msgstr "Beste Wohnqualität. Ruhig, hell und grün."
+
+msgid "Comfortable living conditions, generally balanced."
+msgstr "Komfortable Wohnverhältnisse, allgemein ausgewogen."
+
+msgid "Acceptable, but likely has trade-offs."
+msgstr "Akzeptabel, aber wahrscheinlich mit Kompromissen."
+
+msgid "Issues with noise or lack of light are critical."
+msgstr "Probleme mit Lärm oder Lichtmangel sind kritisch."

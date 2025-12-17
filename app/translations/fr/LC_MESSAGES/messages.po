@@ -686,3 +686,73 @@ msgstr ""
 "données du jeu de données Swiss Dwellings v3.0.0 et utilise un système "
 "d'inférence floue de Mamdani pour calculer des scores d'habitabilité "
 "alignés sur la perception humaine."
+
+#: app/templates/assess.html (new)
+msgid "Adjust the sliders to set environmental parameters and compute the Fuzzy Livability Index (FLI)."
+msgstr "Ajustez les curseurs pour définir les paramètres environnementaux et calculer l'Indice de Livabilité Floue (FLI)."
+
+msgid "Acoustic Environment"
+msgstr "Environnement acoustique"
+
+msgid "Visual Environment"
+msgstr "Environnement visuel"
+
+msgid "Day Noise (Lden)"
+msgstr "Bruit de jour (Lden)"
+
+msgid "Night Noise (Lnight)"
+msgstr "Bruit de nuit (Lnight)"
+
+msgid "WHO"
+msgstr "OMS"
+
+msgid "Sleep"
+msgstr "Sommeil"
+
+msgid "Greenery"
+msgstr "Verdure"
+
+msgid "POI Accessibility"
+msgstr "Accessibilité POI"
+
+msgid "Shops, transit, restaurants within 10-min walk"
+msgstr "Commerces, transports, restaurants à 10 min à pied"
+
+msgid "Fuzzy Membership Visualization"
+msgstr "Visualisation de l'appartenance floue"
+
+msgid "This graph shows how noise values are fuzzified into linguistic terms (Quiet, Moderate, Noisy)."
+msgstr "Ce graphique montre comment les valeurs de bruit sont fuzzifiées en termes linguistiques (Calme, Modéré, Bruyant)."
+
+msgid "Noise Level"
+msgstr "Niveau de bruit"
+
+msgid "Assessment Result"
+msgstr "Résultat de l'évaluation"
+
+msgid "Submit to see result"
+msgstr "Soumettre pour voir le résultat"
+
+msgid "Exc"
+msgstr "Exc."
+
+msgid "Rule Engine Log"
+msgstr "Journal du moteur de règles"
+
+msgid "Submit to see activated rules"
+msgstr "Soumettre pour voir les règles activées"
+
+msgid "No rules strongly activated"
+msgstr "Aucune règle fortement activée"
+
+msgid "Top-tier livability. Quiet, bright, and green."
+msgstr "Habitabilité optimale. Calme, lumineux et verdoyant."
+
+msgid "Comfortable living conditions, generally balanced."
+msgstr "Conditions de vie confortables, généralement équilibrées."
+
+msgid "Acceptable, but likely has trade-offs."
+msgstr "Acceptable, mais probablement avec des compromis."
+
+msgid "Issues with noise or lack of light are critical."
+msgstr "Les problèmes de bruit ou de manque de lumière sont critiques."
