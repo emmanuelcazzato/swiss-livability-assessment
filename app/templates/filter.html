@@ -20,16 +20,29 @@
                 <p class="text-muted small mb-4">{{ _('Adjust sliders to filter dwellings by minimum requirements.') }}</p>
 
                 <form id="filterForm">
-                    <!-- Noise Slider -->
+                    <!-- Day Noise (Lden) Slider -->
                     <div class="mb-4">
                         <label for="noiseSlider" class="form-label d-flex justify-content-between fw-bold">
-                            <span>{{ _('Acoustic Comfort') }}</span>
-                            <span id="noiseLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                            <span>{{ _('Day Noise (Lden)') }}</span>
+                            <span id="noiseLabel" class="badge bg-danger">{{ _('Noisy') }}</span>
                         </label>
-                        <input type="range" class="form-range" min="0" max="3" step="1" id="noiseSlider" value="0">
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="noiseSlider" value="1">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>{{ _('All') }}</span>
-                            <span>{{ _('Exc.') }}</span>
+                            <span>{{ _('Noisy') }}</span>
+                            <span>{{ _('Quiet') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Night Noise (Lnight) Slider -->
+                    <div class="mb-4">
+                        <label for="noiseNightSlider" class="form-label d-flex justify-content-between fw-bold">
+                            <span>{{ _('Night Noise (Lnight)') }}</span>
+                            <span id="noiseNightLabel" class="badge bg-danger">{{ _('Noisy') }}</span>
+                        </label>
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="noiseNightSlider" value="1">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ _('Noisy') }}</span>
+                            <span>{{ _('Quiet') }}</span>
                         </div>
                     </div>
 
@@ -37,12 +50,12 @@
                     <div class="mb-4">
                         <label for="daylightSlider" class="form-label d-flex justify-content-between fw-bold">
                             <span>{{ _('Daylight') }}</span>
-                            <span id="daylightLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                            <span id="daylightLabel" class="badge bg-secondary">{{ _('Low') }}</span>
                         </label>
-                        <input type="range" class="form-range" min="0" max="3" step="1" id="daylightSlider" value="0">
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="daylightSlider" value="1">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>{{ _('All') }}</span>
-                            <span>{{ _('Exc.') }}</span>
+                            <span>{{ _('Low') }}</span>
+                            <span>{{ _('High') }}</span>
                         </div>
                     </div>
 
@@ -50,12 +63,12 @@
                     <div class="mb-4">
                         <label for="skySlider" class="form-label d-flex justify-content-between fw-bold">
                             <span>{{ _('Sky View') }}</span>
-                            <span id="skyLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                            <span id="skyLabel" class="badge bg-danger">{{ _('Poor') }}</span>
                         </label>
-                        <input type="range" class="form-range" min="0" max="3" step="1" id="skySlider" value="0">
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="skySlider" value="1">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>{{ _('All') }}</span>
-                            <span>{{ _('Exc.') }}</span>
+                            <span>{{ _('Poor') }}</span>
+                            <span>{{ _('Good') }}</span>
                         </div>
                     </div>
 
@@ -63,12 +76,12 @@
                     <div class="mb-4">
                         <label for="greenerySlider" class="form-label d-flex justify-content-between fw-bold">
                             <span>{{ _('Greenery View') }}</span>
-                            <span id="greeneryLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                            <span id="greeneryLabel" class="badge bg-danger">{{ _('Poor') }}</span>
                         </label>
-                        <input type="range" class="form-range" min="0" max="3" step="1" id="greenerySlider" value="0">
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="greenerySlider" value="1">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>{{ _('All') }}</span>
-                            <span>{{ _('Exc.') }}</span>
+                            <span>{{ _('Poor') }}</span>
+                            <span>{{ _('Good') }}</span>
                         </div>
                     </div>
 
@@ -76,12 +89,12 @@
                     <div class="mb-4">
                         <label for="poiSlider" class="form-label d-flex justify-content-between fw-bold">
                             <span>{{ _('Location (POI)') }}</span>
-                            <span id="poiLabel" class="badge bg-secondary">{{ _('All') }}</span>
+                            <span id="poiLabel" class="badge bg-secondary">{{ _('Low') }}</span>
                         </label>
-                        <input type="range" class="form-range" min="0" max="3" step="1" id="poiSlider" value="0">
+                        <input type="range" class="form-range" min="1" max="3" step="1" id="poiSlider" value="1">
                         <div class="d-flex justify-content-between small text-muted">
-                            <span>{{ _('All') }}</span>
-                            <span>{{ _('Exc.') }}</span>
+                            <span>{{ _('Low') }}</span>
+                            <span>{{ _('High') }}</span>
                         </div>
                     </div>
 
@@ -96,7 +109,12 @@
     <!-- Results Column -->
     <div class="col-lg-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">{{ _('Matching Dwellings') }}</h4>
+            <div class="d-flex align-items-center gap-2">
+                <h4 class="mb-0">{{ _('Matching Dwellings') }}</h4>
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#methodModal">
+                    <i class="bi bi-question-circle me-1"></i>{{ _('How it works') }}
+                </button>
+            </div>
             <span class="badge bg-primary rounded-pill" id="resultCount">0 {{ _('found') }}</span>
         </div>
 
@@ -106,7 +124,9 @@
                     <tr>
                         <th class="sortable" data-sort="building_id">{{ _('ID') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
                         <th class="text-center sortable" data-sort="noise_lden" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Noise (dBA)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                            title="{{ _('Day-evening-night noise level in decibels. Lower values indicate quieter environments. WHO recommends <53 dB for residential areas.') }}">{{ _('Day (dBA)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="text-center sortable" data-sort="noise_lnight" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ _('Night noise level in decibels. WHO recommends <45 dB for good sleep quality.') }}">{{ _('Night (dBA)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
                         <th class="text-center sortable" data-sort="daylight" data-bs-toggle="tooltip" data-bs-placement="top"
                             title="{{ _('Natural daylight illuminance in kilolux. Higher values mean better natural lighting conditions indoors.') }}">{{ _('Daylight (klx)') }} <i class="bi bi-chevron-expand sort-icon"></i></th>
                         <th class="text-center sortable" data-sort="view_sky" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -163,6 +183,158 @@
         </div>
     </div>
 </div>
+
+<!-- How it works Modal -->
+<div class="modal fade" id="methodModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Fuzzy Livability Index Methodology') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="methodTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="mf-tab" data-bs-toggle="tab" data-bs-target="#mf-content" type="button" role="tab">{{ _('Input Variables') }}</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules-content" type="button" role="tab">{{ _('Fuzzy Rules') }}</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-content" type="button" role="tab">{{ _('Output') }}</button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3" id="methodTabContent">
+                    <!-- Input Variables Tab -->
+                    <div class="tab-pane fade show active" id="mf-content" role="tabpanel">
+                        <h6>{{ _('Input Variables & Membership Functions') }}</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ _('Variable') }}</th>
+                                    <th>{{ _('Low/Poor') }}</th>
+                                    <th>{{ _('Medium/Moderate') }}</th>
+                                    <th>{{ _('High/Good') }}</th>
+                                    <th>{{ _('Source') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>{{ _('Noise Lden') }}</strong></td>
+                                    <td class="text-success">&lt;53 dB ({{ _('Quiet') }})</td>
+                                    <td class="text-warning">53-65 dB</td>
+                                    <td class="text-danger">&gt;65 dB ({{ _('Noisy') }})</td>
+                                    <td>WHO 2018</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ _('Noise Lnight') }}</strong></td>
+                                    <td class="text-success">&lt;45 dB ({{ _('Quiet') }})</td>
+                                    <td class="text-warning">45-56 dB</td>
+                                    <td class="text-danger">&gt;56 dB ({{ _('Noisy') }})</td>
+                                    <td>WHO 2018</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ _('Daylight') }}</strong></td>
+                                    <td class="text-secondary">&lt;0.8 klx</td>
+                                    <td class="text-warning">0.8-2.0 klx</td>
+                                    <td class="text-success">&gt;2.0 klx</td>
+                                    <td>EN 17037</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ _('Sky View') }}</strong></td>
+                                    <td class="text-danger">&lt;0.015 sr</td>
+                                    <td class="text-warning">0.015-0.035 sr</td>
+                                    <td class="text-success">&gt;0.035 sr</td>
+                                    <td>{{ _('Data-driven') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ _('Greenery') }}</strong></td>
+                                    <td class="text-danger">&lt;0.004 sr</td>
+                                    <td class="text-warning">0.004-0.012 sr</td>
+                                    <td class="text-success">&gt;0.012 sr</td>
+                                    <td>{{ _('Data-driven') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ _('POI (log10)') }}</strong></td>
+                                    <td class="text-secondary">&lt;1.9</td>
+                                    <td class="text-warning">1.9-2.7</td>
+                                    <td class="text-success">&gt;2.7</td>
+                                    <td>{{ _('Accessibility') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Fuzzy Rules Tab -->
+                    <div class="tab-pane fade" id="rules-content" role="tabpanel">
+                        <h6>{{ _('24 Fuzzy Rules') }}</h6>
+                        <p class="text-muted small">{{ _('The FLI combines multiple factors using fuzzy logic rules:') }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-danger mb-2">
+                                    <div class="card-header bg-danger text-white py-1"><strong>{{ _('Poor') }}</strong> (7 {{ _('rules') }})</div>
+                                    <div class="card-body py-2 small">
+                                        {{ _('Noisy day OR noisy night OR (moderate noise + limited view) OR (low daylight + poor greenery)') }}
+                                    </div>
+                                </div>
+                                <div class="card border-warning mb-2">
+                                    <div class="card-header bg-warning py-1"><strong>{{ _('Fair') }}</strong> (8 {{ _('rules') }})</div>
+                                    <div class="card-body py-2 small">
+                                        {{ _('Moderate noise + moderate view factors, or trade-offs between noise and amenities') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-primary mb-2">
+                                    <div class="card-header bg-primary text-white py-1"><strong>{{ _('Good') }}</strong> (6 {{ _('rules') }})</div>
+                                    <div class="card-body py-2 small">
+                                        {{ _('Quiet day + quiet night + at least moderate view factors') }}
+                                    </div>
+                                </div>
+                                <div class="card border-success mb-2">
+                                    <div class="card-header bg-success text-white py-1"><strong>{{ _('Excellent') }}</strong> (3 {{ _('rules') }})</div>
+                                    <div class="card-body py-2 small">
+                                        {{ _('Quiet day + quiet night + good greenery + (good sky OR high daylight OR high POI)') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Tab -->
+                    <div class="tab-pane fade" id="output-content" role="tabpanel">
+                        <h6>{{ _('FLI Score Interpretation') }}</h6>
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-danger me-2">0-25</span>
+                                <span>{{ _('Poor') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-warning text-dark me-2">25-45</span>
+                                <span>{{ _('Fair') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary me-2">45-65</span>
+                                <span>{{ _('Good') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-success me-2">65-100</span>
+                                <span>{{ _('Excellent') }}</span>
+                            </div>
+                        </div>
+                        <div class="alert alert-info small mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            {{ _('The FLI uses centroid defuzzification to compute a crisp score from the fuzzy rule outputs. Higher scores indicate better overall livability based on acoustic comfort, natural lighting, view quality, and location accessibility.') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Close') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -173,15 +345,20 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- i18n translations for JavaScript ---
     const i18n = {
-        all: "{{ _('All') }}",
-        fairPlus: "{{ _('Fair+') }}",
-        goodPlus: "{{ _('Good+') }}",
-        excellent: "{{ _('Excellent') }}",
         found: "{{ _('found') }}",
         showingFirst: "{{ _('Showing first 100 of') }}",
         matches: "{{ _('matches') }}",
         errorLoading: "{{ _('Error loading dwellings data. Please try refreshing.') }}",
-        view: "{{ _('View Analysis') }}"
+        view: "{{ _('View Analysis') }}",
+        // Slider semantic labels (matching "How it works" categories)
+        noisy: "{{ _('Noisy') }}",
+        moderate: "{{ _('Moderate') }}",
+        quiet: "{{ _('Quiet') }}",
+        low: "{{ _('Low') }}",
+        medium: "{{ _('Medium') }}",
+        high: "{{ _('High') }}",
+        poor: "{{ _('Poor') }}",
+        good: "{{ _('Good') }}"
     };
 
     // --- Initialize Bootstrap Tooltips ---
@@ -191,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Configuration ---
     const sliders = {
         'noise': document.getElementById('noiseSlider'),
+        'noiseNight': document.getElementById('noiseNightSlider'),
         'daylight': document.getElementById('daylightSlider'),
         'sky': document.getElementById('skySlider'),
         'greenery': document.getElementById('greenerySlider'),
@@ -199,17 +377,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const labels = {
         'noise': document.getElementById('noiseLabel'),
+        'noiseNight': document.getElementById('noiseNightLabel'),
         'daylight': document.getElementById('daylightLabel'),
         'sky': document.getElementById('skyLabel'),
         'greenery': document.getElementById('greeneryLabel'),
         'poi': document.getElementById('poiLabel')
     };
 
-    const levelMap = {
-        0: { text: i18n.all, color: 'bg-secondary' },
-        1: { text: i18n.fairPlus, color: 'bg-warning text-dark' },
-        2: { text: i18n.goodPlus, color: 'bg-primary' },
-        3: { text: i18n.excellent, color: 'bg-success' }
+    // Slider semantic level maps (matching "How it works" categories)
+    // Level 1 = no filter (show all), Level 2 = moderate, Level 3 = best
+    const sliderLevelMaps = {
+        noise: {
+            1: { text: i18n.noisy, color: 'bg-danger' },
+            2: { text: i18n.moderate, color: 'bg-warning text-dark' },
+            3: { text: i18n.quiet, color: 'bg-success' }
+        },
+        noiseNight: {
+            1: { text: i18n.noisy, color: 'bg-danger' },
+            2: { text: i18n.moderate, color: 'bg-warning text-dark' },
+            3: { text: i18n.quiet, color: 'bg-success' }
+        },
+        daylight: {
+            1: { text: i18n.low, color: 'bg-secondary' },
+            2: { text: i18n.medium, color: 'bg-warning text-dark' },
+            3: { text: i18n.high, color: 'bg-success' }
+        },
+        sky: {
+            1: { text: i18n.poor, color: 'bg-danger' },
+            2: { text: i18n.moderate, color: 'bg-warning text-dark' },
+            3: { text: i18n.good, color: 'bg-success' }
+        },
+        greenery: {
+            1: { text: i18n.poor, color: 'bg-danger' },
+            2: { text: i18n.moderate, color: 'bg-warning text-dark' },
+            3: { text: i18n.good, color: 'bg-success' }
+        },
+        poi: {
+            1: { text: i18n.low, color: 'bg-secondary' },
+            2: { text: i18n.medium, color: 'bg-warning text-dark' },
+            3: { text: i18n.high, color: 'bg-success' }
+        }
     };
 
     // --- State ---
@@ -232,10 +439,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('resetBtn').addEventListener('click', () => {
         for (const slider of Object.values(sliders)) {
-            slider.value = 0;
+            slider.value = 1;
         }
         for (const key of Object.keys(sliders)) {
-            updateLabel(key, 0);
+            updateLabel(key, 1);
         }
         sortColumn = null;
         sortDirection = 'asc';
@@ -274,8 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateLabel(key, value) {
         const labelEl = labels[key];
-        const config = levelMap[value];
-
+        const config = sliderLevelMaps[key][value];
         labelEl.textContent = config.text;
         labelEl.className = `badge ${config.color}`;
     }
@@ -324,6 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterAndRender() {
         const criteria = {
             noise: parseInt(sliders.noise.value),
+            noiseNight: parseInt(sliders.noiseNight.value),
             daylight: parseInt(sliders.daylight.value),
             sky: parseInt(sliders.sky.value),
             greenery: parseInt(sliders.greenery.value),
@@ -331,25 +538,36 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Filter Logic (Client-Side)
+        // Level 1 = no filter, Level 2 = moderate, Level 3 = best
         const filtered = allDwellings.filter(d => {
-            if (criteria.noise > 0) {
-                const maxNoise = criteria.noise === 1 ? 65 : (criteria.noise === 2 ? 53 : 45);
-                if (d.noise_lden >= maxNoise) return false;
+            // Day noise (Lden): Level 2 (Moderate) ≤65, Level 3 (Quiet) ≤53
+            if (criteria.noise >= 2) {
+                const maxNoise = criteria.noise === 2 ? 65 : 53;
+                if (d.noise_lden > maxNoise) return false;
             }
-            if (criteria.daylight > 0) {
-                const minDaylight = criteria.daylight === 1 ? 0.8 : (criteria.daylight === 2 ? 1.5 : 2.5);
+            // Night noise (Lnight): Level 2 (Moderate) ≤56, Level 3 (Quiet) ≤45
+            if (criteria.noiseNight >= 2) {
+                const maxNoiseNight = criteria.noiseNight === 2 ? 56 : 45;
+                if (d.noise_lnight > maxNoiseNight) return false;
+            }
+            // Daylight: Level 2 (Medium) ≥0.8, Level 3 (High) ≥2.0
+            if (criteria.daylight >= 2) {
+                const minDaylight = criteria.daylight === 2 ? 0.8 : 2.0;
                 if (d.daylight < minDaylight) return false;
             }
-            if (criteria.sky > 0) {
-                const minSky = criteria.sky === 1 ? 0.015 : (criteria.sky === 2 ? 0.03 : 0.05);
+            // Sky View: Level 2 (Moderate) ≥0.015, Level 3 (Good) ≥0.035
+            if (criteria.sky >= 2) {
+                const minSky = criteria.sky === 2 ? 0.015 : 0.035;
                 if (d.view_sky < minSky) return false;
             }
-            if (criteria.greenery > 0) {
-                const minGreen = criteria.greenery === 1 ? 0.006 : (criteria.greenery === 2 ? 0.012 : 0.025);
+            // Greenery: Level 2 (Moderate) ≥0.004, Level 3 (Good) ≥0.012
+            if (criteria.greenery >= 2) {
+                const minGreen = criteria.greenery === 2 ? 0.004 : 0.012;
                 if (d.view_greenery < minGreen) return false;
             }
-            if (criteria.poi > 0) {
-                const minPoi = criteria.poi === 1 ? 1.9 : (criteria.poi === 2 ? 2.35 : 2.9);
+            // POI: Level 2 (Medium) ≥1.9, Level 3 (High) ≥2.7
+            if (criteria.poi >= 2) {
+                const minPoi = criteria.poi === 2 ? 1.9 : 2.7;
                 if (d.location_poi < minPoi) return false;
             }
             return true;
@@ -394,19 +612,21 @@ document.addEventListener('DOMContentLoaded', function() {
         displayData.forEach(d => {
             const tr = document.createElement('tr');
 
-            let badgeClass = 'bg-danger';
-            if (d.fli_score >= 65) badgeClass = 'bg-success';
-            else if (d.fli_score >= 45) badgeClass = 'bg-primary';
-            else if (d.fli_score >= 25) badgeClass = 'bg-warning text-dark';
+            // FLI badge class based on score
+            let fliBadgeClass = 'bg-danger';
+            if (d.fli_score >= 65) fliBadgeClass = 'bg-success';
+            else if (d.fli_score >= 45) fliBadgeClass = 'bg-primary';
+            else if (d.fli_score >= 25) fliBadgeClass = 'bg-warning text-dark';
 
             tr.innerHTML = `
                 <td>${d.building_id}</td>
                 <td class="text-center">${d.noise_lden.toFixed(1)}</td>
+                <td class="text-center">${d.noise_lnight ? d.noise_lnight.toFixed(1) : '-'}</td>
                 <td class="text-center">${d.daylight.toFixed(2)}</td>
                 <td class="text-center">${d.view_sky.toFixed(3)}</td>
                 <td class="text-center">${d.view_greenery.toFixed(3)}</td>
                 <td class="text-center">${d.poi_count}</td>
-                <td class="text-center"><span class="badge ${badgeClass}">${d.fli_score.toFixed(0)}</span></td>
+                <td class="text-center"><span class="badge ${fliBadgeClass}">${d.fli_score.toFixed(0)}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary view-chart-btn" data-id="${d.building_id}" title="${i18n.view}">
                         <i class="bi bi-bar-chart-line"></i>
@@ -418,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (data.length > 100) {
             const infoRow = document.createElement('tr');
-            infoRow.innerHTML = `<td colspan="8" class="text-center text-muted small">${i18n.showingFirst} ${data.length} ${i18n.matches}</td>`;
+            infoRow.innerHTML = `<td colspan="9" class="text-center text-muted small">${i18n.showingFirst} ${data.length} ${i18n.matches}</td>`;
             tbody.appendChild(infoRow);
         }
     }
@@ -437,25 +657,29 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.fli_score >= 25) badgeClass = 'bg-warning text-dark';
         scoreEl.className = `badge fs-5 ${badgeClass}`;
 
-        // Normalize Data
-        // Noise: 35 (Exc) - 75 (Poor). Inverted.
-        let nNoise = (75 - data.noise_lden) / (75 - 35);
-        nNoise = Math.max(0, Math.min(1, nNoise));
-        
-        // Daylight: 0 - 3.0 klx
-        let nDaylight = data.daylight / 3.0;
+        // Normalize Data using MF Universe Maximums
+        // Day Noise (Lden): 20-80 dBA. Inverted (lower is better).
+        let nNoiseDay = (80 - data.noise_lden) / (80 - 20);
+        nNoiseDay = Math.max(0, Math.min(1, nNoiseDay));
+
+        // Night Noise (Lnight): 10-72 dBA. Inverted (lower is better).
+        let nNoiseNight = data.noise_lnight ? (72 - data.noise_lnight) / (72 - 10) : 0;
+        nNoiseNight = Math.max(0, Math.min(1, nNoiseNight));
+
+        // Daylight: 0 - 6.0 klx (MF universe max)
+        let nDaylight = data.daylight / 6.0;
         nDaylight = Math.min(1, Math.max(0, nDaylight));
-        
-        // Sky: 0 - 0.05 sr
-        let nSky = data.view_sky / 0.05;
+
+        // Sky: 0 - 0.13 sr (MF universe max)
+        let nSky = data.view_sky / 0.13;
         nSky = Math.min(1, Math.max(0, nSky));
-        
-        // Greenery: 0 - 0.025 sr
-        let nGreen = data.view_greenery / 0.025;
+
+        // Greenery: 0 - 0.06 sr (MF universe max)
+        let nGreen = data.view_greenery / 0.06;
         nGreen = Math.min(1, Math.max(0, nGreen));
-        
-        // POI: log10 scale. 0 - 3.0 (1000 POIs)
-        let nPoi = data.location_poi / 3.0;
+
+        // POI: log10 scale. 0 - 3.5 (MF universe max)
+        let nPoi = data.location_poi / 3.5;
         nPoi = Math.min(1, Math.max(0, nPoi));
 
         // Render Chart
@@ -469,15 +693,16 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'radar',
             data: {
                 labels: [
-                    'Noise', 
-                    'Light', 
-                    'Sky', 
-                    'Green', 
+                    'Day Noise',
+                    'Night Noise',
+                    'Daylight',
+                    'Sky View',
+                    'Greenery',
                     'POI'
                 ],
                 datasets: [{
                     label: 'Normalized Score',
-                    data: [nNoise, nDaylight, nSky, nGreen, nPoi],
+                    data: [nNoiseDay, nNoiseNight, nDaylight, nSky, nGreen, nPoi],
                     backgroundColor: 'rgba(13, 110, 253, 0.2)',
                     borderColor: 'rgba(13, 110, 253, 0.8)',
                     pointBackgroundColor: 'rgba(13, 110, 253, 1)',
@@ -516,10 +741,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 let val = '';
                                 let unit = '';
                                 if(idx === 0) { val = data.noise_lden.toFixed(1); unit = ' dBA'; }
-                                if(idx === 1) { val = data.daylight.toFixed(2); unit = ' klx'; }
-                                if(idx === 2) { val = data.view_sky.toFixed(3); unit = ' sr'; }
-                                if(idx === 3) { val = data.view_greenery.toFixed(3); unit = ' sr'; }
-                                if(idx === 4) { val = data.poi_count; unit = ' POIs'; }
+                                if(idx === 1) { val = data.noise_lnight ? data.noise_lnight.toFixed(1) : '-'; unit = ' dBA'; }
+                                if(idx === 2) { val = data.daylight.toFixed(2); unit = ' klx'; }
+                                if(idx === 3) { val = data.view_sky.toFixed(3); unit = ' sr'; }
+                                if(idx === 4) { val = data.view_greenery.toFixed(3); unit = ' sr'; }
+                                if(idx === 5) { val = data.poi_count; unit = ' POIs'; }
                                 return `Raw: ${val}${unit}`;
                             }
                         }

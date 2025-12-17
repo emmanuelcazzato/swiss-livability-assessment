@@ -33,7 +33,13 @@ from assessment import (
     get_fli_label,
     get_fli_color,
     get_all_assessments,
-    get_recommendations as get_assessment_recommendations
+    get_recommendations as get_assessment_recommendations,
+    get_noise_assessment,
+    get_noise_lnight_assessment,
+    get_daylight_assessment,
+    get_view_assessment,
+    get_poi_assessment,
+    DEFAULT_THRESHOLDS
 )
 
 app = Flask(__name__, template_folder=str(APP_DIR / 'templates'))
@@ -229,29 +235,93 @@ def get_all_dwellings():
 
     # Select relevant columns to minimize payload
     # Note: We rely on the pre-computed columns from load time
-    cols = ['building_id', 'noise_lden', 'daylight', 'view_sky', 'view_greenery', 'location_poi', 'fli_score']
-    
+    cols = ['building_id', 'noise_lden', 'noise_lnight', 'daylight', 'view_sky', 'view_greenery', 'location_poi', 'fli_score']
+
     # Add raw POI count if available for display
     if 'raw_poi_count' in df.columns:
         cols.append('raw_poi_count')
-    
+
     # Ensure all columns exist
     available_cols = [c for c in cols if c in df.columns]
-    
+
     # Replace NaN with None (null in JSON) or 0 to avoid JSON errors
     export_df = df[available_cols].fillna(0)
-    
+
     data = export_df.to_dict('records')
-    
-    # Rename raw_poi_count to poi_count for frontend consistency
+
+    # Add labels and process each dwelling
     for d in data:
+        # Rename raw_poi_count to poi_count for frontend consistency
         if 'raw_poi_count' in d:
             d['poi_count'] = int(d.pop('raw_poi_count'))
         elif 'location_poi' in d:
             # Fallback if raw count missing
             d['poi_count'] = int(10 ** d['location_poi'] - 1)
-            
+
+        # Compute linguistic labels (backend pre-calculation)
+        fli_score = d.get('fli_score', 0)
+        d['labels'] = {
+            'noise_day': get_noise_assessment(d.get('noise_lden', 55)).lower(),
+            'noise_night': get_noise_lnight_assessment(d.get('noise_lnight', 45)).lower(),
+            'daylight': get_daylight_assessment(d.get('daylight', 1.0)).lower(),
+            'view_sky': get_view_assessment(d.get('view_sky', 0.03), 'sky').lower(),
+            'view_greenery': get_view_assessment(d.get('view_greenery', 0.01), 'greenery').lower(),
+            'poi': get_poi_assessment(d.get('poi_count', 100)).lower(),
+            'fli': get_fli_label(fli_score)
+        }
+
     return jsonify(data)
+
+
+@app.route('/api/config/thresholds')
+def get_thresholds():
+    """
+    API endpoint to get threshold configuration for frontend use.
+
+    Returns unified threshold values to avoid hardcoding in JavaScript.
+    Based on WHO 2018 standards and dataset-driven percentiles.
+    """
+    return jsonify({
+        'noise_lden': {
+            'quiet': DEFAULT_THRESHOLDS.noise_quiet,      # 53 dB (WHO)
+            'moderate': DEFAULT_THRESHOLDS.noise_moderate  # 65 dB
+        },
+        'noise_lnight': {
+            'quiet': DEFAULT_THRESHOLDS.noise_lnight_quiet,      # 45 dB (WHO)
+            'moderate': DEFAULT_THRESHOLDS.noise_lnight_moderate  # 56 dB
+        },
+        'daylight': {
+            'low': DEFAULT_THRESHOLDS.daylight_medium,    # 0.8 klx
+            'high': DEFAULT_THRESHOLDS.daylight_high      # 2.0 klx
+        },
+        'view_sky': {
+            'poor': DEFAULT_THRESHOLDS.view_sky_moderate,  # 0.015 sr
+            'good': DEFAULT_THRESHOLDS.view_sky_good       # 0.035 sr
+        },
+        'view_greenery': {
+            'poor': DEFAULT_THRESHOLDS.view_greenery_moderate,  # 0.004 sr
+            'good': DEFAULT_THRESHOLDS.view_greenery_good       # 0.012 sr
+        },
+        'poi': {
+            'low': DEFAULT_THRESHOLDS.poi_good,       # 1.9 log10 (~80 POIs)
+            'high': DEFAULT_THRESHOLDS.poi_excellent  # 2.7 log10 (~500 POIs)
+        },
+        'fli': {
+            'poor': DEFAULT_THRESHOLDS.fli_fair,      # 25
+            'fair': DEFAULT_THRESHOLDS.fli_good,      # 45
+            'good': DEFAULT_THRESHOLDS.fli_excellent  # 65
+        },
+        # Universe maximums for radar chart normalization
+        'universe_max': {
+            'noise_lden': 80,       # dBA
+            'noise_lnight': 72,     # dBA
+            'daylight': 6.0,        # klx
+            'view_sky': 0.13,       # sr
+            'view_greenery': 0.06,  # sr
+            'poi': 3.5              # log10
+        }
+    })
+
 
 @app.route('/api/dwellings')
 def get_dwellings():

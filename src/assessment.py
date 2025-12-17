@@ -32,9 +32,13 @@ class AssessmentThresholds:
     fli_good: float = 45.0
     fli_fair: float = 25.0
 
-    # Noise thresholds (dBA) - based on WHO 2018
-    noise_quiet: float = 53.0       # Below WHO Lden threshold
-    noise_moderate: float = 65.0    # Moderate noise level
+    # Noise Lden thresholds (dBA) - based on WHO 2018
+    noise_quiet: float = 53.0            # Below WHO Lden threshold (alias for noise_lden_quiet)
+    noise_moderate: float = 65.0         # Moderate Lden level (alias for noise_lden_moderate)
+
+    # Noise Lnight thresholds (dBA) - based on WHO 2018
+    noise_lnight_quiet: float = 45.0     # Below WHO Lnight threshold
+    noise_lnight_moderate: float = 56.0  # Moderate Lnight level
 
     # Daylight thresholds (klx) - based on EN 17037
     daylight_high: float = 2.0      # High daylight provision
@@ -116,7 +120,7 @@ def get_noise_assessment(
     thresholds: Optional[AssessmentThresholds] = None
 ) -> str:
     """
-    Get linguistic assessment for noise level.
+    Get linguistic assessment for day noise level (Lden).
 
     Args:
         noise_lden: Day-evening-night noise level in dBA
@@ -131,6 +135,31 @@ def get_noise_assessment(
     if noise_lden < thresholds.noise_quiet:
         return 'Quiet'
     elif noise_lden < thresholds.noise_moderate:
+        return 'Moderate'
+    else:
+        return 'Noisy'
+
+
+def get_noise_lnight_assessment(
+    noise_lnight: float,
+    thresholds: Optional[AssessmentThresholds] = None
+) -> str:
+    """
+    Get linguistic assessment for night noise level (Lnight).
+
+    Args:
+        noise_lnight: Night noise level in dBA
+        thresholds: Assessment thresholds. If None, uses defaults.
+
+    Returns:
+        Assessment: 'Quiet', 'Moderate', or 'Noisy'
+    """
+    if thresholds is None:
+        thresholds = DEFAULT_THRESHOLDS
+
+    if noise_lnight < thresholds.noise_lnight_quiet:
+        return 'Quiet'
+    elif noise_lnight < thresholds.noise_lnight_moderate:
         return 'Moderate'
     else:
         return 'Noisy'
@@ -233,6 +262,7 @@ def get_all_assessments(
     view_sky_sr: float,
     view_greenery_sr: float,
     poi_count: int,
+    noise_lnight: Optional[float] = None,
     thresholds: Optional[AssessmentThresholds] = None
 ) -> Dict[str, str]:
     """
@@ -244,18 +274,24 @@ def get_all_assessments(
         view_sky_sr: Sky view in steradians
         view_greenery_sr: Greenery view in steradians
         poi_count: Number of POIs within walking distance
+        noise_lnight: Night noise level in dBA (optional)
         thresholds: Assessment thresholds. If None, uses defaults.
 
     Returns:
         Dictionary of feature assessments
     """
-    return {
+    result = {
         'noise': get_noise_assessment(noise_lden, thresholds),
         'daylight': get_daylight_assessment(daylight_klx, thresholds),
         'view_sky': get_view_assessment(view_sky_sr, 'sky', thresholds),
         'view_greenery': get_view_assessment(view_greenery_sr, 'greenery', thresholds),
         'location': get_poi_assessment(poi_count, thresholds)
     }
+
+    if noise_lnight is not None:
+        result['noise_night'] = get_noise_lnight_assessment(noise_lnight, thresholds)
+
+    return result
 
 
 def get_recommendations(
