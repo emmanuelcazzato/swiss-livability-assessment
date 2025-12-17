@@ -267,10 +267,16 @@ msgid "Swiss Residential Perceived Livability Assessment Framework"
 msgstr "Schweizer Rahmenwerk zur Bewertung der wahrgenommenen Wohnqualität"
 
 #: app/templates/base.html:81
-msgid "Based on WHO 2018 & EN 17037 Standards | Computing with Words Approach"
-msgstr ""
-"Basiert auf den WHO‑Richtlinien 2018 und EN‑17037‑Standards | „Computing "
-"with Words“-Ansatz"
+msgid "Based on"
+msgstr "Basiert auf"
+
+#: app/templates/base.html:81
+msgid "Standards"
+msgstr "Standards"
+
+#: app/templates/base.html:81
+msgid "Computing with Words Approach"
+msgstr "„Computing with Words"-Ansatz"
 
 #: app/templates/base.html:84
 msgid "Urban Computing Project"
@@ -418,6 +424,26 @@ msgstr ""
 #: app/templates/filter.html:26 app/templates/index.html:23
 msgid "Acoustic Comfort"
 msgstr "Akustischer Komfort"
+
+#: app/templates/filter.html:26
+msgid "Day Noise (Lden)"
+msgstr "Tageslärm (Lden)"
+
+#: app/templates/filter.html:39
+msgid "Night Noise (Lnight)"
+msgstr "Nachtlärm (Lnight)"
+
+#: app/templates/filter.html:122
+msgid "Day (dBA)"
+msgstr "Tag (dBA)"
+
+#: app/templates/filter.html:124
+msgid "Night (dBA)"
+msgstr "Nacht (dBA)"
+
+#: app/templates/filter.html:124
+msgid "Night noise level in decibels. WHO recommends <45 dB for good sleep quality."
+msgstr "Nachtlärmpegel in Dezibel. Die WHO empfiehlt <45 dB für gute Schlafqualität."
 
 #: app/templates/filter.html:27 app/templates/filter.html:31
 #: app/templates/filter.html:40 app/templates/filter.html:44
@@ -574,15 +600,35 @@ msgstr ""
 msgid "View Analysis"
 msgstr "Analyse anzeigen"
 
+#: app/templates/filter.html:380
+msgid "Noisy+"
+msgstr "Laut+"
+
+#: app/templates/filter.html:381
+msgid "Moderate+"
+msgstr "Mittel+"
+
+#: app/templates/filter.html:382
+msgid "Low+"
+msgstr "Niedrig+"
+
+#: app/templates/filter.html:383
+msgid "Medium+"
+msgstr "Mittel+"
+
+#: app/templates/filter.html:384
+msgid "Limited+"
+msgstr "Begrenzt+"
+
 #: app/templates/index.html:9
 msgid ""
-"Experience the intersection of data and perception. Our fuzzy logic "
+"A Design Science Research project applying the computing with words paradigm. Our fuzzy logic "
 "system translates complex environmental metrics into human-centric "
-"livability scores."
+"livability scores for citizens, real estate agents, and urban planners."
 msgstr ""
-"Erleben Sie die Schnittstelle von Daten und Wahrnehmung. Unser Fuzzy-"
+"Ein Design-Science-Research-Projekt, das das Paradigma des Rechnens mit Worten anwendet. Unser Fuzzy-"
 "Logik-System übersetzt komplexe Umweltkennzahlen in menschenzentrierte "
-"Wohnlichkeitswerte."
+"Wohnlichkeitswerte für Bürger, Immobilienmakler und Stadtplaner."
 
 #: app/templates/index.html:17
 msgid "What We Assess"
@@ -633,8 +679,8 @@ msgid "Inference"
 msgstr "Schlussfolgerung"
 
 #: app/templates/index.html:89
-msgid "Apply 15 expert-defined fuzzy rules"
-msgstr "Anwendung von 15 expertenbasierten Fuzzy-Regeln"
+msgid "Apply 24 weighted fuzzy rules"
+msgstr "Anwendung von 24 gewichteten Fuzzy-Regeln"
 
 #: app/templates/index.html:97
 msgid "Output"
@@ -681,6 +727,243 @@ msgid ""
 msgstr ""
 "Dies ist eine Proof-of-Concept-Implementierung des Schweizer Rahmenwerks "
 "zur Bewertung der wahrgenommenen Wohnqualität. Das System verarbeitet "
-"Daten aus dem Datensatz „Swiss Dwellings v3.0.0“ und verwendet ein "
+"Daten aus dem Datensatz „Swiss Dwellings v3.0.0" und verwendet ein "
 "Mamdani-Fuzzy-Inferenzsystem, um Wohnlichkeitswerte zu berechnen, die mit"
 " der menschlichen Wahrnehmung übereinstimmen."
+
+#: app/templates/index.html:165
+msgid ""
+"Validated through user-centred evaluation with 14 participants from Geneva, "
+"Fribourg, and Bern, and technical evaluation on 3,171 dwellings. The system "
+"uses 24 weighted fuzzy rules anchored to WHO 2018 noise guidelines and EN "
+"17037 daylight standards."
+msgstr ""
+"Validiert durch eine nutzerzentrierte Evaluation mit 14 Teilnehmern aus Genf, "
+"Freiburg und Bern sowie eine technische Evaluation an 3.171 Wohnungen. Das System "
+"verwendet 24 gewichtete Fuzzy-Regeln, die auf den WHO-Lärmrichtlinien 2018 und "
+"den EN-17037-Tageslichtstandards basieren."
+
+#: app/templates/assess.html (new)
+msgid "Adjust the sliders to set environmental parameters and compute the Fuzzy Livability Index (FLI)."
+msgstr "Passen Sie die Schieberegler an, um die Umweltparameter einzustellen und den Fuzzy-Livability-Index (FLI) zu berechnen."
+
+msgid "Acoustic Environment"
+msgstr "Akustische Umgebung"
+
+msgid "Visual Environment"
+msgstr "Visuelle Umgebung"
+
+msgid "Day Noise (Lden)"
+msgstr "Tageslärm (Lden)"
+
+msgid "Night Noise (Lnight)"
+msgstr "Nachtlärm (Lnight)"
+
+msgid "Day Noise"
+msgstr "Tageslärm"
+
+msgid "Night Noise"
+msgstr "Nachtlärm"
+
+msgid "WHO"
+msgstr "WHO"
+
+msgid "Sleep"
+msgstr "Schlaf"
+
+msgid "Greenery"
+msgstr "Grünfläche"
+
+msgid "POI Accessibility"
+msgstr "POI-Erreichbarkeit"
+
+msgid "Shops, transit, restaurants within 10-min walk"
+msgstr "Geschäfte, Verkehr, Restaurants im 10-Minuten-Fußweg"
+
+msgid "Fuzzy Membership Visualization"
+msgstr "Fuzzy-Zugehörigkeitsvisualisierung"
+
+msgid "This graph shows how noise values are fuzzified into linguistic terms (Quiet, Moderate, Noisy)."
+msgstr "Dieses Diagramm zeigt, wie Lärmwerte in sprachliche Begriffe (Ruhig, Mittel, Laut) umgewandelt werden."
+
+msgid "Noise Level"
+msgstr "Lärmpegel"
+
+msgid "Assessment Result"
+msgstr "Bewertungsergebnis"
+
+msgid "Submit to see result"
+msgstr "Absenden, um Ergebnis zu sehen"
+
+msgid "Exc"
+msgstr "Ausz."
+
+msgid "Rule Engine Log"
+msgstr "Regel-Engine-Protokoll"
+
+msgid "Submit to see activated rules"
+msgstr "Absenden, um aktivierte Regeln zu sehen"
+
+msgid "No rules strongly activated"
+msgstr "Keine Regeln stark aktiviert"
+
+msgid "Top-tier livability. Quiet, bright, and green."
+msgstr "Beste Wohnqualität. Ruhig, hell und grün."
+
+msgid "Comfortable living conditions, generally balanced."
+msgstr "Komfortable Wohnverhältnisse, allgemein ausgewogen."
+
+msgid "Acceptable, but likely has trade-offs."
+msgstr "Akzeptabel, aber wahrscheinlich mit Kompromissen."
+
+msgid "Issues with noise or lack of light are critical."
+msgstr "Probleme mit Lärm oder Lichtmangel sind kritisch."
+
+#: app/templates/filter.html (Part 4 additions)
+msgid "FLI Rating"
+msgstr "FLI-Bewertung"
+
+msgid "FLI Rating filter"
+msgstr "FLI-Bewertungsfilter"
+
+msgid "Quick Filters"
+msgstr "Schnellfilter"
+
+msgid "All dwellings"
+msgstr "Alle Wohnungen"
+
+msgid "Night quiet (<45 dB)"
+msgstr "Nacht ruhig (<45 dB)"
+
+msgid "Good greenery (>0.012 sr)"
+msgstr "Gute Begrünung (>0,012 sr)"
+
+msgid "City trade-off (high POI + moderate noise)"
+msgstr "Stadtkompromiss (hohe POI + moderater Lärm)"
+
+msgid "Excellent candidates (multiple positive factors)"
+msgstr "Ausgezeichnete Kandidaten (mehrere positive Faktoren)"
+
+msgid "How it works"
+msgstr "So funktioniert es"
+
+msgid "Fuzzy Livability Index Methodology"
+msgstr "Fuzzy-Livability-Index-Methodik"
+
+msgid "Input Variables"
+msgstr "Eingangsvariablen"
+
+msgid "Fuzzy Rules"
+msgstr "Fuzzy-Regeln"
+
+msgid "Input Variables & Membership Functions"
+msgstr "Eingangsvariablen & Zugehörigkeitsfunktionen"
+
+msgid "Variable"
+msgstr "Variable"
+
+msgid "Low/Poor"
+msgstr "Niedrig/Schlecht"
+
+msgid "Medium/Moderate"
+msgstr "Mittel/Moderat"
+
+msgid "High/Good"
+msgstr "Hoch/Gut"
+
+msgid "Source"
+msgstr "Quelle"
+
+msgid "Noise Lden"
+msgstr "Lärm Lden"
+
+msgid "Noise Lnight"
+msgstr "Lärm Lnight"
+
+msgid "Data-driven"
+msgstr "Datenbasiert"
+
+msgid "POI (log10)"
+msgstr "POI (log10)"
+
+msgid "Accessibility"
+msgstr "Erreichbarkeit"
+
+msgid "24 Fuzzy Rules"
+msgstr "24 Fuzzy-Regeln"
+
+msgid "The FLI combines multiple factors using fuzzy logic rules:"
+msgstr "Der FLI kombiniert mehrere Faktoren mit Fuzzy-Logik-Regeln:"
+
+msgid "rules"
+msgstr "Regeln"
+
+msgid "Noisy day OR noisy night OR (moderate noise + limited view) OR (low daylight + poor greenery)"
+msgstr "Lauter Tag ODER laute Nacht ODER (moderater Lärm + begrenzter Blick) ODER (wenig Tageslicht + schlechte Begrünung)"
+
+msgid "Moderate noise + moderate view factors, or trade-offs between noise and amenities"
+msgstr "Moderater Lärm + moderate Sichtfaktoren, oder Kompromisse zwischen Lärm und Ausstattung"
+
+msgid "Quiet day + quiet night + at least moderate view factors"
+msgstr "Ruhiger Tag + ruhige Nacht + mindestens moderate Sichtfaktoren"
+
+msgid "Quiet day + quiet night + good greenery + (good sky OR high daylight OR high POI)"
+msgstr "Ruhiger Tag + ruhige Nacht + gute Begrünung + (guter Himmelsblick ODER viel Tageslicht ODER hohe POI)"
+
+msgid "FLI Score Interpretation"
+msgstr "FLI-Wert-Interpretation"
+
+msgid "The FLI uses centroid defuzzification to compute a crisp score from the fuzzy rule outputs. Higher scores indicate better overall livability based on acoustic comfort, natural lighting, view quality, and location accessibility."
+msgstr "Der FLI verwendet Schwerpunkt-Defuzzifizierung, um einen scharfen Wert aus den Fuzzy-Regelausgaben zu berechnen. Höhere Werte zeigen eine bessere Wohnqualität basierend auf akustischem Komfort, natürlicher Beleuchtung, Blickqualität und Lageerreichbarkeit."
+
+msgid "Close"
+msgstr "Schließen"
+
+#: app/templates/explore.html (new dimensions)
+msgid "Avg. Noise (Lnight)"
+msgstr "Durchschn. Lärm (Lnight)"
+
+msgid "Avg. Sky View"
+msgstr "Durchschn. Himmelsblick"
+
+msgid "Avg. Greenery View"
+msgstr "Durchschn. Grünblick"
+
+msgid "Avg. POI Count"
+msgstr "Durchschn. POI-Anzahl"
+
+msgid "Sky View Quality"
+msgstr "Himmelsblick-Qualität"
+
+msgid "Nighttime Noise"
+msgstr "Nachtlärm"
+
+msgid "Nighttime noise is below WHO threshold (40 dB) - Excellent sleep conditions."
+msgstr "Der nächtliche Lärm liegt unter dem WHO-Grenzwert (40 dB) – ausgezeichnete Schlafbedingungen."
+
+msgid "Nighttime noise is moderate (40-55 dB) - Sleep quality may be affected."
+msgstr "Der nächtliche Lärm ist moderat (40–55 dB) – die Schlafqualität kann beeinträchtigt sein."
+
+msgid "Nighttime noise exceeds recommended levels (>55 dB) - Significant sleep disruption risk."
+msgstr "Der nächtliche Lärm überschreitet die empfohlenen Werte (>55 dB) – erhebliches Risiko für Schlafstörungen."
+
+msgid "Greenery view factor indicates excellent access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen ausgezeichneten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Greenery view factor indicates moderate access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen moderaten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Greenery view factor indicates limited access to natural green spaces."
+msgstr "Der Grünblickfaktor weist auf einen begrenzten Zugang zu natürlichen Grünflächen hin."
+
+msgid "Location Accessibility"
+msgstr "Lageerreichbarkeit"
+
+msgid "Excellent walkability with many points of interest (>500 POIs) within 10-minute walk."
+msgstr "Ausgezeichnete Erreichbarkeit mit vielen Points of Interest (>500 POIs) im 10-Minuten-Fußweg."
+
+msgid "Good walkability with moderate points of interest (100-500 POIs) within 10-minute walk."
+msgstr "Gute Erreichbarkeit mit moderaten Points of Interest (100–500 POIs) im 10-Minuten-Fußweg."
+
+msgid "Limited walkability with few points of interest (<100 POIs) within 10-minute walk."
+msgstr "Begrenzte Erreichbarkeit mit wenigen Points of Interest (<100 POIs) im 10-Minuten-Fußweg."

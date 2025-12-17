@@ -3,150 +3,288 @@
 {% block title %}{{ _('Assess Dwelling') }} - {{ _('Swiss Livability Assessment') }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">{{ _('Assess Dwelling Livability') }}</h2>
-            <p class="text-muted">
-                {{ _('Provide the environmental measurements for a dwelling to compute its Fuzzy Livability Index (FLI).') }}
-            </p>
-        </div>
+<div class="text-center mb-4">
+    <h2 class="fw-bold mb-3">{{ _('Assess Dwelling Livability') }}</h2>
+    <p class="text-muted">
+        {{ _('Adjust the sliders to set environmental parameters and compute the Fuzzy Livability Index (FLI).') }}
+    </p>
+</div>
 
-        <div class="card mb-5">
-            <div class="card-header bg-transparent border-0 pb-0">
-                <h4 class="text-primary mb-0"><i class="bi bi-sliders me-2"></i>{{ _('Environmental Parameters') }}</h4>
-            </div>
-            <div class="card-body">
-                <form id="assessment-form">
+<div class="row">
+    <!-- Left Column: Input Panel -->
+    <div class="col-lg-8">
+        <form id="assessment-form">
+            <!-- Acoustic Environment Group -->
+            <div class="card input-group-card mb-4">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="text-primary mb-0">
+                        <i class="bi bi-volume-up me-2"></i>{{ _('Acoustic Environment') }}
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="noise_lden" class="form-label"><i class="bi bi-volume-up me-2"></i>{{ _('Noise Level (Lden) - dB') }}</label>
-                            <input type="number" class="form-control" id="noise_lden" name="noise_lden" value="55" min="20" max="80" step="0.1" required>
-                            <div class="form-text">{{ _('WHO 2018: <53 dB (Quiet), 53-65 dB (Moderate), >65 dB (Noisy)') }}</div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="noise_lden" class="form-label mb-0">{{ _('Day Noise (Lden)') }}</label>
+                                <span class="badge bg-primary" id="val-noise-lden">55.0 dB</span>
+                            </div>
+                            <input type="range" class="form-range custom-slider" id="noise_lden"
+                                   min="20" max="80" step="0.5" value="55" oninput="updateSliderDisplay(this)">
+                            <div class="slider-markers d-flex justify-content-between text-muted">
+                                <span>20 dB</span>
+                                <span class="text-warning">{{ _('WHO') }} 53 dB</span>
+                                <span>80 dB</span>
+                            </div>
                         </div>
-
                         <div class="col-md-6">
-                            <label for="noise_lnight" class="form-label"><i class="bi bi-moon-stars me-2"></i>{{ _('Noise Level (Lnight) - dB') }}</label>
-                            <input type="number" class="form-control" id="noise_lnight" name="noise_lnight" value="45" min="10" max="72" step="0.1" required>
-                            <div class="form-text">{{ _('WHO 2018: <45 dB (Quiet), 45-56 dB (Moderate), >56 dB (Noisy)') }}</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="daylight" class="form-label"><i class="bi bi-sun me-2"></i>{{ _('Daylight Illuminance - klx') }}</label>
-                            <input type="number" class="form-control" id="daylight" name="daylight" value="1.5" min="0" max="6" step="0.1" required>
-                            <div class="form-text">{{ _('V2 (klx): <0.3 (Low), 0.3-2.0 (Medium), >2.0 (High)') }}</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="view_sky" class="form-label"><i class="bi bi-cloud-sun me-2"></i>{{ _('Sky View Factor - sr') }}</label>
-                            <input type="number" class="form-control" id="view_sky" name="view_sky" value="0.03" min="0" max="0.13" step="0.001" required>
-                            <div class="form-text">{{ _('V2 (sr): <0.015 (Limited), 0.015-0.035 (Moderate), >0.035 (Good)') }}</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="view_greenery" class="form-label"><i class="bi bi-tree me-2"></i>{{ _('Greenery View - sr') }}</label>
-                            <input type="number" class="form-control" id="view_greenery" name="view_greenery" value="0.01" min="0" max="0.06" step="0.001" required>
-                            <div class="form-text">{{ _('V2 (sr): <0.004 (Limited), 0.004-0.012 (Moderate), >0.012 (Good)') }}</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="poi_count" class="form-label"><i class="bi bi-geo-alt me-2"></i>{{ _('POI Count (Accessibility)') }}</label>
-                            <input type="number" class="form-control" id="poi_count" name="poi_count" value="300" min="0" max="3000" step="1" required>
-                            <div class="form-text">{{ _('10-min walk POIs: <80 (Moderate), 80-500 (Good), >500 (Excellent)') }}</div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="noise_lnight" class="form-label mb-0">{{ _('Night Noise (Lnight)') }}</label>
+                                <span class="badge bg-primary" id="val-noise-lnight">45.0 dB</span>
+                            </div>
+                            <input type="range" class="form-range custom-slider" id="noise_lnight"
+                                   min="10" max="72" step="0.5" value="45" oninput="updateSliderDisplay(this)">
+                            <div class="slider-markers d-flex justify-content-between text-muted">
+                                <span>10 dB</span>
+                                <span class="text-warning">{{ _('Sleep') }} 45 dB</span>
+                                <span>72 dB</span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="text-center mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg px-5">
-                            <i class="bi bi-calculator me-2"></i>{{ _('Compute Index') }}
-                        </button>
-                        <button type="button" onclick="resetForm()" class="btn btn-outline-secondary ms-2">
-                            {{ _('Reset') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="results" style="display: none;">
-            <div class="card bg-gradient-primary text-white mb-4 text-center">
-                <div class="card-body py-5">
-                    <h3 class="mb-4 text-white-50 text-uppercase small fw-bold letter-spacing-2">{{ _('Fuzzy Livability Index') }}</h3>
-                    <div id="fli-score" class="display-1 fw-bold mb-2">--</div>
-                    <span id="fli-label" class="badge bg-white text-primary fs-5 px-4 py-2 rounded-pill">--</span>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-transparent">
-                    <h4 class="text-primary mb-0"><i class="bi bi-bar-chart-steps me-2"></i>{{ _('Dimension Assessments') }}</h4>
+            <!-- Visual Environment Group -->
+            <div class="card input-group-card mb-4">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="text-primary mb-0">
+                        <i class="bi bi-sun me-2"></i>{{ _('Visual Environment') }}
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-4 text-center">
-                        <div class="col-md-4 col-6">
-                            <div class="p-3 border rounded-3 bg-light h-100">
-                                <i class="bi bi-volume-up text-primary fs-3 mb-2"></i>
-                                <h6 class="text-muted mb-1">{{ _('Acoustic') }}</h6>
-                                <div id="assess-noise" class="fw-bold fs-5">--</div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="daylight" class="form-label mb-0">{{ _('Daylight') }}</label>
+                                <span class="badge bg-primary" id="val-daylight">1.50 klx</span>
+                            </div>
+                            <input type="range" class="form-range custom-slider" id="daylight"
+                                   min="0" max="6" step="0.1" value="1.5" oninput="updateSliderDisplay(this)">
+                            <div class="slider-markers d-flex justify-content-between text-muted">
+                                <span>0</span>
+                                <span>6 klx</span>
                             </div>
                         </div>
-                        <div class="col-md-4 col-6">
-                            <div class="p-3 border rounded-3 bg-light h-100">
-                                <i class="bi bi-sun text-primary fs-3 mb-2"></i>
-                                <h6 class="text-muted mb-1">{{ _('Daylight') }}</h6>
-                                <div id="assess-daylight" class="fw-bold fs-5">--</div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="view_sky" class="form-label mb-0">{{ _('Sky View') }}</label>
+                                <span class="badge bg-primary" id="val-view-sky">0.030 sr</span>
+                            </div>
+                            <input type="range" class="form-range custom-slider" id="view_sky"
+                                   min="0" max="0.13" step="0.001" value="0.03" oninput="updateSliderDisplay(this)">
+                            <div class="slider-markers d-flex justify-content-between text-muted">
+                                <span>0</span>
+                                <span>0.13 sr</span>
                             </div>
                         </div>
-                        <div class="col-md-4 col-6">
-                            <div class="p-3 border rounded-3 bg-light h-100">
-                                <i class="bi bi-cloud-sun text-primary fs-3 mb-2"></i>
-                                <h6 class="text-muted mb-1">{{ _('Sky View') }}</h6>
-                                <div id="assess-view-sky" class="fw-bold fs-5">--</div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="view_greenery" class="form-label mb-0">{{ _('Greenery') }}</label>
+                                <span class="badge bg-primary" id="val-view-greenery">0.010 sr</span>
                             </div>
-                        </div>
-                        <div class="col-md-6 col-6">
-                            <div class="p-3 border rounded-3 bg-light h-100">
-                                <i class="bi bi-tree text-primary fs-3 mb-2"></i>
-                                <h6 class="text-muted mb-1">{{ _('Greenery View') }}</h6>
-                                <div id="assess-view-greenery" class="fw-bold fs-5">--</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <div class="p-3 border rounded-3 bg-light h-100">
-                                <i class="bi bi-geo-alt text-primary fs-3 mb-2"></i>
-                                <h6 class="text-muted mb-1">{{ _('Location') }}</h6>
-                                <div id="assess-location" class="fw-bold fs-5">--</div>
+                            <input type="range" class="form-range custom-slider" id="view_greenery"
+                                   min="0" max="0.06" step="0.001" value="0.01" oninput="updateSliderDisplay(this)">
+                            <div class="slider-markers d-flex justify-content-between text-muted">
+                                <span>0</span>
+                                <span>0.06 sr</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card border-primary mb-4" id="recommendations-card">
-                <div class="card-header bg-primary bg-opacity-10 border-bottom-0">
-                    <h4 class="text-primary mb-0"><i class="bi bi-lightbulb me-2"></i>{{ _('Recommendations') }}</h4>
+            <!-- Location Group -->
+            <div class="card input-group-card mb-4">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="text-primary mb-0">
+                        <i class="bi bi-geo-alt me-2"></i>{{ _('Location') }}
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <ul id="recommendations-list" class="list-group list-group-flush">
-                    </ul>
+                    <div class="d-flex justify-content-between mb-2">
+                        <label for="poi_count" class="form-label mb-0">{{ _('POI Accessibility') }}</label>
+                        <span class="badge bg-primary" id="val-poi-count">300</span>
+                    </div>
+                    <input type="range" class="form-range custom-slider" id="poi_count"
+                           min="0" max="3000" step="10" value="300" oninput="updateSliderDisplay(this)">
+                    <div class="slider-markers d-flex justify-content-between text-muted">
+                        <span>0</span>
+                        <span class="text-info">{{ _('Shops, transit, restaurants within 10-min walk') }}</span>
+                        <span>3000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compute Button -->
+            <div class="text-center mb-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-calculator me-2"></i>{{ _('Compute Index') }}
+                </button>
+                <button type="button" onclick="resetForm()" class="btn btn-outline-secondary ms-2">
+                    {{ _('Reset') }}
+                </button>
+            </div>
+        </form>
+
+        <!-- Collapsible: Membership Graph -->
+        <div class="accordion mb-4" id="learnAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#graphCollapse">
+                        <i class="bi bi-graph-up me-2"></i>{{ _('Fuzzy Membership Visualization') }}
+                    </button>
+                </h2>
+                <div id="graphCollapse" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        <p class="text-muted small mb-3">
+                            {{ _('This graph shows how noise values are fuzzified into linguistic terms (Quiet, Moderate, Noisy).') }}
+                        </p>
+                        <div class="canvas-container position-relative mb-3" style="height: 280px;">
+                            <canvas id="fuzzyCanvas" class="w-100 h-100"></canvas>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <label for="theorySlider" class="form-label mb-0 text-nowrap">{{ _('Noise Level') }}:</label>
+                            <input type="range" class="form-range flex-grow-1" id="theorySlider"
+                                   min="20" max="80" step="1" value="55">
+                            <span class="badge bg-secondary" id="theoryValue">55 dB</span>
+                        </div>
+                        <div class="row mt-3 text-center">
+                            <div class="col-4">
+                                <span class="badge bg-success">{{ _('Quiet') }}</span>
+                                <div class="fw-bold" id="val-quiet">0.00</div>
+                            </div>
+                            <div class="col-4">
+                                <span class="badge bg-warning text-dark">{{ _('Moderate') }}</span>
+                                <div class="fw-bold" id="val-moderate">0.00</div>
+                            </div>
+                            <div class="col-4">
+                                <span class="badge bg-danger">{{ _('Noisy') }}</span>
+                                <div class="fw-bold" id="val-noisy">0.00</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="card bg-light border-0 mt-5">
-            <div class="card-body d-flex align-items-start">
-                <i class="bi bi-info-circle-fill text-primary fs-4 me-3 mt-1"></i>
+    <!-- Right Column: Output Panel -->
+    <div class="col-lg-4">
+        <div class="card output-panel text-white output-panel-sticky">
+            <div class="card-body">
+                <!-- Header -->
+                <div class="text-center mb-2">
+                    <small class="text-white-50 text-uppercase fw-bold">{{ _('Assessment Result') }}</small>
+                </div>
+
+                <!-- FLI Score Circle -->
+                <div class="text-center mb-4">
+                    <div class="fli-score-circle mx-auto">
+                        <span class="display-4 fw-bold" id="res-score">--</span>
+                    </div>
+                    <div id="res-label" class="fs-4 fw-bold mt-2">--</div>
+                    <p class="text-white-50 small mt-1" id="res-desc">{{ _('Submit to see result') }}</p>
+                </div>
+
+                <!-- Stacked Bar -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small text-white-50 mb-1">
+                        <span>{{ _('Poor') }}</span>
+                        <span>{{ _('Fair') }}</span>
+                        <span>{{ _('Good') }}</span>
+                        <span>{{ _('Exc') }}</span>
+                    </div>
+                    <div class="stacked-bar">
+                        <div id="bar-poor" class="bar-segment bg-danger" style="width: 0%;"></div>
+                        <div id="bar-fair" class="bar-segment bg-warning" style="width: 0%;"></div>
+                        <div id="bar-good" class="bar-segment bg-info" style="width: 0%;"></div>
+                        <div id="bar-exc" class="bar-segment bg-success" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Rule Engine Log -->
                 <div>
-                    <h5 class="fw-bold">{{ _('How to Use') }}</h5>
-                    <ol class="ps-3 mb-0 text-muted">
-                        <li class="mb-1">{{ _('Enter the environmental parameters for your dwelling.') }}</li>
-                        <li class="mb-1">{{ _('Click "Compute Index" to run the assessment.') }}</li>
-                        <li class="mb-1">{{ _('Review the FLI score (0-100) and linguistic label.') }}</li>
-                        <li class="mb-1">{{ _('Check dimension-specific assessments for details.') }}</li>
-                        <li>{{ _('Read recommendations for potential improvements.') }}</li>
-                    </ol>
+                    <small class="text-white-50 text-uppercase fw-bold">{{ _('Rule Engine Log') }}</small>
+                    <div id="rule-log" class="rule-log-container bg-black bg-opacity-25 rounded p-2 mt-2">
+                        <span class="text-white-50 fst-italic">{{ _('Submit to see activated rules') }}</span>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section (Detailed) -->
+<div id="results" class="mt-4" style="display: none;">
+    <div class="card mb-4">
+        <div class="card-header bg-transparent">
+            <h4 class="text-primary mb-0"><i class="bi bi-bar-chart-steps me-2"></i>{{ _('Dimension Assessments') }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-4 text-center">
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-volume-up text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Day Noise') }}</h6>
+                        <div id="assess-noise" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-moon-stars text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Night Noise') }}</h6>
+                        <div id="assess-noise-night" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-sun text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Daylight') }}</h6>
+                        <div id="assess-daylight" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-cloud-sun text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Sky View') }}</h6>
+                        <div id="assess-view-sky" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-tree text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Greenery View') }}</h6>
+                        <div id="assess-view-greenery" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="p-3 border rounded-3 bg-light h-100">
+                        <i class="bi bi-geo-alt text-primary fs-3 mb-2"></i>
+                        <h6 class="text-muted mb-1">{{ _('Location') }}</h6>
+                        <div id="assess-location" class="fw-bold fs-5">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-primary mb-4" id="recommendations-card">
+        <div class="card-header bg-primary bg-opacity-10 border-bottom-0">
+            <h4 class="text-primary mb-0"><i class="bi bi-lightbulb me-2"></i>{{ _('Recommendations') }}</h4>
+        </div>
+        <div class="card-body">
+            <ul id="recommendations-list" class="list-group list-group-flush">
+            </ul>
         </div>
     </div>
 </div>
@@ -159,9 +297,246 @@
         computing: "{{ _('Computing...') }}",
         error: "{{ _('Error') }}",
         errorComputing: "{{ _('Error computing FLI') }}",
-        noRecommendations: "{{ _('No specific recommendations found. Conditions appear optimal.') }}"
+        noRecommendations: "{{ _('No specific recommendations found. Conditions appear optimal.') }}",
+        noRulesActivated: "{{ _('No rules strongly activated') }}",
+        submitToSee: "{{ _('Submit to see result') }}"
     };
 
+    // Slider display configuration
+    const sliderConfig = {
+        noise_lden: { unit: ' dB', decimals: 1 },
+        noise_lnight: { unit: ' dB', decimals: 1 },
+        daylight: { unit: ' klx', decimals: 2 },
+        view_sky: { unit: ' sr', decimals: 3 },
+        view_greenery: { unit: ' sr', decimals: 3 },
+        poi_count: { unit: '', decimals: 0 }
+    };
+
+    // Update slider display value
+    function updateSliderDisplay(slider) {
+        const id = slider.id;
+        const value = parseFloat(slider.value);
+        const config = sliderConfig[id];
+        if (!config) return;
+
+        const displayId = 'val-' + id.replace(/_/g, '-');
+        const displayEl = document.getElementById(displayId);
+        if (displayEl) {
+            displayEl.textContent = value.toFixed(config.decimals) + config.unit;
+        }
+    }
+
+    // Initialize all slider displays
+    document.querySelectorAll('.custom-slider').forEach(slider => {
+        updateSliderDisplay(slider);
+    });
+
+    // ===== Canvas Membership Graph =====
+    const canvas = document.getElementById('fuzzyCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    // Membership function parameters for Noise Lden
+    const MF_NOISE = {
+        quiet: { color: '#22c55e', params: [20, 20, 42, 53] },      // trapezoid
+        moderate: { color: '#eab308', params: [48, 56, 65] },        // triangle
+        noisy: { color: '#ef4444', params: [60, 68, 80, 80] }       // trapezoid
+    };
+
+    function trapMembership(x, a, b, c, d) {
+        if (x <= a || x >= d) return 0;
+        if (x >= b && x <= c) return 1;
+        if (x < b) return (x - a) / (b - a);
+        return (d - x) / (d - c);
+    }
+
+    function triMembership(x, a, b, c) {
+        if (x <= a || x >= c) return 0;
+        if (x < b) return (x - a) / (b - a);
+        return (c - x) / (c - b);
+    }
+
+    function calculateMemberships(val) {
+        const q = MF_NOISE.quiet.params;
+        const m = MF_NOISE.moderate.params;
+        const n = MF_NOISE.noisy.params;
+        return {
+            quiet: trapMembership(val, q[0], q[1], q[2], q[3]),
+            moderate: triMembership(val, m[0], m[1], m[2]),
+            noisy: trapMembership(val, n[0], n[1], n[2], n[3])
+        };
+    }
+
+    function drawMembershipGraph(currentValue = 55) {
+        if (!ctx) return;
+
+        const container = canvas.parentElement;
+        const w = canvas.width = container.offsetWidth;
+        const h = canvas.height = container.offsetHeight;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const padX = 50, padY = 30;
+        const graphW = w - padX * 2;
+        const graphH = h - padY * 2;
+
+        const mapX = (val) => padX + ((val - 20) / 60) * graphW;
+        const mapY = (val) => (h - padY) - (val * graphH);
+
+        // Draw grid
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = mapY(i * 0.25);
+            ctx.beginPath();
+            ctx.moveTo(padX, y);
+            ctx.lineTo(w - padX, y);
+            ctx.stroke();
+        }
+
+        // Draw axes
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(padX, h - padY);
+        ctx.lineTo(w - padX, h - padY);
+        ctx.stroke();
+
+        // X-axis labels
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        for (let v = 20; v <= 80; v += 10) {
+            ctx.fillText(v + ' dB', mapX(v), h - padY + 20);
+        }
+
+        // Draw membership functions
+        function drawMF(name, mf) {
+            ctx.beginPath();
+            ctx.strokeStyle = mf.color;
+            ctx.lineWidth = 3;
+
+            const pts = mf.params;
+            if (pts.length === 4) {
+                // Trapezoid
+                ctx.moveTo(mapX(pts[0]), mapY(0));
+                ctx.lineTo(mapX(pts[1]), mapY(1));
+                ctx.lineTo(mapX(pts[2]), mapY(1));
+                ctx.lineTo(mapX(pts[3]), mapY(0));
+            } else {
+                // Triangle
+                ctx.moveTo(mapX(pts[0]), mapY(0));
+                ctx.lineTo(mapX(pts[1]), mapY(1));
+                ctx.lineTo(mapX(pts[2]), mapY(0));
+            }
+            ctx.stroke();
+
+            // Fill with transparency
+            ctx.fillStyle = mf.color + '20';
+            ctx.fill();
+        }
+
+        drawMF('quiet', MF_NOISE.quiet);
+        drawMF('moderate', MF_NOISE.moderate);
+        drawMF('noisy', MF_NOISE.noisy);
+
+        // Draw current value line
+        const userX = mapX(currentValue);
+        ctx.beginPath();
+        ctx.strokeStyle = '#5e35b1';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(userX, h - padY);
+        ctx.lineTo(userX, padY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Calculate and display memberships
+        const memberships = calculateMemberships(currentValue);
+
+        // Draw intersection points
+        Object.entries(memberships).forEach(([term, mu]) => {
+            if (mu > 0) {
+                ctx.fillStyle = MF_NOISE[term].color;
+                ctx.beginPath();
+                ctx.arc(userX, mapY(mu), 7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+
+        // Update display values
+        document.getElementById('val-quiet').textContent = memberships.quiet.toFixed(2);
+        document.getElementById('val-moderate').textContent = memberships.moderate.toFixed(2);
+        document.getElementById('val-noisy').textContent = memberships.noisy.toFixed(2);
+        document.getElementById('theoryValue').textContent = currentValue + ' dB';
+    }
+
+    // Theory slider event
+    const theorySlider = document.getElementById('theorySlider');
+    if (theorySlider) {
+        theorySlider.addEventListener('input', (e) => {
+            drawMembershipGraph(parseFloat(e.target.value));
+        });
+    }
+
+    // Initialize graph when accordion opens
+    const graphCollapse = document.getElementById('graphCollapse');
+    if (graphCollapse) {
+        graphCollapse.addEventListener('shown.bs.collapse', () => {
+            drawMembershipGraph(parseFloat(theorySlider.value));
+        });
+    }
+
+    // Redraw on window resize
+    window.addEventListener('resize', () => {
+        if (graphCollapse && graphCollapse.classList.contains('show')) {
+            drawMembershipGraph(parseFloat(theorySlider.value));
+        }
+    });
+
+    // ===== Stacked Bar Update =====
+    function updateStackedBar(memberships) {
+        const total = (memberships.poor || 0) + (memberships.fair || 0) +
+                      (memberships.good || 0) + (memberships.excellent || 0) || 1;
+
+        document.getElementById('bar-poor').style.width = ((memberships.poor / total) * 100) + '%';
+        document.getElementById('bar-fair').style.width = ((memberships.fair / total) * 100) + '%';
+        document.getElementById('bar-good').style.width = ((memberships.good / total) * 100) + '%';
+        document.getElementById('bar-exc').style.width = ((memberships.excellent / total) * 100) + '%';
+    }
+
+    // ===== Rule Log Update =====
+    function updateRuleLog(rules) {
+        const logEl = document.getElementById('rule-log');
+
+        if (!rules || rules.length === 0) {
+            logEl.innerHTML = '<span class="text-white-50 fst-italic">' + i18n.noRulesActivated + '</span>';
+            return;
+        }
+
+        const html = rules.map(r => `
+            <div class="rule-entry">
+                <span class="text-success">&gt;</span>
+                <span class="text-white">R${r.rule_id}:</span>
+                <span class="text-info">${r.description}</span>
+                <span class="rule-activation">[${r.activation.toFixed(2)}]</span>
+            </div>
+        `).join('');
+
+        logEl.innerHTML = html;
+    }
+
+    // ===== Result Description =====
+    function getResultDescription(score) {
+        if (score >= 75) return "{{ _('Top-tier livability. Quiet, bright, and green.') }}";
+        if (score >= 55) return "{{ _('Comfortable living conditions, generally balanced.') }}";
+        if (score >= 35) return "{{ _('Acceptable, but likely has trade-offs.') }}";
+        return "{{ _('Issues with noise or lack of light are critical.') }}";
+    }
+
+    // ===== Form Submission =====
     document.getElementById('assessment-form').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -177,13 +552,11 @@
         const btn = this.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + i18n.computing;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>' + i18n.computing;
 
         fetch('/api/assess', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
         .then(response => response.json())
@@ -193,18 +566,26 @@
                 return;
             }
 
-            // Display results
+            // Update output panel
+            document.getElementById('res-score').textContent = data.fli_score;
+            document.getElementById('res-label').textContent = data.label;
+            document.getElementById('res-label').style.color = data.color;
+            document.getElementById('res-desc').textContent = getResultDescription(data.fli_score);
+
+            // Update stacked bar
+            if (data.output_memberships) {
+                updateStackedBar(data.output_memberships);
+            }
+
+            // Update rule log
+            if (data.activated_rules) {
+                updateRuleLog(data.activated_rules);
+            }
+
+            // Display detailed results section
             document.getElementById('results').style.display = 'block';
-            document.getElementById('fli-score').textContent = data.fli_score;
-            document.getElementById('fli-label').textContent = data.label;
-
-            // Update badge color
-            const labelEl = document.getElementById('fli-label');
-            labelEl.style.backgroundColor = data.color;
-            labelEl.style.color = '#fff';
-
-            // Display dimension assessments
             document.getElementById('assess-noise').textContent = data.assessments.noise;
+            document.getElementById('assess-noise-night').textContent = data.assessments.noise_night;
             document.getElementById('assess-daylight').textContent = data.assessments.daylight;
             document.getElementById('assess-view-sky').textContent = data.assessments.view_sky;
             document.getElementById('assess-view-greenery').textContent = data.assessments.view_greenery;
@@ -213,7 +594,7 @@
             // Display recommendations
             const recList = document.getElementById('recommendations-list');
             recList.innerHTML = '';
-            if(data.recommendations.length > 0) {
+            if (data.recommendations && data.recommendations.length > 0) {
                 data.recommendations.forEach(rec => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item bg-transparent border-0 d-flex align-items-start';
@@ -239,6 +620,24 @@
     function resetForm() {
         document.getElementById('assessment-form').reset();
         document.getElementById('results').style.display = 'none';
+
+        // Reset output panel
+        document.getElementById('res-score').textContent = '--';
+        document.getElementById('res-label').textContent = '--';
+        document.getElementById('res-label').style.color = '';
+        document.getElementById('res-desc').textContent = i18n.submitToSee;
+
+        // Reset stacked bar
+        updateStackedBar({ poor: 0, fair: 0, good: 0, excellent: 0 });
+
+        // Reset rule log
+        document.getElementById('rule-log').innerHTML = '<span class="text-white-50 fst-italic">' + i18n.submitToSee + '</span>';
+
+        // Re-initialize slider displays
+        document.querySelectorAll('.custom-slider').forEach(slider => {
+            updateSliderDisplay(slider);
+        });
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -246,7 +645,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const buildingId = urlParams.get('building_id');
     if (buildingId) {
-        // Load dwelling data
         fetch('/api/dwelling/' + buildingId)
             .then(response => response.json())
             .then(data => {
@@ -257,6 +655,11 @@
                     document.getElementById('view_sky').value = data.features.view_sky;
                     document.getElementById('view_greenery').value = data.features.view_greenery;
                     document.getElementById('poi_count').value = data.features.poi_count;
+
+                    // Update all slider displays
+                    document.querySelectorAll('.custom-slider').forEach(slider => {
+                        updateSliderDisplay(slider);
+                    });
 
                     // Auto-submit
                     document.getElementById('assessment-form').dispatchEvent(new Event('submit'));
